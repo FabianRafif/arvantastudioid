@@ -1,0 +1,542 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String            @id @default(cuid())
+  username         String            @unique
+  email            String            @unique
+  passwordHash     String            @map("password_hash")
+  fullName         String            @map("full_name")
+  phone            String
+  avatar           String?
+  role             String            @default("CUSTOMER") // SUPER_ADMIN, ADMIN, CUSTOMER
+  isActive         Boolean           @default(true) @map("is_active")
+  resetToken       String?           @map("reset_token")
+  resetTokenExpiry DateTime?         @map("reset_token_expiry")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  sessions          UserSession[]
+  trustedDevices    TrustedDevice[]
+  orders            Order[]
+  sentMessages      OrderMessage[]
+  notifications     Notification[]
+  pushSubscriptions PushSubscription[]
+  activityLogs      ActivityLog[]
+
+  @@index([role])
+  @@index([email])
+  @@index([username])
+  @@map("users")
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent") @db.Text
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("user_sessions")
+}
+
+model TrustedDevice {
+  id               String   @id @default(cuid())
+  userId           String   @map("user_id")
+  deviceIdentifier String   @unique @map("device_identifier")
+  deviceName       String   @map("device_name")
+  ipAddress        String?  @map("ip_address")
+  userAgent        String?  @map("user_agent") @db.Text
+  isApproved       Boolean  @default(true) @map("is_approved")
+  lastUsedAt       DateTime @default(now()) @map("last_used_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("trusted_devices")
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  roles       RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String     @map("role_id")
+  permissionId String     @map("permission_id")
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model ServiceCategory {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?   @db.Text
+  services    Service[]
+
+  @@map("service_categories")
+}
+
+model Service {
+  id                String          @id @default(cuid())
+  categoryId        String          @map("category_id")
+  name              String
+  slug              String          @unique
+  description       String          @db.Text
+  thumbnail         String?
+  priceFrom         Int             @default(500000) @map("price_from")
+  priceTo           Int             @default(3000000) @map("price_to")
+  domainHostingNote String?         @map("domain_hosting_note") @db.Text
+  domainHostingMin  Int             @default(500000) @map("domain_hosting_min")
+  domainHostingMax  Int             @default(700000) @map("domain_hosting_max")
+  features          String          @db.Text
+  deliveryDays      Int             @default(7) @map("delivery_days")
+  revisionCount     Int             @default(3) @map("revision_count")
+  isActive          Boolean         @default(true) @map("is_active")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  category ServiceCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  packages ServicePackage[]
+
+  @@index([categoryId])
+  @@index([slug])
+  @@map("services")
+}
+
+model ServicePackage {
+  id           String      @id @default(cuid())
+  serviceId    String      @map("service_id")
+  name         String
+  slug         String
+  description  String      @db.Text
+  price        Int
+  features     String      @db.Text
+  deliveryDays Int         @default(5) @map("delivery_days")
+  revisions    Int         @default(3)
+  isPopular    Boolean     @default(false) @map("is_popular")
+  isActive     Boolean     @default(true) @map("is_active")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  service    Service     @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@index([serviceId])
+  @@map("service_packages")
+}
+
+model DesignCategory {
+  id          String         @id @default(cuid())
+  name        String
+  slug        String         @unique
+  description String?        @db.Text
+  items       DesignCatalog[]
+
+  @@map("design_categories")
+}
+
+model DesignCatalog {
+  id            String        @id @default(cuid())
+  categoryId    String        @map("category_id")
+  name          String
+  slug          String        @unique
+  previewImage  String        @map("preview_image")
+  description   String        @db.Text
+  priceStarting Int           @default(50000) @map("price_starting")
+  priceFinal    Int?          @map("price_final")
+  deliveryDays  Int           @default(2) @map("delivery_days")
+  revisions     Int           @default(3)
+  fileFormats   String        @default("AI, EPS, PNG, JPG, PDF") @map("file_formats")
+  variations    String?       @db.Text
+  isFeatured    Boolean       @default(false) @map("is_featured")
+  isActive      Boolean       @default(true) @map("is_active")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  category   DesignCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  images     DesignImage[]
+  orderItems OrderItem[]
+
+  @@index([categoryId])
+  @@index([slug])
+  @@map("design_catalog")
+}
+
+model DesignImage {
+  id        String        @id @default(cuid())
+  catalogId String        @map("catalog_id")
+  imageUrl  String        @map("image_url")
+  caption   String?
+  sortOrder Int           @default(0) @map("sort_order")
+
+  catalog DesignCatalog @relation(fields: [catalogId], references: [id], onDelete: Cascade)
+
+  @@index([catalogId])
+  @@map("design_images")
+}
+
+model Portfolio {
+  id            String           @id @default(cuid())
+  title         String
+  slug          String           @unique
+  category      String
+  clientName    String?          @map("client_name")
+  description   String           @db.Text
+  techStack     String?          @map("tech_stack")
+  liveUrl       String?          @map("live_url")
+  featuredImage String           @map("featured_image")
+  isFeatured    Boolean          @default(false) @map("is_featured")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  images PortfolioImage[]
+
+  @@index([category])
+  @@index([slug])
+  @@map("portfolio")
+}
+
+model PortfolioImage {
+  id          String    @id @default(cuid())
+  portfolioId String    @map("portfolio_id")
+  imageUrl    String    @map("image_url")
+  caption     String?
+  sortOrder   Int       @default(0) @map("sort_order")
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId])
+  @@map("portfolio_images")
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique @map("order_number")
+  userId          String   @map("user_id")
+  serviceType     String   @map("service_type") // WEBSITE or GRAPHIC_DESIGN
+  status          String   @default("PENDING") // PENDING, MENUNGGU_KONFIRMASI, MENUNGGU_PEMBAYARAN, PEMBAYARAN_DIVERIFIKASI, IN_PROGRESS, DESIGN_PROCESS, DEVELOPMENT_PROCESS, REVISION, COMPLETED, DELIVERED, CANCELLED
+  totalAmount     Int      @default(0) @map("total_amount")
+  dpAmount        Int      @default(0) @map("dp_amount")
+  remainingAmount Int      @default(0) @map("remaining_amount")
+  customerName    String   @map("customer_name")
+  customerPhone   String   @map("customer_phone")
+  customerEmail   String   @map("customer_email")
+  businessName    String?  @map("business_name")
+  websiteType     String?  @map("website_type")
+  websiteGoal     String?  @map("website_goal") @db.Text
+  featuresNeeded  String?  @map("features_needed") @db.Text
+  designConcept   String?  @map("design_concept") @db.Text
+  designSize      String?  @map("design_size")
+  designQuantity  Int?     @default(1) @map("design_quantity")
+  selectedColors  String?  @map("selected_colors")
+  textContent     String?  @map("text_content") @db.Text
+  referenceUrl    String?  @map("reference_url")
+  preferredBudget String?  @map("preferred_budget")
+  deadline        DateTime?
+  notes           String?  @db.Text
+  internalNotes   String?  @map("internal_notes") @db.Text
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user          User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items         OrderItem[]
+  files         OrderFile[]
+  statusHistory OrderStatusHistory[]
+  messages      OrderMessage[]
+  payments      Payment[]
+  invoices      Invoice[]
+  whatsappLogs  WhatsappMessageLog[]
+
+  @@index([userId])
+  @@index([orderNumber])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id               String          @id @default(cuid())
+  orderId          String          @map("order_id")
+  servicePackageId String?         @map("service_package_id")
+  designCatalogId  String?         @map("design_catalog_id")
+  name             String
+  price            Int
+  quantity         Int             @default(1)
+  subtotal         Int
+
+  order          Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  servicePackage ServicePackage? @relation(fields: [servicePackageId], references: [id], onDelete: SetNull)
+  designCatalog  DesignCatalog?  @relation(fields: [designCatalogId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model OrderFile {
+  id           String   @id @default(cuid())
+  orderId      String   @map("order_id")
+  fileName     String   @map("file_name")
+  originalName String   @map("original_name")
+  fileSize     Int      @map("file_size")
+  fileType     String   @map("file_type")
+  filePath     String   @map("file_path")
+  fileCategory String   @default("REFERENCE") @map("file_category") // REFERENCE, PAYMENT_PROOF, DELIVERABLE, REVISION_ASSET
+  isDelivered  Boolean  @default(false) @map("is_delivered")
+  caption      String?
+  uploadedBy   String   @default("CUSTOMER") @map("uploaded_by") // CUSTOMER, ADMIN
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([fileCategory])
+  @@map("order_files")
+}
+
+model OrderStatusHistory {
+  id             String   @id @default(cuid())
+  orderId        String   @map("order_id")
+  previousStatus String?  @map("previous_status")
+  newStatus      String   @map("new_status")
+  adminUserId    String?  @map("admin_user_id")
+  notes          String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_status_history")
+}
+
+model OrderMessage {
+  id          String   @id @default(cuid())
+  orderId     String   @map("order_id")
+  senderId    String   @map("sender_id")
+  senderRole  String   @map("sender_role") // CUSTOMER or ADMIN
+  message     String   @db.Text
+  attachments String?  @db.Text // JSON string
+  isRead      Boolean  @default(false) @map("is_read")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  order  Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sender User  @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([senderId])
+  @@map("order_messages")
+}
+
+model Payment {
+  id            String    @id @default(cuid())
+  orderId       String    @map("order_id")
+  paymentNumber String    @unique @map("payment_number")
+  paymentType   String    @default("FULL") @map("payment_type") // DP, PELUNASAN, FULL
+  method        String    @default("BANK_TRANSFER") // BANK_TRANSFER, QRIS, MANUAL
+  amount        Int
+  status        String    @default("PENDING") // PENDING, VERIFIED, REJECTED
+  verifiedBy    String?   @map("verified_by")
+  verifiedAt    DateTime? @map("verified_at")
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  order    Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  proofs   PaymentProof[]
+  invoices Invoice[]
+
+  @@index([orderId])
+  @@index([paymentNumber])
+  @@map("payments")
+}
+
+model PaymentProof {
+  id         String   @id @default(cuid())
+  paymentId  String   @map("payment_id")
+  filePath   String   @map("file_path")
+  fileName   String   @map("file_name")
+  fileSize   Int      @map("file_size")
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@map("payment_proofs")
+}
+
+model Invoice {
+  id             String    @id @default(cuid())
+  invoiceNumber  String    @unique @map("invoice_number")
+  orderId        String    @map("order_id")
+  paymentId      String?   @map("payment_id")
+  subtotal       Int
+  discountAmount Int       @default(0) @map("discount_amount")
+  total          Int
+  status         String    @default("UNPAID") // UNPAID, PARTIAL, PAID, CANCELLED
+  dueDate        DateTime? @map("due_date")
+  paidAt         DateTime? @map("paid_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  payment Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([invoiceNumber])
+  @@map("invoices")
+}
+
+model Coupon {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  discountType  String    @map("discount_type") // PERCENTAGE or FIXED
+  discountValue Int       @map("discount_value")
+  minSpend      Int       @default(0) @map("min_spend")
+  maxDiscount   Int?      @map("max_discount")
+  usageLimit    Int?      @map("usage_limit")
+  usageCount    Int       @default(0) @map("usage_count")
+  startDate     DateTime? @map("start_date")
+  endDate       DateTime? @map("end_date")
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@index([code])
+  @@map("coupons")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?  @map("user_id") // null for broadcast to admins
+  type      String
+  title     String
+  message   String   @db.Text
+  link      String?
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  endpoint  String   @unique @db.VarChar(500)
+  p256dh    String   @db.Text
+  auth      String
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+model WhatsappMessageLog {
+  id              String   @id @default(cuid())
+  orderId         String?  @map("order_id")
+  recipient       String
+  messageType     String   @default("TEXT") @map("message_type") // TEXT, MEDIA, DOCUMENT
+  content         String   @db.Text
+  mediaUrl        String?  @map("media_url")
+  status          String   @default("PENDING_CONFIG") // SENT, FAILED, PENDING_CONFIG, MANUAL_FALLBACK
+  responsePayload String?  @map("response_payload") @db.Text
+  errorMessage    String?  @map("error_message") @db.Text
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([recipient])
+  @@map("whatsapp_message_logs")
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String?  @map("user_id")
+  action     String
+  entityType String?  @map("entity_type")
+  entityId   String?  @map("entity_id")
+  details    String?  @db.Text
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@map("activity_logs")
+}
+
+model SiteSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String   @db.Text
+  description String?
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("site_settings")
+}
+
+model Testimonial {
+  id              String   @id @default(cuid())
+  clientName      String   @map("client_name")
+  clientCompany   String?  @map("client_company")
+  clientRole      String?  @map("client_role")
+  avatarUrl       String?  @map("avatar_url")
+  rating          Int      @default(5)
+  content         String   @db.Text
+  serviceCategory String?  @map("service_category")
+  isActive        Boolean  @default(true) @map("is_active")
+  sortOrder       Int      @default(0) @map("sort_order")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("testimonials")
+}
+
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   @db.Text
+  category  String   @default("GENERAL")
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("faqs")
+}

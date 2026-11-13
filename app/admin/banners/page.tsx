@@ -339,8 +339,15 @@ export default function AdminBannersPage() {
         setImageUrl("");
         if (fileInputRef.current) fileInputRef.current.value = "";
 
-        setSuccessMsg("Banner berhasil diunggah dan langsung aktif di Beranda!");
-        setTimeout(() => setSuccessMsg(""), 4000);
+        if (data.banner) {
+          setBanners((prev) => [
+            data.banner,
+            ...prev.filter((b) => b.id !== data.banner.id),
+          ]);
+        }
+
+        setSuccessMsg("✓ Banner berhasil diunggah dan langsung aktif di Beranda!");
+        setTimeout(() => setSuccessMsg(""), 5000);
 
         // Reload data and broadcast to all live tabs without refresh
         broadcastLiveUpdate();
@@ -466,6 +473,23 @@ export default function AdminBannersPage() {
         <div className="p-4 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded-xs flex items-center gap-2">
           <CheckCircle className="w-4 h-4 shrink-0" />
           <span>{successMsg}</span>
+        </div>
+      )}
+
+      {/* Error Notification */}
+      {errorMsg && (
+        <div className="p-4 bg-red-50 border border-red-200 text-xs text-red-800 rounded-xs flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+            <span>{errorMsg}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setErrorMsg("")}
+            className="text-xs font-bold text-red-600 hover:text-red-800 px-2 py-1"
+          >
+            ✕
+          </button>
         </div>
       )}
 
@@ -666,6 +690,34 @@ export default function AdminBannersPage() {
                 <div className="absolute bottom-2 right-3 text-[10px] font-mono text-warm-ivory/50">
                   160 × 60 cm
                 </div>
+              </div>
+
+              {/* Instant Publish Action directly under preview */}
+              <div className="p-3.5 bg-emerald-50 border border-emerald-300 rounded-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <div>
+                    <div className="font-bold text-xs text-emerald-900">
+                      File Banner Siap Diterbitkan ({fileToUpload?.name || "Banner Baru"})
+                    </div>
+                    <div className="text-[11px] text-emerald-700">
+                      Klik tombol di samping untuk langsung menyimpan ke database dan menampilkannya di Beranda.
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting || uploadProgress || isOptimizing}
+                  className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs shrink-0 disabled:opacity-50"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>
+                    {submitting || uploadProgress
+                      ? "Menyimpan ke Beranda..."
+                      : "Simpan & Terbitkan Sekarang"}
+                  </span>
+                </button>
               </div>
             </div>
           )}

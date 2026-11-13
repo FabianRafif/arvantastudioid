@@ -51,19 +51,38 @@ export async function POST(req: NextRequest) {
 
     const randomHash = crypto.randomBytes(8).toString("hex");
     const safeFileName = `banner-${Date.now()}-${randomHash}${ext}`;
-    const destinationPath = path.join(BANNERS_DIR, safeFileName);
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    await fs.promises.writeFile(destinationPath, buffer);
 
-    const publicUrl = `/uploads/banners/${safeFileName}`;
-    const apiUrl = `/api/uploads/banners/${safeFileName}`;
+    let publicUrl = "";
+    try {
+      if (!fs.existsSync(BANNERS_DIR)) {
+        await fs.promises.mkdir(BANNERS_DIR, { recursive: true });
+      }
+      const destinationPath = path.join(BANNERS_DIR, safeFileName);
+      await fs.promises.writeFile(destinationPath, buffer);
+      publicUrl = `/uploads/banners/${safeFileName}`;
+    } catch (fsErr) {
+      // Vercel serverless Lambda has read-only filesystem (/var/task/public)
+      // Fallback gracefully to Base64 Data URL which is stored in Prisma's @db.LongText
+      console.warn("Filesystem is read-only (e.g. Vercel serverless), storing banner as Data URL:", fsErr);
+      const mime =
+        file.type ||
+        (ext === ".webp"
+          ? "image/webp"
+          : ext === ".png"
+          ? "image/png"
+          : ext === ".svg"
+          ? "image/svg+xml"
+          : "image/jpeg");
+      publicUrl = `data:${mime};base64,${buffer.toString("base64")}`;
+    }
 
     return NextResponse.json({
       success: true,
       url: publicUrl,
-      apiUrl,
+      apiUrl: publicUrl,
       fileName: safeFileName,
       originalName,
       fileSize: file.size,

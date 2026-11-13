@@ -37,9 +37,39 @@ export async function GET() {
       return d > max ? d : max;
     }, 0);
 
+    const effectiveBanners =
+      banners.length > 0
+        ? banners
+        : [
+            {
+              id: "default-banner-web",
+              title: "SOLUSI DIGITAL BISNIS & SISTEM MODERN",
+              subtitle: "Layanan pembuatan website profesional dan sistem digital berkelas",
+              badge: "PENAWARAN RESMI",
+              imageUrl: "/uploads/banners/banner-web-development.svg",
+              targetUrl: "/services",
+              isActive: true,
+              sortOrder: 1,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+            {
+              id: "default-banner-design",
+              title: "VISUAL IDENTITY & GRAPHIC DESIGN STUDIO",
+              subtitle: "15+ Kategori Desain: Logo, Feed Media Sosial, Kemasan, Brosur, Poster",
+              badge: "✨ DESAIN GRAFIS",
+              imageUrl: "/uploads/banners/banner-graphic-design.svg",
+              targetUrl: "/services#design-catalog",
+              isActive: true,
+              sortOrder: 2,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+          ];
+
     return NextResponse.json({
       success: true,
-      banners,
+      banners: effectiveBanners,
       flashSale: {
         isActive: flashSale["flash_sale_active"] === "true",
         title: (flashSale["flash_sale_title"] || "PROMO SPESIAL ARVANTA STUDIO").replace(/[⚡✨★⭐🔥]/g, "").trim(),

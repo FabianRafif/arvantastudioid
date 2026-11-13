@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, MessageCircle, Mail, MapPin } from "lucide-react";
+import { MessageCircle, Mail, MapPin } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -188,12 +188,6 @@ export default function Footer() {
                   Registrasi Akun Baru
                 </Link>
               </li>
-              <li>
-                <Link href="/admin" className="hover:text-white transition-colors flex items-center gap-1">
-                  <span>Admin Panel</span>
-                  <ArrowUpRight className="w-3 h-3 text-[#2D2D2D]" />
-                </Link>
-              </li>
             </ul>
           </div>
         </div>
@@ -208,11 +202,6 @@ export default function Footer() {
           <div className="flex items-center gap-4 text-[11px] uppercase tracking-wider">
             <span className="font-semibold text-[#2D2D2D]">
               PURWOKERTO • BANYUMAS • JAKARTA • INDONESIA
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1.5 font-semibold text-[#2D2D2D]">
-              <span className="w-2 h-2 rounded-full bg-[#2D2D2D] animate-pulse" />
-              100% BAHASA INDONESIA
             </span>
           </div>
         </div>

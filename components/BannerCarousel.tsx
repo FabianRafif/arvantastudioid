@@ -18,29 +18,38 @@ export interface BannerItem {
 interface BannerCarouselProps {
   initialBanners?: BannerItem[];
   autoSlideInterval?: number; // default 3500ms
+  showHeader?: boolean;
+  compact?: boolean;
+  className?: string;
 }
 
 export default function BannerCarousel({
   initialBanners = [],
   autoSlideInterval = 3500,
+  showHeader = true,
+  compact = false,
+  className = "",
 }: BannerCarouselProps) {
   const [banners, setBanners] = useState<BannerItem[]>(initialBanners);
   const [currentIndex, setCurrentIndex] = useState(0);
   const bannersSignatureRef = useRef<string>("");
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Real-time instant synchronization with server without requiring page refresh (polls every 2s)
+  // Real-time instant synchronization with server without requiring page refresh (polls every 2.5s with cache-busting)
   useEffect(() => {
     let isMounted = true;
 
     const fetchBanners = async () => {
       try {
-        const res = await fetch("/api/banners", { cache: "no-store" });
+        const res = await fetch(`/api/banners?t=${Date.now()}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        });
         if (!res.ok) return;
         const data = await res.json();
         if (data.success && Array.isArray(data.banners) && isMounted) {
           const signature = JSON.stringify(
-            data.banners.map((b: any) => `${b.id}-${b.imageUrl}-${b.title}`)
+            data.banners.map((b: any) => `${b.id}-${b.imageUrl}-${b.title}-${b.isActive}`)
           );
           if (signature !== bannersSignatureRef.current) {
             bannersSignatureRef.current = signature;
@@ -54,6 +63,7 @@ export default function BannerCarousel({
 
     fetchBanners();
 
+    // 1. Cross-tab BroadcastChannel
     let channel: BroadcastChannel | null = null;
     try {
       if ("BroadcastChannel" in window) {
@@ -64,10 +74,21 @@ export default function BannerCarousel({
       }
     } catch {}
 
-    const pollInterval = setInterval(fetchBanners, 2000);
+    // 2. Cross-window storage event listener
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "arvanta_live_sync_trigger") {
+        fetchBanners();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+
+    // 3. Heartbeat polling every 2.5s to guarantee fresh sync across different devices/networks
+    const pollInterval = setInterval(fetchBanners, 2500);
+
     return () => {
       isMounted = false;
       if (channel) channel.close();
+      window.removeEventListener("storage", handleStorage);
       clearInterval(pollInterval);
     };
   }, []);
@@ -93,19 +114,32 @@ export default function BannerCarousel({
   }
 
   return (
-    <section className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+    <section
+      className={
+        className ||
+        (compact
+          ? "w-full my-6"
+          : "relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14")
+      }
+    >
       {/* Section Header (Clean headline without manual arrow buttons) */}
-      <div className="mb-8">
-        <span className="text-xs uppercase tracking-widest font-space text-[#787875] font-semibold block mb-2">
-          // 02 · CASE STUDIES &amp; OFFERS
-        </span>
-        <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#2D2D2D] font-bebas">
-          PENAWARAN &amp; KAMPANYE PROMO TERKINI
-        </h2>
-      </div>
+      {showHeader && (
+        <div className="mb-6 sm:mb-8">
+          <span className="text-xs uppercase tracking-widest font-space text-[#787875] font-semibold block mb-2">
+            // 02 · CASE STUDIES &amp; OFFERS
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#2D2D2D] font-bebas">
+            PENAWARAN &amp; KAMPANYE PROMO TERKINI
+          </h2>
+        </div>
+      )}
 
       {/* Container: 160 x 60 cm (8:3) with Rounded 2xl Frame */}
-      <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-[8/3] md:max-h-[520px] bg-[#2D2D2D] rounded-2xl overflow-hidden border border-[#D8D8D4] shadow-xl select-none group">
+      <div
+        className={`relative w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-[8/3] ${
+          compact ? "max-h-[360px]" : "md:max-h-[520px]"
+        } bg-[#2D2D2D] rounded-2xl overflow-hidden border border-[#D8D8D4] shadow-xl select-none group`}
+      >
         {/* PHYSICAL HORIZONTAL SLIDING TRACK */}
         <div
           className="flex w-full h-full transition-transform duration-700 ease-in-out"
@@ -181,6 +215,29 @@ export default function BannerCarousel({
             );
           })}
         </div>
+
+        {/* Carousel Indicators / Dots (Bottom Center) */}
+        {banners.length > 1 && (
+          <div className="absolute bottom-3.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-black/50 backdrop-blur-xs px-3 py-1.5 rounded-full border border-white/10 shadow-lg">
+            {banners.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setCurrentIndex(i);
+                }}
+                className={`transition-all rounded-full cursor-pointer ${
+                  currentIndex === i
+                    ? "w-6 h-1.5 bg-[#FF9857]"
+                    : "w-1.5 h-1.5 bg-white/40 hover:bg-white"
+                }`}
+                aria-label={`Lihat banner ${i + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

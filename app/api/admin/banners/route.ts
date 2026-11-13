@@ -8,7 +8,16 @@ export async function GET() {
     const banners = await prisma.banner.findMany({
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     });
-    return NextResponse.json({ success: true, banners });
+    return NextResponse.json(
+      { success: true, banners },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+          "CDN-Cache-Control": "no-store",
+          "Vercel-CDN-Cache-Control": "no-store",
+        },
+      }
+    );
   } catch (error: any) {
     console.error("Admin fetch banners error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

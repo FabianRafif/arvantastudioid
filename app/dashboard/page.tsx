@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSessionUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import BannerCarousel from "@/components/BannerCarousel";
 import {
   ShoppingBag,
   Clock,
@@ -29,6 +30,11 @@ export default async function CustomerDashboardPage() {
 
   const activeOrders = orders.filter((o) => !["COMPLETED", "DELIVERED", "CANCELLED"].includes(o.status));
   const completedOrders = orders.filter((o) => ["COMPLETED", "DELIVERED"].includes(o.status));
+
+  const banners = await prisma.banner.findMany({
+    where: { isActive: true },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+  });
 
   return (
     <div className="space-y-8">
@@ -64,6 +70,9 @@ export default async function CustomerDashboardPage() {
           </a>
         </div>
       </div>
+
+      {/* Prominent Studio Banner Carousel (160 x 60 cm) */}
+      <BannerCarousel initialBanners={banners} showHeader={false} compact={true} />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">

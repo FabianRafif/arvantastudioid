@@ -67,19 +67,28 @@ export async function GET() {
             },
           ];
 
-    return NextResponse.json({
-      success: true,
-      banners: effectiveBanners,
-      flashSale: {
-        isActive: flashSale["flash_sale_active"] === "true",
-        title: (flashSale["flash_sale_title"] || "PROMO SPESIAL ARVANTA STUDIO").replace(/[⚡✨★⭐🔥]/g, "").trim(),
-        subtitle: flashSale["flash_sale_subtitle"] || "Diskon Spesial Pembuatan Website & Desain Grafis Khusus Hari Ini!",
-        discountPercent: flashSale["flash_sale_discount_percent"] || "20",
-        voucherCode: flashSale["flash_sale_voucher_code"] || "PROMO20",
-        endTime: flashSale["flash_sale_end_time"] || new Date(Date.now() + 86400000).toISOString(),
+    return NextResponse.json(
+      {
+        success: true,
+        banners: effectiveBanners,
+        flashSale: {
+          isActive: flashSale["flash_sale_active"] === "true",
+          title: (flashSale["flash_sale_title"] || "PROMO SPESIAL ARVANTA STUDIO").replace(/[⚡✨★⭐🔥]/g, "").trim(),
+          subtitle: flashSale["flash_sale_subtitle"] || "Diskon Spesial Pembuatan Website & Desain Grafis Khusus Hari Ini!",
+          discountPercent: flashSale["flash_sale_discount_percent"] || "20",
+          voucherCode: flashSale["flash_sale_voucher_code"] || "PROMO20",
+          endTime: flashSale["flash_sale_end_time"] || new Date(Date.now() + 86400000).toISOString(),
+        },
+        lastUpdated: latestBannerDate,
       },
-      lastUpdated: latestBannerDate,
-    });
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+          "CDN-Cache-Control": "no-store",
+          "Vercel-CDN-Cache-Control": "no-store",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error fetching banners:", error);
     // Graceful fallback if database has temporary latency

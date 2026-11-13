@@ -64,9 +64,16 @@ export default function AdminBannersPage() {
   const loadData = async () => {
     setLoading(true);
     try {
+      const ts = Date.now();
       const [resBanners, resPublic] = await Promise.all([
-        fetch("/api/admin/banners"),
-        fetch("/api/banners"),
+        fetch(`/api/admin/banners?t=${ts}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        }),
+        fetch(`/api/banners?t=${ts}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        }),
       ]);
 
       let loadedBanners: Banner[] = [];

@@ -276,6 +276,9 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Dynamic Studio Banner Carousel (160 x 60 cm) Prominent Placement */}
+        <BannerCarousel initialBanners={banners} />
+
         {/* ========================================================= */}
         {/* SECTION 2: ARCHITECTURAL CAPABILITIES & SERVICES (01) */}
         {/* Numbered rows with 1px border dividers in Crafto aesthetic */}
@@ -507,11 +510,6 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
-
-        {/* ========================================================= */}
-        {/* SECTION 4: CASE STUDIES & DYNAMIC BANNER CAROUSEL */}
-        {/* ========================================================= */}
-        <BannerCarousel initialBanners={banners} />
 
         {/* ========================================================= */}
         {/* SECTION 5: CRAFTO "FACTS & FIGURES" (DARK COUNTER SECTION) */}

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useLiveSync } from "@/lib/useLiveSync";
@@ -32,8 +33,19 @@ interface DesignItem {
   category: { name: string };
 }
 
-export default function OrderPage() {
-  const [serviceType, setServiceType] = useState<"WEBSITE" | "GRAPHIC_DESIGN">("WEBSITE");
+function OrderFormContent() {
+  const searchParams = useSearchParams();
+  const serviceParam = searchParams.get("service") || searchParams.get("type");
+  const catalogParam = searchParams.get("catalog") || searchParams.get("designId") || searchParams.get("item");
+
+  const [serviceType, setServiceType] = useState<"WEBSITE" | "GRAPHIC_DESIGN">(
+    serviceParam &&
+      (serviceParam.toUpperCase() === "GRAPHIC_DESIGN" ||
+        serviceParam.toUpperCase() === "DESIGN" ||
+        serviceParam.toUpperCase() === "DESAIN")
+      ? "GRAPHIC_DESIGN"
+      : "WEBSITE"
+  );
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [orderSuccess, setOrderSuccess] = useState<any | null>(null);
@@ -68,6 +80,17 @@ export default function OrderPage() {
   const [textContent, setTextContent] = useState("");
 
   useEffect(() => {
+    if (serviceParam) {
+      const upper = serviceParam.toUpperCase();
+      if (upper === "GRAPHIC_DESIGN" || upper === "DESIGN" || upper === "DESAIN") {
+        setServiceType("GRAPHIC_DESIGN");
+      } else if (upper === "WEBSITE" || upper === "WEB") {
+        setServiceType("WEBSITE");
+      }
+    }
+  }, [serviceParam]);
+
+  useEffect(() => {
     // Fetch catalogs from API
     fetch("/api/admin/services")
       .then((res) => (res.ok ? res.json() : null))
@@ -85,12 +108,25 @@ export default function OrderPage() {
       .then((data) => {
         if (data?.items) {
           setDesignItems(data.items);
+          if (catalogParam) {
+            const matched = data.items.find(
+              (it: any) =>
+                it.id === catalogParam ||
+                it.slug === catalogParam ||
+                it.name?.toLowerCase().includes(catalogParam.toLowerCase())
+            );
+            if (matched) {
+              setSelectedDesignId(matched.id);
+              setServiceType("GRAPHIC_DESIGN");
+              return;
+            }
+          }
           if (data.items[0]) {
             setSelectedDesignId(data.items[0].id);
           }
         }
       });
-  }, []);
+  }, [catalogParam]);
 
   const liveSync = useLiveSync();
   const [promoCode, setPromoCode] = useState("");
@@ -830,5 +866,19 @@ export default function OrderPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function OrderPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#EDECE8] text-[#2D2D2D] font-space text-xs">
+          Memuat formulir pemesanan...
+        </div>
+      }
+    >
+      <OrderFormContent />
+    </Suspense>
   );
 }

@@ -95,7 +95,7 @@ export default function HeroQuickPricing({
 
       {/* Graphic Design Card */}
       <Link
-        href="/services#design-catalog"
+        href="/services?tab=design#design-catalog"
         className={`group p-4 rounded-xl relative overflow-hidden transition-all block border ${
           darkVariant
             ? "bg-[#181816] border-[#333331] hover:border-[#FF9857] text-white"

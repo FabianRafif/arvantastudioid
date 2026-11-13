@@ -1,31 +1,313 @@
-import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ServicesExplorer, {
+  ServiceItem,
+  DesignItem,
+} from "@/components/ServicesExplorer";
 import { prisma } from "@/lib/prisma";
-import { Check, ArrowUpRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Layanan Pembuatan Website & Sistem Digital | Arvanta Studio",
+  title: "Layanan Website & Desain Grafis | Arvanta Studio",
   description:
-    "Daftar layanan pembuatan website, landing page, sistem kasir, POS, toko online, dan sistem kustom dari Arvanta Studio.",
+    "Katalog lengkap pembuatan website profesional, sistem digital, dan 14+ layanan desain grafis & brand identity dari Arvanta Studio.",
 };
 
+const defaultServiceCategories = [
+  { id: "sc-1", name: "Company Profile" },
+  { id: "sc-2", name: "Toko Online" },
+  { id: "sc-3", name: "Sistem Kasir / POS" },
+  { id: "sc-4", name: "Dashboard Manajemen" },
+];
+
+const defaultServices: ServiceItem[] = [
+  {
+    id: "ds-1",
+    name: "Website Company Profile",
+    slug: "website-company-profile",
+    description:
+      "Website representasi resmi instansi atau perusahaan untuk meningkatkan kredibilitas, kepercayaan klien, dan citra profesional.",
+    priceFrom: 1200000,
+    deliveryDays: 7,
+    revisionCount: 3,
+    features:
+      "Multi Halaman (Home, About, Services, Kontak)\nCMS Pengelolaan Konten Mudah\nForm Kontak Terhubung Email & WA\nResponsive di Semua Layar\nSetup Keamanan SSL & Anti Spam\nOptimasi SEO Mesin Pencari",
+    category: { id: "sc-1", name: "Company Profile" },
+    packages: [
+      { id: "pkg-1", name: "Basic", price: 1200000 },
+      { id: "pkg-2", name: "Professional", price: 2000000, isPopular: true },
+      { id: "pkg-3", name: "Enterprise", price: 3500000 },
+    ],
+  },
+  {
+    id: "ds-2",
+    name: "Toko Online / E-Commerce UMKM",
+    slug: "website-toko-online",
+    description:
+      "Platform toko online modern dengan katalog produk, keranjang belanja, checkout WhatsApp otomatis, atau integrasi payment gateway.",
+    priceFrom: 1800000,
+    deliveryDays: 10,
+    revisionCount: 3,
+    features:
+      "Katalog Produk Dinamis\nFitur Keranjang Belanja\nCheckout Direct WhatsApp / Payment Gateway\nDashboard Pengelolaan Produk\nPerhitungan Ongkos Kirim Otomatis\nNotifikasi Pesanan Masuk",
+    category: { id: "sc-2", name: "Toko Online" },
+    packages: [
+      { id: "pkg-4", name: "UMKM Starter", price: 1800000 },
+      { id: "pkg-5", name: "Pro Commerce", price: 2800000, isPopular: true },
+    ],
+  },
+  {
+    id: "ds-3",
+    name: "Sistem Kasir & POS Toko",
+    slug: "sistem-kasir-pos",
+    description:
+      "Aplikasi kasir operasional harian untuk toko ritel, cafe, dan UMKM. Pencatatan transaksi real-time, manajemen stok inventaris, dan cetak struk bluetooth.",
+    priceFrom: 2200000,
+    deliveryDays: 12,
+    revisionCount: 4,
+    features:
+      "Multi Kasir & Multi Cabang\nCetak Struk Thermal Bluetooth/USB\nManajemen Stok & Notifikasi Habis\nRekap Laba Kotor Otomatis\nEkspor Laporan Transaksi Excel\nMode Offline / Online Sinkron",
+    category: { id: "sc-3", name: "Sistem Kasir / POS" },
+    packages: [
+      { id: "pkg-6", name: "Single Store", price: 2200000 },
+      { id: "pkg-7", name: "Multi Store Pro", price: 3800000, isPopular: true },
+    ],
+  },
+  {
+    id: "ds-4",
+    name: "Dashboard Manajemen Bisnis",
+    slug: "dashboard-manajemen-bisnis",
+    description:
+      "Sistem panel administrasi kustom sesuai alur kerja spesifik perusahaan Anda. Autentikasi aman berbasis session, validasi form, dan ekspor laporan berkala.",
+    priceFrom: 3000000,
+    deliveryDays: 14,
+    revisionCount: 4,
+    features:
+      "Role-Based Access Control (Admin/Staff/Client)\nVisualisasi Grafik & KPI Bisnis\nManajemen Data Relasional MySQL\nAudit Logs Aktivitas Pengguna\nEkspor PDF & Excel Sekali Klik\nIntegrasi REST API Backend",
+    category: { id: "sc-4", name: "Dashboard Manajemen" },
+    packages: [
+      { id: "pkg-8", name: "Standard ERP", price: 3000000 },
+      { id: "pkg-9", name: "Custom Tailored", price: 5000000, isPopular: true },
+    ],
+  },
+];
+
+const defaultDesignCategories = [
+  { id: "dc-1", name: "Logo Design" },
+  { id: "dc-2", name: "Brand Identity" },
+  { id: "dc-3", name: "Media Sosial" },
+  { id: "dc-4", name: "Promosi & Cetak" },
+  { id: "dc-5", name: "Kemasan & Katalog" },
+];
+
+const defaultDesignItems: DesignItem[] = [
+  {
+    id: "dd-1",
+    name: "Logo Design",
+    slug: "logo-design",
+    description:
+      "Desain logo original dengan konsep filosofis, unik, dan siap diaplikasikan di berbagai media cetak maupun digital.",
+    priceStarting: 150000,
+    deliveryDays: 2,
+    revisions: 3,
+    fileFormats: "AI, EPS, SVG, PNG Transparan, JPG",
+    category: { id: "dc-1", name: "Logo Design" },
+  },
+  {
+    id: "dd-2",
+    name: "Brand Identity Guideline",
+    slug: "brand-identity",
+    description:
+      "Paket identitas visual lengkap mencakup logo guide, palette warna, typography, dan stationary mockup untuk brand profesional.",
+    priceStarting: 500000,
+    deliveryDays: 5,
+    revisions: 4,
+    fileFormats: "PDF Brand Guideline, AI, PNG, SVG",
+    category: { id: "dc-2", name: "Brand Identity" },
+  },
+  {
+    id: "dd-3",
+    name: "Social Media Feed",
+    slug: "social-media-feed",
+    description:
+      "Template feed Instagram single atau carousel edukasi dengan branding konsisten untuk menaikkan engagement audiens Anda.",
+    priceStarting: 50000,
+    deliveryDays: 1,
+    revisions: 2,
+    fileFormats: "JPG, PNG 1080x1080 / 1080x1350",
+    category: { id: "dc-3", name: "Media Sosial" },
+  },
+  {
+    id: "dd-4",
+    name: "Instagram Story",
+    slug: "instagram-story",
+    description:
+      "Desain story interaktif 1080x1920 untuk kuis, promosi flash sale, dan pengumuman harian bisnis yang memikat mata.",
+    priceStarting: 50000,
+    deliveryDays: 1,
+    revisions: 2,
+    fileFormats: "JPG, PNG 1080x1920",
+    category: { id: "dc-3", name: "Media Sosial" },
+  },
+  {
+    id: "dd-5",
+    name: "Business Card / Kartu Nama",
+    slug: "business-card",
+    description:
+      "Desain kartu nama eksklusif dua sisi siap cetak dengan layout tipografi rapi dan proporsi visual elegan.",
+    priceStarting: 50000,
+    deliveryDays: 1,
+    revisions: 2,
+    fileFormats: "PDF Ready to Print, AI, JPG",
+    category: { id: "dc-4", name: "Promosi & Cetak" },
+  },
+  {
+    id: "dd-6",
+    name: "Poster Promosi",
+    slug: "poster",
+    description:
+      "Desain poster promosi event, webinar, atau peluncuran produk dengan visual eye-catching dan hierarki informasi tegas.",
+    priceStarting: 85000,
+    deliveryDays: 2,
+    revisions: 2,
+    fileFormats: "PDF Hi-Res, JPG, PNG",
+    category: { id: "dc-4", name: "Promosi & Cetak" },
+  },
+  {
+    id: "dd-7",
+    name: "Flyer / Brosur Usaha",
+    slug: "flyer-brosur",
+    description:
+      "Desain flyer 1 sisi atau 2 sisi untuk penawaran produk, diskon toko, dan edukasi layanan bisnis secara persuasif.",
+    priceStarting: 75000,
+    deliveryDays: 2,
+    revisions: 3,
+    fileFormats: "PDF Ready to Print, JPG, PNG",
+    category: { id: "dc-4", name: "Promosi & Cetak" },
+  },
+  {
+    id: "dd-8",
+    name: "Banner Digital & Ads",
+    slug: "banner-digital",
+    description:
+      "Banner promosi website, marketplace Tokopedia/Shopee, atau Google Display Ads dengan CTA tajam dan kontras memikat.",
+    priceStarting: 60000,
+    deliveryDays: 1,
+    revisions: 2,
+    fileFormats: "JPG, PNG, WEBP Landscape & Square",
+    category: { id: "dc-4", name: "Promosi & Cetak" },
+  },
+  {
+    id: "dd-9",
+    name: "X-Banner & Roll Up",
+    slug: "xbanner-rollup",
+    description:
+      "Desain banner berdiri vertikal (60x160cm / 80x200cm) untuk pameran, booth pameran dagang, dan promosi offline toko.",
+    priceStarting: 90000,
+    deliveryDays: 2,
+    revisions: 2,
+    fileFormats: "PDF Vector Hi-Res, TIFF, JPG Siap Cetak",
+    category: { id: "dc-4", name: "Promosi & Cetak" },
+  },
+  {
+    id: "dd-10",
+    name: "Menu Design Resto & Cafe",
+    slug: "menu-design",
+    description:
+      "Desain buku menu makanan dan minuman berkelas dengan visual foto menggugah selera dan layout harga rapi.",
+    priceStarting: 120000,
+    deliveryDays: 3,
+    revisions: 3,
+    fileFormats: "PDF Ready to Print, AI, JPG",
+    category: { id: "dc-5", name: "Kemasan & Katalog" },
+  },
+  {
+    id: "dd-11",
+    name: "Product Catalog",
+    slug: "product-catalog",
+    description:
+      "Katalog produk multi-halaman dalam format PDF interaktif maupun siap cetak untuk distributor dan retail.",
+    priceStarting: 250000,
+    deliveryDays: 4,
+    revisions: 3,
+    fileFormats: "PDF Interactive, AI, JPG",
+    category: { id: "dc-5", name: "Kemasan & Katalog" },
+  },
+  {
+    id: "dd-12",
+    name: "Packaging Design & Label",
+    slug: "packaging-design",
+    description:
+      "Desain kemasan box, standing pouch, atau label botol dengan die-cut pola pisau presisi siap cetak di pabrik.",
+    priceStarting: 350000,
+    deliveryDays: 4,
+    revisions: 4,
+    fileFormats: "AI Vector, PDF Print Ready, 3D Mockup",
+    category: { id: "dc-5", name: "Kemasan & Katalog" },
+  },
+  {
+    id: "dd-13",
+    name: "Undangan Digital / Fisik",
+    slug: "invitation-design",
+    description:
+      "Desain undangan pernikahan, anniversary, atau corporate gathering bergaya modern minimalis yang berkesan hangat.",
+    priceStarting: 80000,
+    deliveryDays: 2,
+    revisions: 2,
+    fileFormats: "PDF, JPG, Video Animasi Singkat",
+    category: { id: "dc-4", name: "Promosi & Cetak" },
+  },
+  {
+    id: "dd-14",
+    name: "Custom Graphic Design",
+    slug: "custom-graphic-design",
+    description:
+      "Kebutuhan desain grafis kustom sesuai brief dan arahan kreatif khusus dari Anda untuk kampanye bisnis apa pun.",
+    priceStarting: 100000,
+    deliveryDays: 3,
+    revisions: 3,
+    fileFormats: "AI, PSD, PDF, PNG, JPG",
+    category: { id: "dc-1", name: "Logo Design" },
+  },
+];
+
 export default async function ServicesPage() {
-  const [categories, services] = await Promise.all([
-    prisma.serviceCategory.findMany({
-      orderBy: { name: "asc" },
-    }),
-    prisma.service.findMany({
-      where: { isActive: true },
-      include: {
-        category: true,
-        packages: { where: { isActive: true }, orderBy: { price: "asc" } },
-      },
-      orderBy: { createdAt: "desc" },
-    }),
-  ]);
+  let categories = defaultServiceCategories;
+  let services = defaultServices;
+  let designCategories = defaultDesignCategories;
+  let designItems = defaultDesignItems;
+
+  try {
+    const results = await Promise.all([
+      prisma.serviceCategory.findMany({
+        orderBy: { name: "asc" },
+      }),
+      prisma.service.findMany({
+        where: { isActive: true },
+        include: {
+          category: true,
+          packages: { where: { isActive: true }, orderBy: { price: "asc" } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.designCategory.findMany({
+        orderBy: { name: "asc" },
+      }),
+      prisma.designCatalog.findMany({
+        where: { isActive: true },
+        include: { category: true },
+        orderBy: [{ isFeatured: "desc" }, { priceStarting: "asc" }],
+      }),
+    ]);
+
+    if (results[0] && results[0].length > 0) categories = results[0];
+    if (results[1] && results[1].length > 0) services = results[1] as any;
+    if (results[2] && results[2].length > 0) designCategories = results[2];
+    if (results[3] && results[3].length > 0) designItems = results[3] as any;
+  } catch (err) {
+    console.warn("ServicesPage DB query fallback used:", err);
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#EDECE8] text-[#2D2D2D] font-sans selection:bg-[#FF9857] selection:text-[#2D2D2D]">
@@ -45,159 +327,39 @@ export default async function ServicesPage() {
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#FF9857] animate-pulse" />
             <span className="text-xs uppercase tracking-widest font-space text-[#787875] font-semibold">
-              // KATALOG LAYANAN DIGITAL EKSKLUSIF
+              // KATALOG LAYANAN RESMI ARVANTA STUDIO
             </span>
           </div>
 
           <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-[#2D2D2D] font-bebas leading-[0.92]">
-            CRAFTED WEBSITES &amp; DIGITAL SYSTEMS.
+            CRAFTED WEBSITES &amp; VISUAL IDENTITY.
           </h1>
 
           <p className="text-sm sm:text-base text-[#787875] max-w-2xl leading-relaxed font-sans">
-            Kami merancang solusi digital bernilai tinggi untuk bisnis, instansi, dan UMKM. Tanpa template murahan, setiap karya dirancang dengan presisi visual modern dan arsitektur kode Next.js 16 &amp; MySQL yang teruji.
+            Solusi digital komprehensif mulai dari rancang bangun website &amp; sistem digital hingga 14+ aset identitas visual, branding, dan desain grafis profesional untuk bisnis Anda.
           </p>
+
+          <div className="flex flex-wrap items-center gap-4 pt-4 text-xs font-space text-[#2D2D2D]">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/80 border border-[#D8D8D4] rounded-full">
+              <span className="w-2 h-2 rounded-full bg-[#FF9857]" />
+              <span className="font-semibold">{services.length} Layanan Website</span>
+            </div>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/80 border border-[#D8D8D4] rounded-full">
+              <span className="w-2 h-2 rounded-full bg-[#2D2D2D]" />
+              <span className="font-semibold">{designItems.length} Layanan Desain Grafis</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      <main className="flex-1 py-16 sm:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          {/* Categories Overview */}
-          <div className="space-y-3 bg-white/80 p-6 sm:p-8 rounded-2xl border border-[#D8D8D4] shadow-xs">
-            <span className="text-xs uppercase tracking-wider text-[#787875] font-space font-semibold block">
-              // KATEGORI SPESIALISASI:
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((c) => (
-                <span
-                  key={c.id}
-                  className="px-3.5 py-1.5 bg-[#EDECE8] border border-[#D8D8D4] text-xs font-space font-medium text-[#2D2D2D] rounded-full select-none"
-                >
-                  {c.name}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Domain & Hosting Infrastructure Note */}
-          <div className="p-6 bg-white border-l-4 border-l-[#FF9857] border border-[#D8D8D4] rounded-xl text-xs space-y-1 text-[#2D2D2D]">
-            <strong className="block font-semibold font-space uppercase">
-              Transparansi Domain &amp; Server Hosting:
-            </strong>
-            <p className="text-[#787875] leading-relaxed">
-              Biaya jasa pengembangan website di bawah ini adalah investasi sistem. Domain (.com/.id) dan server hosting berkisar Rp500.000 – Rp700.000 per tahun, dibantu setup penuh atas kepemilikan Anda sendiri.
-            </p>
-          </div>
-
-          {/* Services Grid */}
-          <div className="space-y-8">
-            <div className="border-b border-[#D8D8D4] pb-4 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-space uppercase text-[#787875] font-semibold block">
-                  // DAFTAR LAYANAN
-                </span>
-                <h2 className="text-3xl sm:text-4xl font-bold text-[#2D2D2D] font-bebas">
-                  LAYANAN RESMI STUDIO
-                </h2>
-              </div>
-              <span className="text-xs font-space font-semibold px-3 py-1 bg-white text-[#2D2D2D] border border-[#D8D8D4] rounded-full">
-                {services.length} Layanan Aktif
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {services.map((service) => (
-                <div
-                  key={service.id}
-                  className="bg-white/80 hover:bg-white border border-[#D8D8D4] hover:border-[#2D2D2D] p-8 rounded-2xl space-y-6 flex flex-col justify-between transition-all duration-300 shadow-xs"
-                >
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-start gap-4">
-                      <div>
-                        <span className="text-xs uppercase text-[#787875] font-space font-semibold tracking-wider block mb-1">
-                          // {service.category.name}
-                        </span>
-                        <h3 className="text-2xl sm:text-3xl font-bold text-[#2D2D2D] font-bebas">
-                          {service.name}
-                        </h3>
-                      </div>
-                      <span className="text-xs font-bold px-3.5 py-1 bg-[#FF9857] text-[#2D2D2D] rounded-full shrink-0 font-space uppercase tracking-wider">
-                        Mulai Rp{service.priceFrom.toLocaleString("id-ID")}
-                      </span>
-                    </div>
-
-                    <p className="text-xs sm:text-sm text-[#787875] leading-relaxed font-sans">
-                      {service.description}
-                    </p>
-
-                    {/* Features list */}
-                    <div className="pt-3 border-t border-[#D8D8D4] space-y-2">
-                      <span className="text-xs uppercase font-space font-semibold text-[#2D2D2D] block">
-                        Spesifikasi yang Didapatkan:
-                      </span>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#2D2D2D]">
-                        {service.features
-                          .split("\n")
-                          .slice(0, 6)
-                          .map((f: string, i: number) => (
-                            <div key={i} className="flex items-center gap-2">
-                              <Check className="w-3.5 h-3.5 text-[#FF9857] shrink-0" />
-                              <span className="line-clamp-1">{f.trim()}</span>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-
-                    {/* Packages Preview */}
-                    {service.packages.length > 0 && (
-                      <div className="pt-3 border-t border-[#D8D8D4] space-y-2">
-                        <span className="text-xs uppercase font-space font-semibold text-[#787875] block">
-                          Pilihan Paket:
-                        </span>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                          {service.packages.map((pkg: any) => (
-                            <div
-                              key={pkg.id}
-                              className={`p-3 rounded-xl border text-xs ${
-                                pkg.isPopular
-                                  ? "bg-[#EDECE8] border-[#2D2D2D] font-bold text-[#2D2D2D]"
-                                  : "bg-white border-[#D8D8D4] text-[#787875]"
-                              }`}
-                            >
-                              <div className="font-semibold truncate">{pkg.name}</div>
-                              <div className="text-[#2D2D2D] font-space text-[11px] font-bold mt-0.5">
-                                Rp{pkg.price.toLocaleString("id-ID")}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#D8D8D4]">
-                    <span className="text-xs text-[#787875] font-space">
-                      Waktu: ~{service.deliveryDays} hari kerja • Revisi {service.revisionCount}x
-                    </span>
-                    <div className="flex items-center gap-2 w-full sm:w-auto">
-                      <Link
-                        href={`/services/${service.slug}`}
-                        className="flex-1 sm:flex-none text-center px-4 py-2 border border-[#D8D8D4] hover:border-[#2D2D2D] text-[#2D2D2D] text-xs font-space font-semibold uppercase rounded-full transition-colors"
-                      >
-                        Detail
-                      </Link>
-                      <Link
-                        href={`/order?service=${service.slug}`}
-                        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-5 py-2 bg-[#2D2D2D] hover:bg-[#FF9857] text-white hover:text-[#2D2D2D] text-xs font-semibold uppercase tracking-wider font-space rounded-full transition-all"
-                      >
-                        <span>Pesan</span>
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+      <main className="flex-1 py-12 sm:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ServicesExplorer
+            initialServices={services}
+            initialDesignItems={designItems}
+            serviceCategories={categories}
+            designCategories={designCategories}
+          />
         </div>
       </main>
 

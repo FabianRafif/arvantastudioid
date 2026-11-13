@@ -100,7 +100,7 @@ export default async function HomePage() {
         subtitle: "15+ Kategori Desain: Logo, Feed Media Sosial, Kemasan, Brosur, Poster",
         badge: "DESAIN GRAFIS",
         imageUrl: "/uploads/banners/banner-graphic-design.svg",
-        targetUrl: "/services#design-catalog",
+        targetUrl: "/services?tab=design#design-catalog",
         isActive: true,
         sortOrder: 3,
       },
@@ -380,7 +380,7 @@ export default async function HomePage() {
                 </div>
                 <div className="md:col-span-2 flex justify-start md:justify-end">
                   <Link
-                    href="/services#design-catalog"
+                    href="/services?tab=design#design-catalog"
                     className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full border border-[#D8D8D4] group-hover:border-[#2D2D2D] group-hover:bg-[#2D2D2D] group-hover:text-white text-[#2D2D2D] text-xs font-space font-semibold uppercase tracking-wider transition-all"
                   >
                     <span>Katalog Desain ↗</span>

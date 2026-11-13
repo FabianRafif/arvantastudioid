@@ -1,13 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-const productionUrl =
-  process.env.NEXT_PUBLIC_APP_URL && !process.env.NEXT_PUBLIC_APP_URL.includes("localhost")
-    ? process.env.NEXT_PUBLIC_APP_URL
-    : "https://arvantastudioid.vercel.app";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(productionUrl),
   title: {
     template: "%s | Arvanta Studio",
     default: "Arvanta Studio — Branding & Digital System Agency",
@@ -27,7 +21,7 @@ export const metadata: Metadata = {
     title: "Arvanta Studio — Branding & Digital System Agency",
     description:
       "Digital agency penyedia jasa pembuatan website profesional, sistem digital terintegrasi, dan graphic design berkarakter.",
-    url: productionUrl,
+    url: "https://arvanta.studio",
     siteName: "Arvanta Studio",
     locale: "id_ID",
     type: "website",

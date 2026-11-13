@@ -241,49 +241,7 @@ export default function BannerCarousel({
             );
           })}
         </div>
-
-        {/* Carousel Indicators / Dots (Desktop: inside banner) */}
-        {banners.length > 1 && (
-          <div className="hidden sm:flex absolute bottom-3.5 left-1/2 -translate-x-1/2 z-20 items-center gap-1.5 bg-black/50 backdrop-blur-xs px-3 py-1.5 rounded-full border border-white/10 shadow-lg">
-            {banners.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setCurrentIndex(i);
-                }}
-                className={`transition-all rounded-full cursor-pointer ${
-                  currentIndex === i
-                    ? "w-6 h-1.5 bg-[#FF9857]"
-                    : "w-1.5 h-1.5 bg-white/40 hover:bg-white"
-                }`}
-                aria-label={`Lihat banner ${i + 1}`}
-              />
-            ))}
-          </div>
-        )}
       </div>
-
-      {/* Carousel Indicators / Dots (Mobile: cleanly underneath banner so it never covers banner text) */}
-      {banners.length > 1 && (
-        <div className="flex sm:hidden justify-center items-center gap-1.5 mt-2.5">
-          {banners.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => setCurrentIndex(i)}
-              className={`transition-all rounded-full cursor-pointer ${
-                currentIndex === i
-                  ? "w-5 h-1.5 bg-[#FF9857]"
-                  : "w-1.5 h-1.5 bg-[#2D2D2D]/30 hover:bg-[#2D2D2D]/60"
-              }`}
-              aria-label={`Lihat banner ${i + 1}`}
-            />
-          ))}
-        </div>
-      )}
     </section>
   );
 }

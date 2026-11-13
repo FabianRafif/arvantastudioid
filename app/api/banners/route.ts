@@ -5,9 +5,28 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
+    const now = new Date();
+
     const [banners, settingsList] = await Promise.all([
       prisma.banner.findMany({
-        where: { isActive: true },
+        where: {
+          isActive: true,
+          status: { in: ["PUBLISHED", "published", ""] },
+          AND: [
+            {
+              OR: [
+                { startDate: null },
+                { startDate: { lte: now } },
+              ],
+            },
+            {
+              OR: [
+                { endDate: null },
+                { endDate: { gte: now } },
+              ],
+            },
+          ],
+        },
         orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
       }),
       prisma.siteSetting.findMany({
@@ -49,6 +68,7 @@ export async function GET() {
               imageUrl: "/uploads/banners/banner-web-development.svg",
               targetUrl: "/services",
               isActive: true,
+              status: "PUBLISHED",
               sortOrder: 1,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
@@ -61,6 +81,7 @@ export async function GET() {
               imageUrl: "/uploads/banners/banner-graphic-design.svg",
               targetUrl: "/services#design-catalog",
               isActive: true,
+              status: "PUBLISHED",
               sortOrder: 2,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
@@ -91,7 +112,7 @@ export async function GET() {
     );
   } catch (error) {
     console.error("Error fetching banners:", error);
-    // Graceful fallback if database has temporary latency
+    // Graceful fallback
     return NextResponse.json({
       success: true,
       banners: [
@@ -103,18 +124,19 @@ export async function GET() {
           imageUrl: "/uploads/banners/banner-web-development.svg",
           targetUrl: "/services",
           isActive: true,
+          status: "PUBLISHED",
           sortOrder: 1,
         },
       ],
       flashSale: {
         isActive: false,
         title: "PROMO SPESIAL ARVANTA STUDIO",
-        subtitle: "Diskon Spesial Pembuatan Website & Desain Grafis",
+        subtitle: "Diskon Pembuatan Website & Desain Grafis",
         discountPercent: "20",
         voucherCode: "PROMO20",
         endTime: new Date(Date.now() + 86400000).toISOString(),
       },
-      lastUpdated: Date.now(),
+      lastUpdated: 0,
     });
   }
 }

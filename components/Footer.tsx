@@ -135,6 +135,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/pengumuman" className="hover:text-white transition-colors">
+                  Pengumuman Resmi
+                </Link>
+              </li>
+              <li>
                 <Link href="/cara-kerja" className="hover:text-white transition-colors">
                   Cara Kerja &amp; Alur
                 </Link>

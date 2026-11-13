@@ -548,6 +548,7 @@ model Banner {
   badge     String?   @default("PROMO SPESIAL")
   imageUrl  String    @map("image_url") @db.LongText
   targetUrl String?   @map("target_url")
+  status    String    @default("PUBLISHED")
   isActive  Boolean   @default(true) @map("is_active")
   sortOrder Int       @default(0) @map("sort_order")
   startDate DateTime? @map("start_date")
@@ -556,6 +557,33 @@ model Banner {
   updatedAt DateTime  @updatedAt @map("updated_at")
 
   @@index([isActive])
+  @@index([status])
   @@index([sortOrder])
   @@map("banners")
+}
+
+model Announcement {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  category    String    @default("PROMO")
+  content     String    @db.LongText
+  summary     String?   @db.Text
+  imageUrl    String?   @map("image_url") @db.LongText
+  priority    String    @default("NORMAL")
+  status      String    @default("PUBLISHED")
+  isActive    Boolean   @default(true) @map("is_active")
+  publishDate DateTime  @default(now()) @map("publish_date")
+  endDate     DateTime? @map("end_date")
+  authorName  String?   @default("Admin Arvanta") @map("author_name")
+  views       Int       @default(0)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([isActive])
+  @@index([priority])
+  @@index([category])
+  @@index([publishDate])
+  @@map("announcements")
 }

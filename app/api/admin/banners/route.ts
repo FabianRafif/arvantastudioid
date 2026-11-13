@@ -1,13 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSessionUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const session = await getSessionUser();
+    if (!session || (session.role !== "SUPER_ADMIN" && session.role !== "ADMIN")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const q = searchParams.get("q")?.trim() || "";
+    const status = searchParams.get("status")?.trim().toUpperCase() || "ALL";
+
+    const where: any = {};
+
+    if (q) {
+      where.OR = [
+        { title: { contains: q } },
+        { subtitle: { contains: q } },
+        { badge: { contains: q } },
+      ];
+    }
+
+    if (status === "PUBLISHED") {
+      where.status = "PUBLISHED";
+      where.isActive = true;
+    } else if (status === "DRAFT") {
+      where.OR = [
+        { status: "DRAFT" },
+        { isActive: false },
+      ];
+    }
+
     const banners = await prisma.banner.findMany({
+      where,
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     });
+
     return NextResponse.json(
       { success: true, banners },
       {
@@ -26,8 +58,24 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getSessionUser();
+    if (!session || (session.role !== "SUPER_ADMIN" && session.role !== "ADMIN")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
-    const { title, subtitle, badge, imageUrl, targetUrl, sortOrder, isActive } = body;
+    const {
+      title,
+      subtitle,
+      badge,
+      imageUrl,
+      targetUrl,
+      sortOrder,
+      status,
+      isActive,
+      startDate,
+      endDate,
+    } = body;
 
     if (!imageUrl) {
       return NextResponse.json(
@@ -37,6 +85,8 @@ export async function POST(req: NextRequest) {
     }
 
     const effectiveTitle = (title || "BANNER PROMOSI ARVANTA").trim();
+    const effectiveStatus = status === "DRAFT" ? "DRAFT" : "PUBLISHED";
+    const effectiveIsActive = isActive !== undefined ? Boolean(isActive) : effectiveStatus === "PUBLISHED";
 
     const newBanner = await prisma.banner.create({
       data: {
@@ -46,7 +96,10 @@ export async function POST(req: NextRequest) {
         imageUrl: String(imageUrl).trim(),
         targetUrl: targetUrl ? String(targetUrl).trim() : "/order",
         sortOrder: Number(sortOrder) || 0,
-        isActive: isActive !== false,
+        status: effectiveStatus,
+        isActive: effectiveIsActive,
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
       },
     });
 

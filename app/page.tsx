@@ -2,6 +2,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BannerCarousel from "@/components/BannerCarousel";
+import AnnouncementSection from "@/components/AnnouncementSection";
 import HeroQuickPricing from "@/components/HeroQuickPricing";
 import LivePricingCards from "@/components/LivePricingCards";
 import { prisma } from "@/lib/prisma";
@@ -510,6 +511,11 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* ========================================================= */}
+        {/* SECTION 4: OFFICIAL ANNOUNCEMENTS & STUDIO UPDATES */}
+        {/* ========================================================= */}
+        <AnnouncementSection />
 
         {/* ========================================================= */}
         {/* SECTION 5: CRAFTO "FACTS & FIGURES" (DARK COUNTER SECTION) */}

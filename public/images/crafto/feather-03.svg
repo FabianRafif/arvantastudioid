@@ -1,0 +1,13 @@
+<svg width="320" height="320" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pearlGrad" x1="40" y1="30" x2="280" y2="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9" />
+      <stop offset="45%" stop-color="#FCE7D9" stop-opacity="0.75" />
+      <stop offset="85%" stop-color="#FFD4BA" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#FF9857" stop-opacity="0.4" />
+    </linearGradient>
+  </defs>
+
+  <path d="M50 160 C80 50, 200 20, 270 60 C305 90, 290 160, 235 210 C170 270, 80 250, 55 200 C40 180, 45 170, 50 160 Z" fill="url(#pearlGrad)" />
+  <path d="M80 180 Q 170 120 250 70" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="2.2" stroke-linecap="round" />
+</svg>

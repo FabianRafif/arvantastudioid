@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 600" width="1600" height="600">
+  <defs>
+    <linearGradient id="ivoryBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F4F1EA" />
+      <stop offset="100%" stop-color="#EBE7DC" />
+    </linearGradient>
+    <pattern id="lightGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#20211F" stroke-opacity="0.04" stroke-width="1" />
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="600" fill="url(#ivoryBg)" />
+  <rect width="1600" height="600" fill="url(#lightGrid)" />
+
+  <!-- Borders -->
+  <rect x="40" y="40" width="1520" height="520" fill="none" stroke="#20211F" stroke-width="2" />
+  <line x1="1020" y1="40" x2="1020" y2="560" stroke="#D9D7CF" stroke-width="1.5" />
+
+  <!-- Badge -->
+  <rect x="80" y="80" width="230" height="34" rx="2" fill="#20211F" />
+  <text x="96" y="102" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" letter-spacing="2">WEBSITE STUDIO</text>
+
+  <!-- Headline -->
+  <text x="80" y="190" fill="#20211F" font-family="system-ui, -apple-system, sans-serif" font-size="56" font-weight="800" letter-spacing="-1.5">
+    Website Modern &amp; Cepat
+  </text>
+  <text x="80" y="245" fill="#5A5C55" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="400">
+    Solusi digital profesional untuk UMKM, Sekolah, Startup &amp; Perusahaan
+  </text>
+
+  <!-- Feature List -->
+  <g transform="translate(80, 290)">
+    <circle cx="10" cy="15" r="4" fill="#777B61" />
+    <text x="25" y="20" fill="#20211F" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600">Teknologi Next.js &amp; Tailwind CSS (Loading Instan &amp; SEO Friendly)</text>
+
+    <circle cx="10" cy="50" r="4" fill="#777B61" />
+    <text x="25" y="55" fill="#20211F" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600">Desain Responsif Sempurna di Smartphone, Tablet, &amp; Laptop</text>
+
+    <circle cx="10" cy="85" r="4" fill="#777B61" />
+    <text x="25" y="90" fill="#20211F" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600">Notifikasi Real-time &amp; Terintegrasi Langsung ke WhatsApp Admin</text>
+  </g>
+
+  <!-- CTA Box -->
+  <g transform="translate(80, 430)">
+    <rect x="0" y="0" width="280" height="56" rx="4" fill="#20211F" />
+    <text x="40" y="34" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" letter-spacing="1">PESAN WEBSITE SEKARANG →</text>
+    <text x="310" y="34" fill="#5A5C55" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="500">Mulai Rp500.000 (Flash Sale 11.11 jadi Rp399.000)</text>
+  </g>
+
+  <!-- Right Side Visual Editorial Card -->
+  <g transform="translate(1060, 80)">
+    <rect x="0" y="0" width="460" height="440" rx="4" fill="#20211F" />
+    <text x="40" y="60" fill="#777B61" font-family="monospace" font-size="12" letter-spacing="2">01 / ARVANTA DEV</text>
+    <text x="40" y="110" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="800">Custom Built, Zero Template</text>
+    <text x="40" y="150" fill="#D9D7CF" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="400" line-height="1.5">
+      Bukan sekadar template pasaran. Setiap website dirancang secara khusus untuk merefleksikan identitas dan keunikan bisnis Anda.
+    </text>
+
+    <line x1="40" y1="210" x2="420" y2="210" stroke="#777B61" stroke-opacity="0.3" stroke-width="1" />
+
+    <text x="40" y="250" fill="#777B61" font-family="monospace" font-size="12" letter-spacing="2">TRANSPARANSI BIAYA</text>
+    <text x="40" y="290" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600">Jasa Web: Rp500rb – Rp3jt</text>
+    <text x="40" y="320" fill="#D9D7CF" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="400">Domain &amp; Hosting terpisah (Estimasi Rp500rb - 700rb/th)</text>
+    <text x="40" y="380" fill="#A0A299" font-family="system-ui, -apple-system, sans-serif" font-size="12">Garansi revisi &amp; pendampingan teknis langsung</text>
+  </g>
+
+  <!-- Dimension Indicator -->
+  <text x="1440" y="535" fill="#777B61" font-family="monospace" font-size="11" letter-spacing="1">160 × 60 cm</text>
+</svg>

@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 600" width="1600" height="600">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#20211F" />
+      <stop offset="60%" stop-color="#2A2B28" />
+      <stop offset="100%" stop-color="#161715" />
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#FFFFFF" stroke-opacity="0.04" stroke-width="1" />
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="600" fill="url(#bgGrad)" />
+  <rect width="1600" height="600" fill="url(#grid)" />
+
+  <!-- Accent Geometry / Editorial Layout Lines -->
+  <line x1="80" y1="80" x2="1520" y2="80" stroke="#777B61" stroke-opacity="0.3" stroke-width="1" />
+  <line x1="80" y1="520" x2="1520" y2="520" stroke="#777B61" stroke-opacity="0.3" stroke-width="1" />
+  <line x1="1050" y1="80" x2="1050" y2="520" stroke="#777B61" stroke-opacity="0.25" stroke-width="1" stroke-dasharray="4 4" />
+
+  <!-- Badge 11.11 -->
+  <rect x="80" y="110" width="250" height="36" rx="4" fill="#777B61" />
+  <text x="96" y="133" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" letter-spacing="2">SPECIAL PROMO 11.11</text>
+
+  <!-- Studio Tag -->
+  <text x="380" y="133" fill="#D9D7CF" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" letter-spacing="3" text-transform="uppercase">ARVANTA STUDIO — DIGITAL &amp; DESIGN</text>
+
+  <!-- Main Headline -->
+  <text x="80" y="240" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="64" font-weight="800" letter-spacing="-1.5">
+    MEGA FLASH SALE 11.11
+  </text>
+  <text x="80" y="300" fill="#D9D7CF" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="400" letter-spacing="-0.5">
+    Diskon Eksklusif Pembuatan Website &amp; Desain Grafis
+  </text>
+
+  <!-- Pricing Strike-through Highlights -->
+  <g transform="translate(80, 360)">
+    <!-- Web Box -->
+    <rect x="0" y="0" width="440" height="110" rx="6" fill="#F4F1EA" fill-opacity="0.05" stroke="#D9D7CF" stroke-opacity="0.2" />
+    <text x="24" y="36" fill="#D9D7CF" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" letter-spacing="1">JASA PEMBUATAN WEBSITE</text>
+    <text x="24" y="75" fill="#A0A299" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="400" text-decoration="line-through">Rp500.000</text>
+    <text x="160" y="75" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="800">Rp399.000</text>
+    <text x="24" y="96" fill="#777B61" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="500">*Domain &amp; hosting terpisah Rp500rb - 700rb/th</text>
+  </g>
+
+  <g transform="translate(540, 360)">
+    <!-- Design Box -->
+    <rect x="0" y="0" width="440" height="110" rx="6" fill="#F4F1EA" fill-opacity="0.05" stroke="#D9D7CF" stroke-opacity="0.2" />
+    <text x="24" y="36" fill="#D9D7CF" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" letter-spacing="1">KATALOG DESAIN GRAFIS</text>
+    <text x="24" y="75" fill="#A0A299" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="400" text-decoration="line-through">Rp50.000</text>
+    <text x="150" y="75" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="800">Rp39.000</text>
+    <text x="24" y="96" fill="#777B61" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="500">Logo, Feed IG, Brosur, Poster, Banner &amp; Kemasan</text>
+  </g>
+
+  <!-- Right Visual Feature Column -->
+  <g transform="translate(1090, 110)">
+    <!-- Big 11.11 Typography -->
+    <text x="40" y="110" fill="#777B61" fill-opacity="0.25" font-family="system-ui, -apple-system, sans-serif" font-size="140" font-weight="900" letter-spacing="-5">11.11</text>
+    
+    <rect x="20" y="150" width="370" height="230" rx="8" fill="#F4F1EA" stroke="#777B61" stroke-width="2" />
+    <text x="50" y="195" fill="#20211F" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" letter-spacing="2">KODE KUPON PROMO</text>
+    <rect x="50" y="210" width="310" height="52" rx="4" fill="#20211F" />
+    <text x="95" y="244" fill="#F4F1EA" font-family="monospace" font-size="24" font-weight="700" letter-spacing="5">ARVANTA1111</text>
+    <text x="50" y="295" fill="#5A5C55" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="500">Gunakan saat order untuk diskon instan</text>
+    <text x="50" y="325" fill="#20211F" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700">KLIK UNTUK KLAIM PROMO →</text>
+  </g>
+
+  <!-- Aspect Ratio / Watermark 160x60 -->
+  <text x="1440" y="555" fill="#777B61" font-family="monospace" font-size="11" letter-spacing="1">160 × 60 cm</text>
+</svg>

@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
 
-    const serviceType = (formData.get("serviceType") as string) || "WEBSITE"; // "WEBSITE" | "GRAPHIC_DESIGN"
+    const serviceType = (formData.get("serviceType") as string) || "WEBSITE";
     const customerName = formData.get("customerName") as string;
     const customerPhone = formData.get("customerPhone") as string;
     const customerEmail = formData.get("customerEmail") as string;
@@ -38,18 +38,17 @@ export async function POST(req: NextRequest) {
 
     if (!customerName || !customerPhone) {
       return NextResponse.json(
-        { error: "Nama pelanggan dan nomor WhatsApp wajib diisi." },
+        { error: "Nama pemesan dan nomor WhatsApp wajib diisi." },
         { status: 400 }
       );
     }
 
-    // Determine current user or auto-associate
+    // Identify user or auto-register guest customer
     const session = await getSessionUser();
     let userId = session?.userId;
 
     if (!userId) {
-      // Find or create customer account by email/phone
-      const cleanEmail = (customerEmail || `${customerPhone}@guest.arvanta.studio`).toLowerCase().trim();
+      const cleanEmail = (customerEmail || `${customerPhone.replace(/\D/g, "")}@klien.arvanta.studio`).toLowerCase().trim();
       let user = await prisma.user.findFirst({
         where: {
           OR: [{ email: cleanEmail }, { phone: customerPhone }],
@@ -57,14 +56,14 @@ export async function POST(req: NextRequest) {
       });
 
       if (!user) {
-        const tempUsername = `user_${Date.now().toString(36)}`;
+        const tempUsername = `klien_${Date.now().toString(36)}`;
         user = await prisma.user.create({
           data: {
             username: tempUsername,
             email: cleanEmail,
             fullName: customerName,
             phone: customerPhone,
-            passwordHash: "TEMPORARY_HASH",
+            passwordHash: "TEMPORARY_GUEST_HASH",
             role: "CUSTOMER",
           },
         });
@@ -72,9 +71,9 @@ export async function POST(req: NextRequest) {
       userId = user.id;
     }
 
-    // Determine pricing and item details
-    let totalAmount = 0;
-    let packageNameOrProduct = "Pesanan Kustom";
+    // Determine initial package price from database
+    let baseAmount = 0;
+    let packageNameOrProduct = "Layanan Pembuatan Website";
 
     if (serviceType === "WEBSITE" && servicePackageId) {
       const pkg = await prisma.servicePackage.findUnique({
@@ -82,32 +81,66 @@ export async function POST(req: NextRequest) {
         include: { service: true },
       });
       if (pkg) {
-        totalAmount = pkg.price;
+        baseAmount = pkg.price;
         packageNameOrProduct = `${pkg.service.name} — ${pkg.name}`;
+      } else {
+        baseAmount = 1500000;
       }
     } else if (serviceType === "GRAPHIC_DESIGN" && designCatalogId) {
       const design = await prisma.designCatalog.findUnique({
         where: { id: designCatalogId },
       });
       if (design) {
-        totalAmount = (design.priceFinal || design.priceStarting) * (designQuantity || 1);
+        baseAmount = (design.priceFinal || design.priceStarting) * (designQuantity || 1);
         packageNameOrProduct = `${design.name} (${designQuantity}x)`;
+      }
+    } else {
+      baseAmount = 1500000;
+    }
+
+    // Validate Coupon / Voucher in Database
+    const promoCode = ((formData.get("promoCode") as string) || "").trim().toUpperCase();
+    let appliedDiscount = 0;
+    let matchedCouponId: string | null = null;
+
+    if (promoCode) {
+      const coupon = await prisma.coupon.findUnique({
+        where: { code: promoCode },
+      });
+
+      if (coupon && coupon.isActive) {
+        const now = new Date();
+        const isStarted = !coupon.startDate || now >= coupon.startDate;
+        const isNotEnded = !coupon.endDate || now <= coupon.endDate;
+        const hasQuota = !coupon.usageLimit || coupon.usageCount < coupon.usageLimit;
+        const meetsMinSpend = !coupon.minSpend || baseAmount >= coupon.minSpend;
+
+        if (isStarted && isNotEnded && hasQuota && meetsMinSpend) {
+          matchedCouponId = coupon.id;
+          if (coupon.discountType === "PERCENTAGE") {
+            appliedDiscount = Math.round((baseAmount * coupon.discountValue) / 100);
+            if (coupon.maxDiscount && appliedDiscount > coupon.maxDiscount) {
+              appliedDiscount = coupon.maxDiscount;
+            }
+          } else {
+            appliedDiscount = coupon.discountValue;
+          }
+        }
       }
     }
 
-    // Default 50% DP
+    const totalAmount = Math.max(0, baseAmount - appliedDiscount);
     const dpAmount = Math.round(totalAmount * 0.5);
     const remainingAmount = totalAmount - dpAmount;
 
-    // Generate unique order number (e.g. ARV-2026-0001)
+    // Generate atomic unique order number (e.g. ARV-202611-0001)
     const currentYear = new Date().getFullYear();
+    const currentMonth = String(new Date().getMonth() + 1).padStart(2, "0");
     const count = await prisma.order.count();
-    const orderNumber = `ARV-${currentYear}-${String(count + 1).padStart(4, "0")}`;
+    const orderNumber = `ARV-${currentYear}${currentMonth}-${String(count + 1).padStart(4, "0")}`;
 
-    // Handle uploaded reference files
+    // Handle reference files upload
     const uploadedFiles: any[] = [];
-    const mediaUrlsForWA: string[] = [];
-
     const fileEntries = formData.getAll("files");
     for (const entry of fileEntries) {
       if (entry instanceof File && entry.size > 0) {
@@ -115,12 +148,32 @@ export async function POST(req: NextRequest) {
           const saved = await saveUploadedFile(entry);
           uploadedFiles.push(saved);
         } catch (fileErr: any) {
-          console.warn("Skipping invalid file upload:", fileErr.message);
+          console.warn("Skipping file upload:", fileErr.message);
         }
       }
     }
 
-    // Execute order creation transaction
+    // Store immutable Price Snapshot in order notes metadata
+    const priceSnapshotData = {
+      serviceType,
+      packageName: packageNameOrProduct,
+      normalPrice: baseAmount,
+      promoCode: promoCode || null,
+      discountAmount: appliedDiscount,
+      finalTotal: totalAmount,
+      dpAmount,
+      remainingAmount,
+      snapshotTimestamp: new Date().toISOString(),
+      priceVersion: "v2026.1",
+    };
+
+    const combinedNotes = `${notes ? notes + "\n\n" : ""}--- SNAPSHOT HARGA TERKUNCI ---\n${JSON.stringify(
+      priceSnapshotData,
+      null,
+      2
+    )}`;
+
+    // Execute atomic order creation transaction
     const newOrder = await prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
         data: {
@@ -146,9 +199,17 @@ export async function POST(req: NextRequest) {
           referenceUrl,
           preferredBudget,
           deadline,
-          notes,
+          notes: combinedNotes,
         },
       });
+
+      // Increment coupon usage count atomically
+      if (matchedCouponId) {
+        await tx.coupon.update({
+          where: { id: matchedCouponId },
+          data: { usageCount: { increment: 1 } },
+        });
+      }
 
       // Save order item
       await tx.orderItem.create({
@@ -185,16 +246,31 @@ export async function POST(req: NextRequest) {
           orderId: order.id,
           previousStatus: null,
           newStatus: "MENUNGGU_KONFIRMASI",
-          notes: "Pesanan baru berhasil dibuat oleh pelanggan.",
+          notes: "Pesanan baru berhasil dibuat oleh pelanggan. Menunggu konfirmasi admin.",
         },
       });
 
-      // Automated system notification for admin
+      // Create initial Invoice for DP (50%)
+      const invoiceNumber = `INV-${currentYear}${currentMonth}-${String(count + 1).padStart(4, "0")}-DP`;
+      await tx.invoice.create({
+        data: {
+          invoiceNumber,
+          orderId: order.id,
+          subtotal: baseAmount,
+          discountAmount: appliedDiscount,
+          total: dpAmount,
+          status: "UNPAID",
+          dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days due
+        },
+      });
+
+      // Create in-app notification for admin
       await tx.notification.create({
         data: {
-          type: "NEW_ORDER",
-          title: `Pesanan Baru: ${orderNumber}`,
-          message: `${customerName} melakukan pemesanan ${serviceType === "WEBSITE" ? "Website" : "Desain Grafis"} (${packageNameOrProduct}) senilai ${formatRupiah(totalAmount)}.`,
+          userId: null,
+          type: "ORDER_CREATED",
+          title: `Pesanan Baru: ${order.orderNumber}`,
+          message: `${customerName} (${customerPhone}) memesan ${packageNameOrProduct} senilai ${formatRupiah(totalAmount)}.`,
           link: `/admin/orders/${order.id}`,
         },
       });
@@ -202,88 +278,36 @@ export async function POST(req: NextRequest) {
       return order;
     });
 
-    // Send Real WhatsApp Notification to Admin
-    const waResult = await sendWhatsAppNotification({
-      orderId: newOrder.id,
-      orderNumber: newOrder.orderNumber,
-      customerName,
-      customerPhone,
-      serviceType: serviceType === "WEBSITE" ? "Website Development" : "Graphic Design",
-      packageNameOrProduct,
-      priceFormatted: formatRupiah(totalAmount),
-      notes,
-      details: notes || websiteGoal || designConcept || "Tidak ada rincian tambahan",
-      mediaUrls: mediaUrlsForWA,
-    });
+    // Notify admins via Web Push
+    try {
+      await sendPushNotificationToAdmins({
+        title: `Pesanan Baru: ${newOrder.orderNumber}`,
+        message: `${customerName} baru saja memesan ${packageNameOrProduct}. Total: ${formatRupiah(totalAmount)}.`,
+        url: `/admin/orders/${newOrder.id}`,
+      });
+    } catch {}
 
-    // Send Web Push Notification to Admin Devices
-    await sendPushNotificationToAdmins({
-      title: `Order Masuk: ${newOrder.orderNumber}`,
-      message: `${customerName} memesan ${packageNameOrProduct} (${formatRupiah(totalAmount)})`,
-      url: `/admin/orders/${newOrder.id}`,
-    });
-
+    // Log Activity
     await logActivity({
       userId,
-      action: "CREATE_ORDER",
+      action: "ORDER_CREATE",
       entityType: "ORDER",
       entityId: newOrder.id,
-      details: `Order dibuat: ${orderNumber} - ${packageNameOrProduct}`,
+      details: `Pesanan ${newOrder.orderNumber} berhasil dibuat dengan total ${totalAmount}.`,
+      ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
+      userAgent: req.headers.get("user-agent"),
     });
 
     return NextResponse.json({
       success: true,
-      orderNumber: newOrder.orderNumber,
-      orderId: newOrder.id,
-      totalAmount,
-      dpAmount,
-      whatsAppResult: waResult,
-      manualWhatsAppUrl: waResult.waLink,
-      message: "Pesanan Anda berhasil dikirim ke Arvanta Studio!",
+      order: newOrder,
+      message: "Pesanan berhasil dibuat dan snapshot harga telah dikunci.",
     });
   } catch (error: any) {
-    console.error("Order creation error:", error);
+    console.error("Gagal membuat pesanan:", error);
     return NextResponse.json(
-      { error: error?.message || "Terjadi kesalahan saat memproses pesanan." },
+      { error: error.message || "Terjadi kesalahan pada sistem pemesanan." },
       { status: 500 }
     );
-  }
-}
-
-export async function GET(req: NextRequest) {
-  try {
-    const session = await getSessionUser();
-    if (!session) {
-      return NextResponse.json({ error: "Akses tidak diizinkan." }, { status: 401 });
-    }
-
-    const { searchParams } = new URL(req.url);
-    const status = searchParams.get("status");
-
-    const where: any = {};
-    if (session.role === "CUSTOMER") {
-      where.userId = session.userId;
-    }
-    if (status) {
-      where.status = status;
-    }
-
-    const orders = await prisma.order.findMany({
-      where,
-      include: {
-        items: true,
-        files: true,
-        payments: true,
-        statusHistory: {
-          orderBy: { createdAt: "desc" },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    return NextResponse.json({ orders });
-  } catch (error: any) {
-    console.error("Fetch orders error:", error);
-    return NextResponse.json({ error: "Gagal mengambil data pesanan." }, { status: 500 });
   }
 }

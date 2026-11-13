@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useLiveSync } from "@/lib/useLiveSync";
 import {
   Code2,
   Palette,
@@ -13,6 +14,8 @@ import {
   ArrowRight,
   ExternalLink,
   ShieldCheck,
+  Copy,
+  Check,
 } from "lucide-react";
 
 interface ServiceItem {
@@ -89,14 +92,109 @@ export default function OrderPage() {
       });
   }, []);
 
-  // Compute estimate
-  const calculateTotal = () => {
+  const liveSync = useLiveSync();
+  const [promoCode, setPromoCode] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+  const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
+  const [appliedLabel, setAppliedLabel] = useState<string>("");
+  const [copiedPromo, setCopiedPromo] = useState(false);
+
+  const activeVoucher = liveSync.promotions.flashSale.isActive
+    ? liveSync.promotions.flashSale.voucherCode
+    : (liveSync.promotions.coupons[0]?.code || "");
+
+  const copyPromo = async () => {
+    if (!activeVoucher) return;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(activeVoucher);
+      } else {
+        const el = document.createElement("textarea");
+        el.value = activeVoucher;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+      }
+      setCopiedPromo(true);
+      setTimeout(() => setCopiedPromo(false), 2500);
+    } catch {
+      setCopiedPromo(true);
+      setTimeout(() => setCopiedPromo(false), 2500);
+    }
+  };
+
+  const validateAndApplyVoucher = async (code: string, currentSubtotal: number) => {
+    const clean = code.trim().toUpperCase();
+    if (!clean) {
+      setAppliedPromo(null);
+      setAppliedDiscount(0);
+      setAppliedLabel("");
+      return;
+    }
+
+    if (
+      liveSync.promotions.flashSale.isActive &&
+      clean === liveSync.promotions.flashSale.voucherCode.toUpperCase()
+    ) {
+      const pct = liveSync.promotions.flashSale.discountPercent || 20;
+      const disc = Math.round(currentSubtotal * (pct / 100));
+      setAppliedPromo(clean);
+      setAppliedDiscount(disc);
+      setAppliedLabel(`Promo Flash Sale -${pct}%`);
+      setErrorMsg("");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/vouchers/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: clean, amount: currentSubtotal }),
+      });
+      const data = await res.json();
+      if (data.valid && data.coupon) {
+        setAppliedPromo(clean);
+        setAppliedDiscount(data.coupon.discountAmount || 0);
+        setAppliedLabel(
+          data.coupon.discountType === "PERCENTAGE"
+            ? `Diskon ${data.coupon.discountValue}%`
+            : `Potongan Rp${Number(data.coupon.discountValue).toLocaleString("id-ID")}`
+        );
+        setErrorMsg("");
+      } else {
+        setAppliedPromo(null);
+        setAppliedDiscount(0);
+        setAppliedLabel("");
+        setErrorMsg(data.error || "Kode kupon tidak valid atau sudah kadaluarsa.");
+      }
+    } catch {
+      setErrorMsg("Gagal memvalidasi kupon. Silakan coba lagi.");
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const qPromo = params.get("promo") || params.get("coupon");
+      if (qPromo) {
+        setPromoCode(qPromo.toUpperCase());
+        validateAndApplyVoucher(qPromo.toUpperCase(), calculateSubtotal());
+      }
+    }
+  }, []);
+
+  // Compute estimate with live package prices
+  const calculateSubtotal = () => {
     if (serviceType === "WEBSITE") {
+      const livePkg = liveSync.pricing.packages.find((p) => p.id === selectedPackageId);
+      if (livePkg) return livePkg.price;
+
       for (const s of services) {
         const foundPkg = s.packages?.find((p) => p.id === selectedPackageId);
         if (foundPkg) return foundPkg.price;
       }
-      return 500000;
+      return liveSync.pricing.lowestWebsitePrice || 1500000;
     } else {
       const foundDesign = designItems.find((d) => d.id === selectedDesignId);
       const base = foundDesign ? foundDesign.priceStarting : 50000;
@@ -104,7 +202,9 @@ export default function OrderPage() {
     }
   };
 
-  const totalEstimate = calculateTotal();
+  const subtotal = calculateSubtotal();
+  const discountAmount = appliedDiscount;
+  const totalEstimate = Math.max(0, subtotal - discountAmount);
   const dpEstimate = Math.round(totalEstimate * 0.5);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,13 +221,19 @@ export default function OrderPage() {
 
     try {
       const fd = new FormData();
+      const promoNote = appliedPromo
+        ? `[KUPON: ${appliedPromo} - Potongan Rp${discountAmount.toLocaleString("id-ID")}] `
+        : "";
+      const finalNotes = promoNote + (notes || "");
+
       fd.append("serviceType", serviceType);
       fd.append("customerName", customerName);
       fd.append("customerPhone", customerPhone);
       fd.append("customerEmail", customerEmail);
-      fd.append("notes", notes);
+      fd.append("notes", finalNotes);
       fd.append("deadline", deadline);
-      fd.append("preferredBudget", preferredBudget);
+      fd.append("preferredBudget", `Rp${totalEstimate.toLocaleString("id-ID")}`);
+      fd.append("promoCode", appliedPromo || "");
 
       if (serviceType === "WEBSITE") {
         fd.append("businessName", businessName);
@@ -168,51 +274,64 @@ export default function OrderPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-warm-ivory text-deep-charcoal">
+    <div className="min-h-screen flex flex-col bg-[#EDECE8] text-[#2D2D2D] font-sans selection:bg-[#FF9857] selection:text-[#2D2D2D]">
       <Navbar />
 
-      <main className="flex-1 pt-32 pb-24">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          {/* Header */}
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs uppercase tracking-widest font-mono text-muted-olive font-bold">
-              Formulir Pemesanan Resmi
-            </span>
-            <h1 className="text-3xl sm:text-5xl font-display font-bold tracking-tight text-deep-charcoal">
-              Start Your Digital Project.
-            </h1>
-            <p className="text-xs sm:text-sm text-deep-charcoal/70">
-              Pilih jenis layanan, isi kebutuhan teknis atau konsep visual Anda, dan sistem akan langsung meneruskannya ke dashboard serta WhatsApp admin Arvanta Studio.
-            </p>
+      {/* Crafto Editorial Hero Header */}
+      <section className="pt-36 pb-16 md:pt-48 md:pb-24 border-b border-[#D8D8D4] relative overflow-hidden">
+        {/* Subtle architectural vertical grid guidelines */}
+        <div className="absolute inset-0 pointer-events-none max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-4 opacity-30">
+          <div className="border-r border-[#D8D8D4] h-full" />
+          <div className="border-r border-[#D8D8D4] h-full" />
+          <div className="border-r border-[#D8D8D4] h-full" />
+          <div className="h-full" />
+        </div>
+
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#D8D8D4] text-[#2D2D2D] text-xs font-semibold font-space uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FF9857] animate-pulse" />
+            <span>Formulir Pemesanan Resmi</span>
           </div>
 
+          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-[#2D2D2D] font-bebas leading-[0.92]">
+            START YOUR DIGITAL PROJECT.
+          </h1>
+
+          <p className="text-sm sm:text-base text-[#787875] max-w-2xl mx-auto leading-relaxed font-sans">
+            Pilih jenis layanan, isi kebutuhan teknis atau konsep visual Anda, dan sistem akan langsung meneruskannya ke dashboard serta WhatsApp admin Arvanta Studio.
+          </p>
+        </div>
+      </section>
+
+      <main className="flex-1 py-16 sm:py-24">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           {orderSuccess ? (
             /* Success State */
-            <div className="bg-white border-2 border-emerald-800 p-8 sm:p-12 rounded-xs shadow-md space-y-6 text-center max-w-2xl mx-auto">
-              <div className="w-16 h-16 bg-emerald-50 text-emerald-800 flex items-center justify-center rounded-full mx-auto">
+            <div className="bg-white border-2 border-emerald-600 p-8 sm:p-12 rounded-2xl shadow-xl space-y-6 text-center max-w-2xl mx-auto">
+              <div className="w-16 h-16 bg-emerald-50 text-emerald-600 flex items-center justify-center rounded-full mx-auto">
                 <CheckCircle className="w-10 h-10" />
               </div>
 
               <div className="space-y-2">
-                <span className="text-xs font-mono uppercase tracking-wider text-muted-olive font-bold">
+                <span className="text-xs uppercase tracking-wider text-[#FF9857] font-semibold font-space">
                   Pesanan Berhasil Diterima!
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-display font-bold text-deep-charcoal">
+                <h2 className="text-3xl sm:text-4xl font-bold text-[#2D2D2D] font-bebas">
                   Nomor Order: {orderSuccess.orderNumber}
                 </h2>
-                <p className="text-xs text-deep-charcoal/75 max-w-md mx-auto">
+                <p className="text-xs sm:text-sm text-[#787875] max-w-md mx-auto">
                   Detail kebutuhan dan file Anda telah tersimpan secara aman di database. Tim Arvanta Studio segera meninjau dan mengonfirmasi via WhatsApp.
                 </p>
               </div>
 
-              <div className="p-4 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-xs font-mono text-deep-charcoal space-y-1 max-w-md mx-auto">
+              <div className="p-5 bg-[#EDECE8] border border-[#D8D8D4] rounded-xl text-xs font-space text-[#2D2D2D] space-y-1.5 max-w-md mx-auto">
                 <div className="flex justify-between">
                   <span>Estimasi Total:</span>
                   <span className="font-bold">Rp{orderSuccess.totalAmount?.toLocaleString("id-ID")}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Down Payment (50%):</span>
-                  <span className="font-bold text-muted-olive">Rp{orderSuccess.dpAmount?.toLocaleString("id-ID")}</span>
+                  <span className="font-bold text-[#FF9857]">Rp{orderSuccess.dpAmount?.toLocaleString("id-ID")}</span>
                 </div>
               </div>
 
@@ -222,7 +341,7 @@ export default function OrderPage() {
                     href={orderSuccess.manualWhatsAppUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-800 text-white text-xs font-semibold uppercase tracking-wider hover:bg-emerald-900 transition-colors rounded-xs shadow-xs"
+                    className="inline-flex items-center justify-center gap-2 px-7 py-4 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold uppercase tracking-wider font-space rounded-full shadow-lg transition-all"
                   >
                     <MessageCircle className="w-4 h-4" />
                     <span>Konfirmasi ke WhatsApp Admin</span>
@@ -230,7 +349,7 @@ export default function OrderPage() {
                 )}
                 <a
                   href={`/dashboard/orders/${orderSuccess.orderNumber}`}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-deep-charcoal text-warm-ivory text-xs font-semibold uppercase tracking-wider hover:bg-muted-olive transition-colors rounded-xs"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-4 bg-[#2D2D2D] hover:bg-[#FF9857] text-white hover:text-[#2D2D2D] text-xs font-semibold uppercase tracking-wider font-space rounded-full shadow-md transition-all"
                 >
                   <span>Buka Tracking Order</span>
                   <ArrowRight className="w-4 h-4" />
@@ -239,16 +358,16 @@ export default function OrderPage() {
             </div>
           ) : (
             /* Order Form */
-            <div className="bg-white border border-[#D9D7CF] rounded-xs overflow-hidden shadow-xs">
+            <div className="bg-white/80 border border-[#D8D8D4] rounded-2xl overflow-hidden shadow-xs">
               {/* Service Tab Switcher */}
-              <div className="grid grid-cols-2 border-b border-[#D9D7CF] bg-warm-ivory text-center">
+              <div className="grid grid-cols-2 border-b border-[#D8D8D4] bg-[#EDECE8] text-center">
                 <button
                   type="button"
                   onClick={() => setServiceType("WEBSITE")}
-                  className={`py-4 text-xs sm:text-sm font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${
+                  className={`py-4 text-xs sm:text-sm font-semibold uppercase tracking-wider font-space flex items-center justify-center gap-2 transition-all cursor-pointer ${
                     serviceType === "WEBSITE"
-                      ? "bg-white text-deep-charcoal border-b-2 border-b-deep-charcoal font-bold"
-                      : "text-deep-charcoal/60 hover:text-deep-charcoal"
+                      ? "bg-white text-[#2D2D2D] border-b-2 border-b-[#FF9857] font-bold"
+                      : "text-[#787875] hover:text-[#2D2D2D]"
                   }`}
                 >
                   <Code2 className="w-4 h-4" />
@@ -257,10 +376,10 @@ export default function OrderPage() {
                 <button
                   type="button"
                   onClick={() => setServiceType("GRAPHIC_DESIGN")}
-                  className={`py-4 text-xs sm:text-sm font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors ${
+                  className={`py-4 text-xs sm:text-sm font-semibold uppercase tracking-wider font-space flex items-center justify-center gap-2 transition-all cursor-pointer ${
                     serviceType === "GRAPHIC_DESIGN"
-                      ? "bg-white text-deep-charcoal border-b-2 border-b-deep-charcoal font-bold"
-                      : "text-deep-charcoal/60 hover:text-deep-charcoal"
+                      ? "bg-white text-[#2D2D2D] border-b-2 border-b-[#FF9857] font-bold"
+                      : "text-[#787875] hover:text-[#2D2D2D]"
                   }`}
                 >
                   <Palette className="w-4 h-4" />
@@ -269,7 +388,7 @@ export default function OrderPage() {
               </div>
 
               {errorMsg && (
-                <div className="p-4 mx-8 mt-6 bg-red-50 border border-red-200 text-xs text-red-800 rounded-xs flex items-center gap-2">
+                <div className="p-4 mx-8 mt-6 bg-red-50 border border-red-200 text-xs text-red-800 rounded-2xl flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{errorMsg}</span>
                 </div>
@@ -617,15 +736,74 @@ export default function OrderPage() {
 
                 {/* Section D: Order Summary & Submit */}
                 <div className="pt-6 border-t border-[#D9D7CF] space-y-4">
+                  {/* Voucher Input */}
+                  <div className="p-4 bg-white border border-[#D9D7CF] rounded-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 bg-muted-olive text-warm-ivory font-bold font-mono text-[10px] rounded-xs uppercase">
+                        Kupon Promo
+                      </span>
+                      <span className="font-semibold text-deep-charcoal">
+                        Punya Kode Kupon Diskon?
+                      </span>
+                      {activeVoucher && (
+                        <button
+                          type="button"
+                          onClick={copyPromo}
+                          className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-olive hover:underline ml-1 select-none"
+                          title={`Salin kode kupon ${activeVoucher}`}
+                        >
+                          {copiedPromo ? (
+                            <span className="inline-flex items-center gap-0.5 text-emerald-700 font-bold">
+                              <Check className="w-3 h-3" />
+                              <span>Tersalin!</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-0.5">
+                              <Copy className="w-3 h-3" />
+                              <span>Salin: {activeVoucher}</span>
+                            </span>
+                          )}
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <input
+                        type="text"
+                        value={promoCode}
+                        onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                        placeholder={activeVoucher ? `Contoh: ${activeVoucher}` : "KODE KUPON"}
+                        className="px-3 py-1.5 bg-warm-ivory border border-[#D9D7CF] rounded-xs font-mono font-bold text-xs uppercase w-full sm:w-36 focus:outline-hidden focus:border-deep-charcoal"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => validateAndApplyVoucher(promoCode, subtotal)}
+                        className="px-3 py-1.5 bg-deep-charcoal text-warm-ivory text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-muted-olive transition-colors shrink-0"
+                      >
+                        Gunakan
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="p-6 bg-warm-ivory border border-[#D9D7CF] rounded-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div>
+                    <div className="space-y-1">
                       <span className="text-[11px] uppercase tracking-wider font-mono text-muted-olive font-bold block">
                         Ringkasan Estimasi Biaya
                       </span>
+
+                      {appliedPromo && (
+                        <div className="flex items-center gap-2 text-xs font-mono text-deep-charcoal/70">
+                          <span>Subtotal: Rp{subtotal.toLocaleString("id-ID")}</span>
+                          <span className="text-emerald-700 font-bold">
+                            ({appliedLabel || `Kupon ${appliedPromo}`}: -Rp{discountAmount.toLocaleString("id-ID")})
+                          </span>
+                        </div>
+                      )}
+
                       <div className="text-2xl font-display font-bold text-deep-charcoal">
                         Rp{totalEstimate.toLocaleString("id-ID")}
                       </div>
-                      <span className="text-[11px] text-deep-charcoal/60 font-mono">
+                      <span className="text-[11px] text-deep-charcoal/60 font-mono block">
                         DP 50%: Rp{dpEstimate.toLocaleString("id-ID")} (dibayarkan setelah verifikasi brief)
                       </span>
                     </div>
@@ -633,9 +811,9 @@ export default function OrderPage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full sm:w-auto px-8 py-4 bg-deep-charcoal text-warm-ivory text-xs font-semibold uppercase tracking-wider hover:bg-muted-olive transition-colors rounded-xs shadow-xs disabled:opacity-50"
+                      className="w-full sm:w-auto px-9 py-4 bg-[#2D2D2D] hover:bg-[#FF9857] text-white hover:text-[#2D2D2D] text-xs font-semibold uppercase tracking-wider font-space rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
                     >
-                      {loading ? "Memproses Pesanan..." : "Kirim Pesanan Sekarang"}
+                      {loading ? "Memproses Pesanan..." : "Kirim Pesanan Sekarang ↗"}
                     </button>
                   </div>
 

@@ -14,6 +14,9 @@ import {
   AlertCircle,
   RefreshCw,
   CreditCard,
+  Copy,
+  Check,
+  Tag,
 } from "lucide-react";
 
 const PIPELINE_STATUSES = [
@@ -53,6 +56,59 @@ export default function CustomerOrderDetailPage({
   // Message chat state
   const [newMessage, setNewMessage] = useState("");
   const [sendingMsg, setSendingMsg] = useState(false);
+
+  // Promo Coupon Claim state
+  const [couponCode, setCouponCode] = useState("");
+  const [claimingCoupon, setClaimingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState("");
+  const [copiedCoupon, setCopiedCoupon] = useState(false);
+
+  const copyCouponCode = async () => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(couponCode);
+      } else {
+        const el = document.createElement("textarea");
+        el.value = couponCode;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+      }
+      setCopiedCoupon(true);
+      setTimeout(() => setCopiedCoupon(false), 2500);
+    } catch {
+      setCopiedCoupon(true);
+      setTimeout(() => setCopiedCoupon(false), 2500);
+    }
+  };
+
+  const handleClaimCoupon = async () => {
+    if (!order || !couponCode.trim()) return;
+    setClaimingCoupon(true);
+    setCouponError("");
+
+    try {
+      const res = await fetch(`/api/orders/${order.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "CLAIM_PROMO",
+          promoCode: couponCode.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal mengklaim kupon.");
+
+      await fetchOrderDetail();
+      alert("Selamat! Kupon diskon berhasil diklaim dan dipotong dari tagihan Anda.");
+    } catch (err: any) {
+      setCouponError(err.message || "Gagal menerapkan kupon diskon.");
+    } finally {
+      setClaimingCoupon(false);
+    }
+  };
 
   const fetchOrderDetail = async () => {
     try {
@@ -525,6 +581,70 @@ export default function CustomerOrderDetailPage({
                 </span>
               </div>
             </div>
+
+            {/* Promo Coupon Claim & Copy Section */}
+            {order.notes?.includes("[KUPON:") || order.notes?.includes("Klaim Kupon") ? (
+              <div className="p-3 bg-muted-olive/15 border border-muted-olive/40 rounded-xs flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-muted-olive shrink-0" />
+                  <div>
+                    <span className="font-bold text-deep-charcoal block">Kupon Promo Diterapkan</span>
+                    <span className="text-[11px] text-deep-charcoal/70">Potongan harga promo telah dipotong dari total biaya jasa.</span>
+                  </div>
+                </div>
+              </div>
+            ) : order.status !== "COMPLETED" && order.status !== "DELIVERED" ? (
+              <div className="p-3.5 bg-warm-ivory border border-[#D9D7CF] rounded-xs space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5 text-muted-olive" />
+                    <span className="text-xs font-bold text-deep-charcoal uppercase tracking-wider font-mono">
+                      Klaim Kupon Diskon Promo
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={copyCouponCode}
+                    className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-olive hover:underline cursor-pointer select-none"
+                    title="Klik untuk menyalin kupon"
+                  >
+                    {copiedCoupon ? (
+                      <span className="inline-flex items-center gap-0.5 text-emerald-700 font-bold">
+                        <Check className="w-3 h-3" />
+                        <span>Tersalin!</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-0.5">
+                        <Copy className="w-3 h-3" />
+                        <span>Salin Kupon</span>
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="ARVANTA1111"
+                    className="flex-1 px-3 py-1.5 text-xs font-mono font-bold bg-white border border-[#D9D7CF] rounded-xs uppercase tracking-wider focus:outline-hidden focus:border-deep-charcoal"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleClaimCoupon}
+                    disabled={claimingCoupon || !couponCode.trim()}
+                    className="px-3.5 py-1.5 bg-deep-charcoal text-warm-ivory text-xs font-semibold uppercase tracking-wider hover:bg-muted-olive transition-colors rounded-xs disabled:opacity-50 whitespace-nowrap cursor-pointer"
+                  >
+                    {claimingCoupon ? "Memproses..." : "Klaim Diskon"}
+                  </button>
+                </div>
+
+                {couponError && (
+                  <p className="text-[11px] text-red-600 font-mono">{couponError}</p>
+                )}
+              </div>
+            ) : null}
 
             {/* Bank Accounts */}
             <div className="p-4 bg-warm-ivory border border-[#D9D7CF] rounded-xs space-y-2 text-xs font-mono">

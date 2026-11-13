@@ -1,0 +1,19 @@
+<svg width="340" height="340" viewBox="0 0 340 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="craftoGrad2" x1="20" y1="40" x2="300" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFC299" stop-opacity="0.9" />
+      <stop offset="40%" stop-color="#FF9857" stop-opacity="0.85" />
+      <stop offset="85%" stop-color="#E2651F" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#B8490B" stop-opacity="0.6" />
+    </linearGradient>
+    <linearGradient id="craftoShine2" x1="60" y1="80" x2="220" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#FF9857" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Flowing Floating Wing Ribbon -->
+  <path d="M40 180 C80 60, 220 20, 290 70 C330 100, 310 180, 250 230 C180 290, 80 270, 45 220 C30 195, 35 185, 40 180 Z" fill="url(#craftoGrad2)" />
+  <path d="M90 190 C130 90, 240 60, 280 100 C300 120, 280 170, 235 210 C180 260, 115 240, 90 190 Z" fill="url(#craftoShine2)" />
+  <path d="M70 200 Q 170 140 260 80" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="2" stroke-linecap="round" />
+</svg>

@@ -10,7 +10,7 @@ const VAPID_PUBLIC_KEY =
 const VAPID_PRIVATE_KEY =
   process.env.VAPID_PRIVATE_KEY || "Ji1NJ5Shv5yIbakqk47Z9xSKNbvRWyjt2IUP4WtDCg8";
 const VAPID_SUBJECT =
-  process.env.VAPID_SUBJECT || "mailto:contact@arvanta.studio";
+  process.env.VAPID_SUBJECT || "mailto:rafifazmi466@gmail.com";
 
 try {
   if (webpush && typeof webpush.setVapidDetails === "function" && VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {

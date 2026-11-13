@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+  <defs>
+    <linearGradient id="bgGradM" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#20211F" />
+      <stop offset="100%" stop-color="#141513" />
+    </linearGradient>
+    <pattern id="gridM" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#FFFFFF" stroke-opacity="0.04" stroke-width="1" />
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="450" fill="url(#bgGradM)" />
+  <rect width="600" height="450" fill="url(#gridM)" />
+
+  <!-- Big Watermark 11.11 -->
+  <text x="360" y="140" fill="#777B61" fill-opacity="0.18" font-family="system-ui, -apple-system, sans-serif" font-size="130" font-weight="900" letter-spacing="-4">11.11</text>
+
+  <!-- Outer Frame -->
+  <rect x="18" y="18" width="564" height="414" rx="4" fill="none" stroke="#777B61" stroke-opacity="0.3" stroke-width="1.5" />
+
+  <!-- Badge Pill -->
+  <g transform="translate(32, 32)">
+    <rect x="0" y="0" width="180" height="28" rx="3" fill="#777B61" />
+    <text x="14" y="19" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5">SPECIAL PROMO 11.11</text>
+  </g>
+
+  <!-- Main Headline -->
+  <text x="32" y="96" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" letter-spacing="-1">
+    MEGA FLASH SALE
+  </text>
+  <text x="32" y="134" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" letter-spacing="-1">
+    11.11 ARVANTA
+  </text>
+
+  <!-- Subtitle -->
+  <text x="32" y="168" fill="#D9D7CF" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="400">
+    Diskon Eksklusif Pembuatan Website &amp; Desain Grafis Khusus Periode 11.11
+  </text>
+
+  <!-- 2 Pricing Pills (Website & Desain) -->
+  <g transform="translate(32, 192)">
+    <!-- Web Box -->
+    <rect x="0" y="0" width="260" height="72" rx="4" fill="#F4F1EA" fill-opacity="0.06" stroke="#D9D7CF" stroke-opacity="0.2" />
+    <text x="14" y="24" fill="#A0A299" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" letter-spacing="1">JASA WEBSITE</text>
+    <text x="14" y="52" fill="#888A82" font-family="system-ui, -apple-system, sans-serif" font-size="13" text-decoration="line-through">Rp500rb</text>
+    <text x="74" y="52" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="900">Rp399rb</text>
+
+    <!-- Design Box -->
+    <rect x="275" y="0" width="260" height="72" rx="4" fill="#F4F1EA" fill-opacity="0.06" stroke="#D9D7CF" stroke-opacity="0.2" />
+    <text x="14" y="24" fill="#A0A299" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" letter-spacing="1">DESAIN GRAFIS</text>
+    <text x="14" y="52" fill="#888A82" font-family="system-ui, -apple-system, sans-serif" font-size="13" text-decoration="line-through">Rp50rb</text>
+    <text x="68" y="52" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="900">Rp39rb</text>
+  </g>
+
+  <!-- Coupon Code Card at Bottom -->
+  <g transform="translate(32, 280)">
+    <rect x="0" y="0" width="536" height="132" rx="6" fill="#F4F1EA" />
+    
+    <text x="24" y="28" fill="#20211F" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="800" letter-spacing="1.5">KODE KUPON DISKON 33%</text>
+
+    <!-- Coupon Badge -->
+    <rect x="24" y="40" width="240" height="44" rx="4" fill="#20211F" />
+    <text x="46" y="70" fill="#F4F1EA" font-family="monospace" font-size="20" font-weight="800" letter-spacing="3">ARVANTA1111</text>
+
+    <!-- CTA Button -->
+    <g transform="translate(285, 40)">
+      <rect x="0" y="0" width="226" height="44" rx="4" fill="#777B61" />
+      <text x="20" y="27" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="800" letter-spacing="1">KLAIM DISKON →</text>
+    </g>
+
+    <text x="24" y="112" fill="#5A5C55" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="500">
+      Otomatis dapat diklaim saat checkout formulir pemesanan Arvanta Studio
+    </text>
+  </g>
+</svg>

@@ -5,17 +5,26 @@ import {
   LayoutDashboard,
   ShoppingBag,
   Code2,
-  Palette,
-  FolderGit2,
+  DollarSign,
+  Tag,
+  Kanban,
   Users,
   CreditCard,
   Settings,
   Bell,
   LogOut,
   Shield,
-  Smartphone,
   ExternalLink,
+  Image as ImageIcon,
+  HelpCircle,
+  MessageSquareQuote,
+  BarChart3,
+  UserCog,
+  History,
+  Lock,
+  Layers,
 } from "lucide-react";
+import Logo from "@/components/Logo";
 import NotificationBell from "@/components/NotificationBell";
 
 export const dynamic = "force-dynamic";
@@ -30,70 +39,103 @@ export default async function AdminLayout({
     redirect("/login?redirect=/admin");
   }
 
-  const menuItems = [
-    { label: "Overview", href: "/admin", icon: LayoutDashboard },
-    { label: "Order Management", href: "/admin/orders", icon: ShoppingBag },
-    { label: "Layanan Website", href: "/admin/services", icon: Code2 },
-    { label: "Katalog Desain Grafis", href: "/admin/design", icon: Palette },
-    { label: "Portofolio Showcase", href: "/admin/portfolio", icon: FolderGit2 },
-    { label: "Pelanggan / Klien", href: "/admin/customers", icon: Users },
-    { label: "Verifikasi Pembayaran", href: "/admin/payments", icon: CreditCard },
-    { label: "Notifikasi & WhatsApp", href: "/admin/notifications", icon: Bell },
-    { label: "Pengaturan & Keamanan", href: "/admin/settings", icon: Settings },
+  const navSections = [
+    {
+      title: "Operasional Utama",
+      items: [
+        { label: "Dashboard Ringkasan", href: "/admin", icon: LayoutDashboard },
+        { label: "Manajemen Pesanan", href: "/admin/orders", icon: ShoppingBag },
+        { label: "Verifikasi Pembayaran", href: "/admin/payments", icon: CreditCard },
+        { label: "Tracking Proyek", href: "/admin/projects", icon: Kanban },
+      ],
+    },
+    {
+      title: "Layanan & Harga Dinamis",
+      items: [
+        { label: "Katalog Layanan", href: "/admin/services", icon: Code2 },
+        { label: "Manajemen Harga Dinamis", href: "/admin/pricing", icon: DollarSign },
+        { label: "Promo & Kode Voucher", href: "/admin/promotions", icon: Tag },
+        { label: "Banner & Pengumuman", href: "/admin/banners", icon: ImageIcon },
+      ],
+    },
+    {
+      title: "Pelanggan & Konten",
+      items: [
+        { label: "Data Pelanggan", href: "/admin/customers", icon: Users },
+        { label: "CMS Konten Website", href: "/admin/content", icon: Layers },
+        { label: "Kelola FAQ", href: "/admin/faqs", icon: HelpCircle },
+        { label: "Moderasi Testimoni", href: "/admin/testimonials", icon: MessageSquareQuote },
+      ],
+    },
+    {
+      title: "Laporan & Keamanan",
+      items: [
+        { label: "Laporan & Analitik", href: "/admin/reports", icon: BarChart3 },
+        { label: "Admin & Hak Akses", href: "/admin/users", icon: UserCog },
+        { label: "Audit Log Aktivitas", href: "/admin/audit-logs", icon: History },
+        { label: "Pusat Keamanan & Sesi", href: "/admin/security", icon: Lock },
+        { label: "Pengaturan Website", href: "/admin/settings", icon: Settings },
+      ],
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-[#F4F1EA] flex text-deep-charcoal">
+    <div className="min-h-screen bg-[#F5F2EB] flex text-deep-charcoal">
       {/* Sidebar Desktop */}
-      <aside className="w-64 bg-deep-charcoal text-warm-ivory hidden md:flex flex-col justify-between shrink-0 border-r border-deep-charcoal sticky top-0 h-screen">
-        <div className="p-6 space-y-6">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="w-8 h-8 bg-warm-ivory text-deep-charcoal flex items-center justify-center text-sm font-bold tracking-tight rounded-xs">
-              A
+      <aside className="w-68 bg-deep-charcoal text-warm-ivory hidden md:flex flex-col justify-between shrink-0 border-r border-[#171815] sticky top-0 h-screen overflow-y-auto">
+        <div className="p-5 space-y-6">
+          <div className="flex items-center justify-between pb-2 border-b border-warm-ivory/10">
+            <Logo variant="light" size="sm" withTagline={false} href="/admin" />
+            <span className="text-[9px] font-mono uppercase bg-muted-olive/30 text-warm-ivory px-2 py-0.5 rounded-xs">
+              Console
             </span>
-            <div className="flex flex-col">
-              <span className="text-base font-bold font-display uppercase tracking-tight text-warm-ivory">
-                Arvanta<span className="text-muted-olive">.</span>Admin
-              </span>
-              <span className="text-[9px] font-mono tracking-widest text-warm-ivory/50 uppercase">
-                Studio Console
-              </span>
-            </div>
-          </Link>
+          </div>
 
-          <nav className="space-y-1 text-xs">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xs text-warm-ivory/80 hover:text-warm-ivory hover:bg-warm-ivory/10 transition-colors"
-                >
-                  <Icon className="w-4 h-4 text-muted-olive" />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
+          <nav className="space-y-5">
+            {navSections.map((section) => (
+              <div key={section.title} className="space-y-1.5">
+                <span className="text-[10px] font-mono tracking-widest uppercase text-warm-ivory/40 block px-3">
+                  {section.title}
+                </span>
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xs text-xs text-warm-ivory/80 hover:text-warm-ivory hover:bg-warm-ivory/10 transition-colors"
+                    >
+                      <Icon className="w-3.5 h-3.5 text-muted-olive shrink-0" />
+                      <span className="truncate">{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
         </div>
 
-        <div className="p-6 border-t border-warm-ivory/10 space-y-3">
-          <div className="flex items-center gap-2 text-xs">
-            <Shield className="w-4 h-4 text-emerald-400" />
-            <div className="truncate">
-              <span className="block font-bold truncate">{session.fullName}</span>
-              <span className="text-[10px] text-warm-ivory/60 font-mono">
+        {/* User Card & Logout */}
+        <div className="p-4 border-t border-warm-ivory/10 space-y-3 bg-[#1B1C18]">
+          <div className="flex items-center gap-2.5 text-xs">
+            <div className="w-7 h-7 rounded-full bg-muted-olive/30 border border-muted-olive/50 flex items-center justify-center text-warm-ivory font-bold shrink-0">
+              {session.fullName.charAt(0)}
+            </div>
+            <div className="truncate flex-1">
+              <span className="block font-bold text-warm-ivory text-xs truncate">
+                {session.fullName}
+              </span>
+              <span className="text-[10px] text-muted-olive font-mono block">
                 {session.role}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center justify-between pt-1 border-t border-warm-ivory/10">
             <Link
               href="/"
               target="_blank"
-              className="text-[11px] font-mono text-warm-ivory/60 hover:text-warm-ivory flex items-center gap-1"
+              className="inline-flex items-center gap-1 text-[11px] text-warm-ivory/60 hover:text-warm-ivory transition-colors"
             >
               <span>Lihat Web</span>
               <ExternalLink className="w-3 h-3" />
@@ -102,7 +144,7 @@ export default async function AdminLayout({
             <form action="/api/auth/logout" method="POST">
               <button
                 type="submit"
-                className="text-[11px] font-mono text-red-400 hover:text-red-300 flex items-center gap-1"
+                className="inline-flex items-center gap-1 text-[11px] text-red-400 hover:text-red-300 transition-colors cursor-pointer"
               >
                 <LogOut className="w-3 h-3" />
                 <span>Keluar</span>
@@ -112,28 +154,33 @@ export default async function AdminLayout({
         </div>
       </aside>
 
-      {/* Main Admin Area */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Navbar */}
-        <header className="h-16 bg-white border-b border-[#D9D7CF] sticky top-0 z-30 px-6 flex items-center justify-between">
+        {/* Top Header */}
+        <header className="bg-white/80 backdrop-blur-sm border-b border-[#D9D7CF] sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-mono uppercase tracking-wider text-muted-olive font-bold">
-              Arvanta Studio Management System
+            <div className="md:hidden">
+              <Logo variant="dark" size="sm" href="/admin" />
+            </div>
+            <span className="text-xs font-mono uppercase tracking-wider text-deep-charcoal/60 hidden sm:inline-block">
+              Arvanta Studio Management Center
             </span>
           </div>
 
           <div className="flex items-center gap-4">
             <NotificationBell />
-
-            <div className="hidden sm:flex items-center gap-2 text-xs font-mono bg-warm-ivory px-3 py-1.5 border border-[#D9D7CF] rounded-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Admin: {session.username}</span>
-            </div>
+            <Link
+              href="/order"
+              target="_blank"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-deep-charcoal text-warm-ivory text-xs font-medium rounded-xs hover:bg-muted-olive transition-colors"
+            >
+              <span>+ Form Pemesanan</span>
+            </Link>
           </div>
         </header>
 
-        {/* Content Body */}
-        <main className="flex-1 p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-8">
+        {/* Dynamic Page Children */}
+        <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto">
           {children}
         </main>
       </div>

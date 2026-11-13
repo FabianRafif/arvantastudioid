@@ -9,7 +9,12 @@ import {
   MessageCircle,
   FileCheck,
   Shield,
+  CreditCard,
+  RotateCcw,
+  HelpCircle,
+  MessageSquare,
 } from "lucide-react";
+import Logo from "@/components/Logo";
 import NotificationBell from "@/components/NotificationBell";
 
 export const dynamic = "force-dynamic";
@@ -24,44 +29,46 @@ export default async function CustomerDashboardLayout({
     redirect("/login?redirect=/dashboard");
   }
 
+  const customerNav = [
+    { label: "Ringkasan", href: "/dashboard" },
+    { label: "Pesanan Saya", href: "/dashboard/orders" },
+    { label: "Tagihan & Invoice", href: "/dashboard/invoices" },
+    { label: "Pengajuan Revisi", href: "/dashboard/revisions" },
+    { label: "Pesan & Chat", href: "/dashboard/messages" },
+    { label: "Profil Akun", href: "/dashboard/profile" },
+    { label: "Bantuan", href: "/dashboard/help" },
+  ];
+
   return (
-    <div className="min-h-screen bg-warm-ivory flex flex-col text-deep-charcoal">
+    <div className="min-h-screen bg-[#F5F2EB] flex flex-col text-deep-charcoal">
       {/* Dashboard Topbar */}
       <header className="bg-white border-b border-[#D9D7CF] sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2.5">
-              <span className="w-8 h-8 bg-deep-charcoal text-warm-ivory flex items-center justify-center text-sm font-bold tracking-tight rounded-xs">
-                A
-              </span>
-              <span className="text-base font-bold font-display uppercase tracking-tight text-deep-charcoal">
-                Arvanta<span className="text-muted-olive">.</span>Portal
-              </span>
-            </Link>
+            <Logo variant="dark" size="sm" withTagline={false} href="/dashboard" />
 
-            <nav className="hidden sm:flex items-center gap-5 text-xs font-semibold uppercase tracking-wider">
-              <Link
-                href="/dashboard"
-                className="text-deep-charcoal hover:text-muted-olive transition-colors py-1"
-              >
-                Ringkasan
-              </Link>
-              <Link
-                href="/dashboard/orders"
-                className="text-deep-charcoal/70 hover:text-deep-charcoal transition-colors py-1"
-              >
-                Pesanan Saya
-              </Link>
-              <Link
-                href="/order"
-                className="text-muted-olive hover:text-deep-charcoal transition-colors py-1 flex items-center gap-1"
-              >
-                <span>+ Order Baru</span>
-              </Link>
+            <nav className="hidden lg:flex items-center gap-5 text-xs font-semibold uppercase tracking-wider">
+              {customerNav.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-deep-charcoal/70 hover:text-deep-charcoal transition-colors py-1"
+                >
+                  {item.label}
+                </Link>
+              ))}
             </nav>
           </div>
 
           <div className="flex items-center gap-4">
+            <Link
+              href="/order"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-muted-olive text-warm-ivory text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-deep-charcoal transition-colors"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>+ Pesan Baru</span>
+            </Link>
+
             <NotificationBell />
 
             <div className="hidden sm:flex flex-col text-right">
@@ -76,7 +83,7 @@ export default async function CustomerDashboardLayout({
             {session.role === "SUPER_ADMIN" || session.role === "ADMIN" ? (
               <Link
                 href="/admin"
-                className="px-2.5 py-1.5 bg-deep-charcoal text-warm-ivory text-[10px] font-mono font-bold uppercase rounded-xs"
+                className="px-2.5 py-1.5 bg-deep-charcoal text-warm-ivory text-[10px] font-mono font-bold uppercase rounded-xs hover:bg-muted-olive transition-colors"
               >
                 Admin Mode
               </Link>
@@ -85,13 +92,26 @@ export default async function CustomerDashboardLayout({
             <form action="/api/auth/logout" method="POST">
               <button
                 type="submit"
-                className="p-2 text-deep-charcoal/60 hover:text-red-700 transition-colors"
+                className="p-2 text-deep-charcoal/60 hover:text-red-700 transition-colors cursor-pointer"
                 title="Keluar"
               >
                 <LogOut className="w-4 h-4" />
               </button>
             </form>
           </div>
+        </div>
+
+        {/* Mobile Horizontal Subnav */}
+        <div className="lg:hidden flex items-center gap-4 px-4 py-2.5 overflow-x-auto border-t border-[#EAE5DB] bg-[#FAFAF8] text-xs font-medium">
+          {customerNav.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="shrink-0 text-deep-charcoal/80 hover:text-deep-charcoal"
+            >
+              {item.label}
+            </Link>
+          ))}
         </div>
       </header>
 

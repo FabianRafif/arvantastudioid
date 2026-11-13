@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Create session
-    await createSession(
+    const token = await createSession(
       newUser.id,
       {
         userId: newUser.id,
@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
       userAgent,
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       user: {
         id: newUser.id,
@@ -110,6 +110,16 @@ export async function POST(req: NextRequest) {
       },
       redirectUrl: "/dashboard",
     });
+
+    response.cookies.set("arvanta_session", token, {
+      httpOnly: true,
+      secure: process.env.COOKIE_SECURE === "true",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60,
+      path: "/",
+    });
+
+    return response;
   } catch (error: any) {
     console.error("Register route error:", error);
     return NextResponse.json(

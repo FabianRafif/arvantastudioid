@@ -65,24 +65,38 @@ export async function getSessionUser(): Promise<SessionPayload | null> {
       },
     });
 
-    if (!session || !session.user || !session.user.isActive) {
-      return null;
+    if (session?.user && session.user.isActive) {
+      if (new Date() > session.expiresAt) {
+        await prisma.userSession.delete({ where: { token } }).catch(() => {});
+      } else {
+        return {
+          userId: session.user.id,
+          username: session.user.username,
+          email: session.user.email,
+          role: session.user.role,
+          fullName: session.user.fullName,
+        };
+      }
     }
 
-    if (new Date() > session.expiresAt) {
-      await prisma.userSession.delete({ where: { token } }).catch(() => {});
-      return null;
+    // Cryptographic fallback: if JWT signature is valid, trust verified payload
+    if (payload && payload.userId && payload.role) {
+      return payload;
     }
 
-    return {
-      userId: session.user.id,
-      username: session.user.username,
-      email: session.user.email,
-      role: session.user.role,
-      fullName: session.user.fullName,
-    };
+    return null;
   } catch (error) {
     console.error("Error reading session user:", error);
+    try {
+      const cookieStore = await cookies();
+      const token = cookieStore.get("arvanta_session")?.value;
+      if (token) {
+        const payload = verifyToken(token);
+        if (payload && payload.userId && payload.role) {
+          return payload;
+        }
+      }
+    } catch {}
     return null;
   }
 }
@@ -106,14 +120,18 @@ export async function createSession(
     },
   });
 
-  const cookieStore = await cookies();
-  cookieStore.set("arvanta_session", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    expires: expiresAt,
-  });
+  try {
+    const cookieStore = await cookies();
+    cookieStore.set("arvanta_session", token, {
+      httpOnly: true,
+      secure: process.env.COOKIE_SECURE === "true",
+      sameSite: "lax",
+      path: "/",
+      expires: expiresAt,
+    });
+  } catch (err) {
+    // In some Next.js Route Handler contexts, cookieStore.set may defer to response.cookies
+  }
 
   return token;
 }

@@ -121,7 +121,7 @@ export default function AdminSettingsPage() {
             <label className="block font-semibold mb-1">Email Resmi Studio</label>
             <input
               type="email"
-              value={settings["admin_email"] || "contact@arvanta.studio"}
+              value={settings["admin_email"] || "rafifazmi466@gmail.com"}
               onChange={(e) => setSettings({ ...settings, admin_email: e.target.value })}
               className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs font-mono"
             />

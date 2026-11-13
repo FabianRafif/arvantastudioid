@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+  <defs>
+    <linearGradient id="ivoryBgM" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F4F1EA" />
+      <stop offset="100%" stop-color="#E8E4D8" />
+    </linearGradient>
+    <pattern id="lightGridM" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#20211F" stroke-opacity="0.04" stroke-width="1" />
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="450" fill="url(#ivoryBgM)" />
+  <rect width="600" height="450" fill="url(#lightGridM)" />
+
+  <!-- Outer Frame -->
+  <rect x="18" y="18" width="564" height="414" rx="4" fill="none" stroke="#20211F" stroke-width="1.5" />
+
+  <!-- Badge Pill -->
+  <g transform="translate(32, 32)">
+    <rect x="0" y="0" width="160" height="28" rx="3" fill="#20211F" />
+    <text x="14" y="19" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5">WEBSITE STUDIO</text>
+  </g>
+
+  <!-- Main Headline -->
+  <text x="32" y="96" fill="#20211F" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" letter-spacing="-1">
+    Website Modern
+  </text>
+  <text x="32" y="136" fill="#20211F" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" letter-spacing="-1">
+    &amp; Loading Cepat
+  </text>
+
+  <!-- Subtitle -->
+  <text x="32" y="170" fill="#5A5C55" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="500">
+    Solusi digital profesional untuk UMKM, Sekolah, Startup &amp; Perusahaan
+  </text>
+
+  <!-- Features Bullet List -->
+  <g transform="translate(32, 192)">
+    <circle cx="8" cy="10" r="4" fill="#10B981" />
+    <text x="22" y="14" fill="#20211F" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600">Teknologi Next.js &amp; Tailwind CSS (Instan &amp; SEO Friendly)</text>
+
+    <circle cx="8" cy="34" r="4" fill="#10B981" />
+    <text x="22" y="38" fill="#20211F" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600">Desain Responsif Optimal di Smartphone &amp; Laptop</text>
+
+    <circle cx="8" cy="58" r="4" fill="#10B981" />
+    <text x="22" y="62" fill="#20211F" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600">Integrasi Notifikasi Real-time WhatsApp Studio</text>
+  </g>
+
+  <!-- Highlight Price Card at Bottom -->
+  <g transform="translate(32, 276)">
+    <rect x="0" y="0" width="536" height="136" rx="6" fill="#20211F" />
+
+    <text x="24" y="28" fill="#777B61" font-family="monospace" font-size="10" font-weight="700" letter-spacing="1.5">FLASH SALE 11.11 — MULAI DARI</text>
+    
+    <!-- Price Row -->
+    <g transform="translate(24, 46)">
+      <text x="0" y="32" fill="#F4F1EA" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="900">Rp399.000</text>
+      <text x="180" y="28" fill="#A0A299" font-family="system-ui, -apple-system, sans-serif" font-size="16" text-decoration="line-through">Rp500rb</text>
+      
+      <!-- CTA Button -->
+      <g transform="translate(285, 2)">
+        <rect x="0" y="0" width="204" height="38" rx="3" fill="#F4F1EA" />
+        <text x="20" y="24" fill="#20211F" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="800" letter-spacing="1">PESAN WEBSITE →</text>
+      </g>
+    </g>
+
+    <text x="24" y="116" fill="#A0A299" font-family="system-ui, -apple-system, sans-serif" font-size="11">
+      *Domain &amp; hosting terpisah (Rp500rb - 700rb/th) • Garansi revisi langsung
+    </text>
+  </g>
+</svg>

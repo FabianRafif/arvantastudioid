@@ -35,11 +35,11 @@ export async function logActivity({
 }: {
   userId?: string | null;
   action: string;
-  entityType?: string;
-  entityId?: string;
-  details?: string;
-  ipAddress?: string;
-  userAgent?: string;
+  entityType?: string | null;
+  entityId?: string | null;
+  details?: string | null;
+  ipAddress?: string | null;
+  userAgent?: string | null;
 }) {
   try {
     await prisma.activityLog.create({

@@ -1,25 +1,51 @@
 @import "tailwindcss";
 
 @theme {
-  --color-warm-ivory: #F4F1EA;
-  --color-warm-ivory-light: #FBF9F5;
-  --color-warm-ivory-dark: #E8E5DD;
-  --color-deep-charcoal: #20211F;
-  --color-charcoal-light: #2D2E2B;
-  --color-charcoal-muted: #454742;
-  --color-muted-olive: #777B61;
-  --color-olive-dark: #585C46;
-  --color-olive-light: #92977B;
-  --color-soft-grey: #D9D7CF;
-  --color-soft-grey-dark: #BDBBB2;
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-bebas), "Bebas Neue", "Space Grotesk", sans-serif;
+  --font-mono: var(--font-space), "Space Grotesk", monospace;
+  
+  /* Crafto Design Agency Palette (Warm Alabaster Canvas + Off-Black Charcoal + Tangerine Orange) */
+  --color-canvas-base: #EDECE8;
+  --color-canvas-light: #F6F5F2;
+  --color-canvas-dark: #E2E1DC;
+  
+  --color-crafto-orange: #FF9857;
+  --color-crafto-orange-dark: #E57E3D;
+  --color-crafto-orange-light: #FFB382;
+  
+  --color-crafto-black: #2D2D2D;
+  --color-crafto-charcoal: #131312;
+  --color-crafto-surface: #1C1C1A;
+  
+  --color-crafto-muted: #787875;
+  --color-crafto-border: #D8D8D4;
+  --color-crafto-border-dark: #333331;
+  
+  /* Compatibility tokens */
+  --color-warm-ivory: #EDECE8;
+  --color-warm-ivory-light: #F6F5F2;
+  --color-warm-ivory-dark: #E2E1DC;
+  --color-deep-charcoal: #2D2D2D;
+  --color-charcoal-light: #3D3D3D;
+  --color-charcoal-muted: #787875;
+  --color-muted-olive: #FF9857;
+  --color-soft-grey: #D8D8D4;
+  --color-soft-grey-dark: #B8B8B4;
 }
 
 :root {
-  --bg-primary: #F4F1EA;
-  --text-primary: #20211F;
-  --text-muted: #5A5C55;
-  --accent-olive: #777B61;
-  --border-subtle: #D9D7CF;
+  --font-bebas: "Bebas Neue", sans-serif;
+  --font-space: "Space Grotesk", sans-serif;
+  --font-inter: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-bebas);
+  --font-mono: var(--font-space);
+  --bg-primary: #EDECE8;
+  --text-primary: #2D2D2D;
+  --text-muted: #787875;
+  --accent-orange: #FF9857;
+  --border-subtle: #D8D8D4;
 }
 
 body {
@@ -29,43 +55,84 @@ body {
   overflow-x: hidden;
 }
 
-/* Custom editorial selection styling */
+/* Custom Selection */
 ::selection {
-  background-color: #20211F;
-  color: #F4F1EA;
+  background-color: #FF9857;
+  color: #2D2D2D;
 }
 
-/* Swiss typography rhythm */
-.editorial-title {
-  letter-spacing: -0.035em;
-  line-height: 1.05;
+/* Diagonal Striped / Hatched Display Text Effect (Crafto Signature) */
+.striped-text {
+  background: repeating-linear-gradient(
+    -45deg,
+    #2D2D2D 0px,
+    #2D2D2D 3px,
+    transparent 3px,
+    transparent 7px
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.editorial-sub {
-  letter-spacing: -0.015em;
-  line-height: 1.45;
+.striped-text-orange {
+  background: repeating-linear-gradient(
+    -45deg,
+    #FF9857 0px,
+    #FF9857 3px,
+    transparent 3px,
+    transparent 7px
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Grid & Border details */
-.border-grid {
-  border-color: #D9D7CF;
+.striped-text-light {
+  background: repeating-linear-gradient(
+    -45deg,
+    #D8D8D4 0px,
+    #D8D8D4 3px,
+    transparent 3px,
+    transparent 7px
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Custom scrollbar */
+/* Architectural Grid Lines */
+.arch-grid-lines {
+  background-image: linear-gradient(to right, rgba(216, 216, 212, 0.6) 1px, transparent 1px);
+  background-size: 25% 100%;
+}
+
+.arch-grid-lines-dark {
+  background-image: linear-gradient(to right, rgba(51, 51, 49, 0.8) 1px, transparent 1px);
+  background-size: 25% 100%;
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F4F1EA;
+  background: #EDECE8;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #BDBBB2;
+  background: #2D2D2D;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #777B61;
+  background: #FF9857;
+}
+
+/* Explicit Font Family Classes for Crafto Typography */
+.font-bebas {
+  font-family: var(--font-bebas), "Bebas Neue", sans-serif;
+}
+
+.font-space {
+  font-family: var(--font-space), "Space Grotesk", sans-serif;
 }

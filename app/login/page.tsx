@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Lock, User, AlertCircle } from "lucide-react";
+import Logo from "@/components/Logo";
 
 function LoginForm() {
   const router = useRouter();
@@ -32,8 +33,7 @@ function LoginForm() {
         throw new Error(data.error || "Gagal melakukan login.");
       }
 
-      router.push(data.redirectUrl || redirect);
-      router.refresh();
+      window.location.href = data.redirectUrl || redirect;
     } catch (err: any) {
       setErrorMsg(err.message || "Terjadi kesalahan saat masuk.");
     } finally {
@@ -52,7 +52,7 @@ function LoginForm() {
 
       <div>
         <label className="block text-xs font-semibold text-deep-charcoal mb-1">
-          Username / Email
+          Username atau Email
         </label>
         <div className="relative">
           <input
@@ -60,7 +60,7 @@ function LoginForm() {
             required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="admin atau username Anda"
+            placeholder="Username atau email terdaftar"
             className="w-full pl-9 pr-3.5 py-2.5 text-xs bg-warm-ivory border border-[#D9D7CF] rounded-xs focus:outline-hidden focus:border-deep-charcoal"
           />
           <User className="w-4 h-4 text-deep-charcoal/40 absolute left-3 top-3" />
@@ -72,7 +72,12 @@ function LoginForm() {
           <label className="block text-xs font-semibold text-deep-charcoal">
             Kata Sandi
           </label>
-          <span className="text-[11px] text-deep-charcoal/50">Argon2 / Bcrypt Proteksi</span>
+          <Link
+            href="/forgot-password"
+            className="text-[11px] text-muted-olive hover:underline font-medium"
+          >
+            Lupa Password?
+          </Link>
         </div>
         <div className="relative">
           <input
@@ -90,7 +95,7 @@ function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 bg-deep-charcoal text-warm-ivory text-xs font-semibold uppercase tracking-wider hover:bg-muted-olive transition-colors rounded-xs shadow-xs disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
+        className="w-full py-3 bg-deep-charcoal text-warm-ivory text-xs font-semibold uppercase tracking-wider hover:bg-muted-olive transition-colors rounded-xs shadow-xs disabled:opacity-50 flex items-center justify-center gap-2 mt-2 cursor-pointer"
       >
         <span>{loading ? "Memverifikasi..." : "Masuk ke Sistem"}</span>
         <ArrowRight className="w-4 h-4" />
@@ -101,21 +106,16 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-warm-ivory flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-deep-charcoal">
+    <div className="min-h-screen bg-[#F5F2EB] flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-deep-charcoal">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3">
-        <Link href="/" className="inline-flex items-center gap-2.5">
-          <span className="w-9 h-9 bg-deep-charcoal text-warm-ivory flex items-center justify-center text-base font-bold tracking-tight rounded-xs">
-            A
-          </span>
-          <span className="text-xl font-bold font-display uppercase tracking-tight text-deep-charcoal">
-            Arvanta<span className="text-muted-olive">.</span>Studio
-          </span>
-        </Link>
-        <h2 className="text-2xl font-display font-bold text-deep-charcoal">
+        <div className="flex justify-center">
+          <Logo variant="dark" size="lg" withTagline={true} href="/" />
+        </div>
+        <h2 className="text-2xl font-display font-bold text-deep-charcoal pt-2">
           Masuk ke Akun Anda
         </h2>
         <p className="text-xs text-deep-charcoal/70">
-          Gunakan username dan password terdaftar untuk memantau status pesanan dan dashboard.
+          Gunakan username dan kata sandi Anda untuk mengakses dashboard pesanan, penawaran, dan tagihan.
         </p>
       </div>
 
@@ -133,10 +133,8 @@ export default function LoginPage() {
               </Link>
             </p>
 
-            <div className="p-3 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-[11px] text-deep-charcoal/70 text-left font-mono">
-              <strong className="block text-deep-charcoal mb-0.5">Akun Demo Laragon:</strong>
-              <div>• Super Admin: <span className="font-bold">admin</span> / <span className="font-bold">admin123</span></div>
-              <div>• Demo Klien: <span className="font-bold">klien</span> / <span className="font-bold">customer123</span></div>
+            <div className="p-3 bg-[#F5F2EB] border border-[#D9D7CF] rounded-xs text-[11px] text-deep-charcoal/60 text-center font-mono">
+              Autentikasi terenkripsi aman • Akses instan ke Dashboard
             </div>
           </div>
         </div>

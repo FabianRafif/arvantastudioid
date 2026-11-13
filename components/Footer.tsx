@@ -1,39 +1,41 @@
 import Link from "next/link";
-import { ArrowUpRight, MessageCircle, Mail, MapPin, Globe } from "lucide-react";
+import { ArrowUpRight, MessageCircle, Mail, MapPin } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-deep-charcoal text-warm-ivory border-t border-deep-charcoal mt-auto">
-      {/* Top Banner CTA */}
-      <div className="border-b border-warm-ivory/10">
+    <footer className="bg-[#FF9857] text-[#2D2D2D] relative overflow-hidden mt-auto select-none">
+      {/* Top CTA Row */}
+      <div className="border-b border-[#2D2D2D]/15">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
             <div className="lg:col-span-8">
-              <span className="text-xs uppercase tracking-widest font-mono text-muted-olive font-semibold block mb-3">
-                Siap Memulai Proyek Anda?
+              <span className="text-xs uppercase tracking-widest font-space text-[#2D2D2D] font-bold block mb-3">
+                // SIAP BERKOLABORASI DENGAN STUDIO KAMI?
               </span>
-              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-display font-bold tracking-tight editorial-title text-warm-ivory">
-                Let&apos;s build something exceptional together.
+              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#2D2D2D] font-bebas leading-[0.95]">
+                LET&apos;S BUILD SOMETHING EXTRAORDINARY TOGETHER.
               </h2>
+              <p className="mt-4 text-[#2D2D2D]/85 max-w-2xl text-sm sm:text-base leading-relaxed font-sans">
+                Kami siap merancang website berkinerja tinggi, sistem manajemen POS otomatis, dan identitas digital berkelas untuk mempercepat pertumbuhan bisnis Anda.
+              </p>
             </div>
-            <div className="lg:col-span-4 flex flex-col sm:flex-row gap-4 lg:justify-end">
+            <div className="lg:col-span-4 flex flex-col sm:flex-row gap-3 lg:justify-end">
               <Link
                 href="/order"
-                className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-warm-ivory text-deep-charcoal text-xs font-semibold uppercase tracking-wider hover:bg-muted-olive hover:text-warm-ivory transition-all duration-200 rounded-xs"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#2D2D2D] hover:bg-white text-white hover:text-[#2D2D2D] text-xs font-semibold uppercase tracking-wider font-space rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
               >
-                <span>Mulai Konsultasi & Order</span>
-                <ArrowUpRight className="w-4 h-4" />
+                <span>Mulai Order ↗</span>
               </Link>
               <a
                 href="https://wa.me/62895322465836"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-6 py-4 border border-warm-ivory/30 text-warm-ivory text-xs font-semibold uppercase tracking-wider hover:border-warm-ivory transition-colors rounded-xs"
+                className="inline-flex items-center justify-center gap-2 px-7 py-4 border border-[#2D2D2D]/40 hover:border-[#2D2D2D] text-[#2D2D2D] hover:bg-[#2D2D2D]/10 text-xs font-semibold uppercase tracking-wider font-space rounded-full transition-all cursor-pointer"
               >
-                <MessageCircle className="w-4 h-4 text-muted-olive" />
-                <span>WhatsApp Admin</span>
+                <MessageCircle className="w-4 h-4 text-[#2D2D2D]" />
+                <span>WhatsApp Siaga</span>
               </a>
             </div>
           </div>
@@ -45,150 +47,168 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Studio Brand Col */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <span className="w-8 h-8 bg-warm-ivory text-deep-charcoal flex items-center justify-center text-sm font-bold tracking-tight rounded-xs">
+            <Link href="/" className="inline-flex items-center gap-2 group">
+              <span className="w-8 h-8 rounded-full bg-[#2D2D2D] text-[#FF9857] flex items-center justify-center font-bold text-base font-space">
                 A
               </span>
-              <span className="text-xl font-bold font-display uppercase tracking-tight text-warm-ivory">
-                Arvanta<span className="text-muted-olive">.</span>Studio
+              <span className="font-bebas tracking-wider text-2xl sm:text-3xl text-[#2D2D2D]">
+                // ARVANTA.STUDIO
               </span>
-            </div>
-            <p className="text-xs text-warm-ivory/70 max-w-sm leading-relaxed">
-              Digital Experiences, Crafted with Purpose. Studio kreatif penyedia jasa pembuatan website performa tinggi, pemeliharaan sistem, dan desain grafis berkarakter editorial untuk bisnis yang berorientasi masa depan.
+            </Link>
+
+            <p className="text-xs sm:text-sm text-[#2D2D2D]/80 leading-relaxed max-w-sm pt-2 font-sans">
+              Arvanta Studio adalah digital agency &amp; software development studio. Kami membangun platform web kustom, sistem operasional terintegrasi, dan arsitektur digital berkinerja tinggi untuk brand &amp; institusi modern.
             </p>
-            <div className="flex items-center gap-4 pt-2 text-warm-ivory/60 text-xs">
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-muted-olive" />
-                Purwokerto & Banyumas, Jawa Tengah
-              </span>
+
+            <div className="pt-2 flex flex-col gap-2.5 text-xs text-[#2D2D2D]/90 font-space">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-3.5 h-3.5 text-[#2D2D2D] shrink-0" />
+                <span>Purwokerto, Banyumas, Jawa Tengah, Indonesia</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="w-3.5 h-3.5 text-[#2D2D2D] shrink-0" />
+                <span>rafifazmi466@gmail.com</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-3.5 h-3.5 text-[#2D2D2D] shrink-0" />
+                <span>+62 895-3224-65836</span>
+              </div>
             </div>
           </div>
 
-          {/* Services Col */}
+          {/* Layanan Unggulan */}
           <div>
-            <h4 className="text-xs font-mono uppercase tracking-widest text-muted-olive font-semibold mb-4">
-              Layanan Utama
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#2D2D2D] mb-4 font-space pb-2 border-b border-[#2D2D2D]/20">
+              Layanan Studio
             </h4>
-            <ul className="space-y-2.5 text-xs text-warm-ivory/75">
+            <ul className="space-y-2.5 text-xs text-[#2D2D2D]/85 font-sans">
               <li>
-                <Link href="/services#website" className="hover:text-warm-ivory transition-colors">
-                  Pembuatan Website Bisnis
+                <Link href="/services" className="hover:text-white transition-colors">
+                  Website Company Profile
                 </Link>
               </li>
               <li>
-                <Link href="/services#landing-page" className="hover:text-warm-ivory transition-colors">
-                  Landing Page Konversi Tinggi
+                <Link href="/services" className="hover:text-white transition-colors">
+                  Website Toko Online / E-Commerce
                 </Link>
               </li>
               <li>
-                <Link href="/services#ecommerce" className="hover:text-warm-ivory transition-colors">
-                  Toko Online & E-Commerce
+                <Link href="/services" className="hover:text-white transition-colors">
+                  Landing Page Kampanye Cepat
                 </Link>
               </li>
               <li>
-                <Link href="/services#maintenance" className="hover:text-warm-ivory transition-colors">
-                  Website Maintenance & Audit
+                <Link href="/services" className="hover:text-white transition-colors">
+                  Sistem Kasir &amp; POS Toko
                 </Link>
               </li>
               <li>
-                <Link href="/services#graphic-design" className="hover:text-warm-ivory transition-colors">
-                  Katalog Graphic Design (15+ Kategori)
+                <Link href="/services" className="hover:text-white transition-colors">
+                  Sistem Reservasi &amp; Booking
+                </Link>
+              </li>
+              <li>
+                <Link href="/services" className="hover:text-white transition-colors">
+                  Dashboard Manajemen Bisnis
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Platform & Company Col */}
+          {/* Eksplorasi */}
           <div>
-            <h4 className="text-xs font-mono uppercase tracking-widest text-muted-olive font-semibold mb-4">
-              Studio & Navigasi
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#2D2D2D] mb-4 font-space pb-2 border-b border-[#2D2D2D]/20">
+              Eksplorasi
             </h4>
-            <ul className="space-y-2.5 text-xs text-warm-ivory/75">
+            <ul className="space-y-2.5 text-xs text-[#2D2D2D]/85 font-sans">
               <li>
-                <Link href="/portfolio" className="hover:text-warm-ivory transition-colors">
-                  Selected Portofolio
+                <Link href="/pricing" className="hover:text-white transition-colors">
+                  Daftar Harga &amp; Paket
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="hover:text-warm-ivory transition-colors">
-                  Transparansi Paket & Harga
+                <Link href="/promo" className="hover:text-white transition-colors flex items-center gap-1.5">
+                  <span>Promo &amp; Penawaran</span>
+                  <span className="text-[9px] bg-[#2D2D2D] text-white px-2 py-0.5 rounded-full font-bold font-space uppercase">
+                    Aktif
+                  </span>
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="hover:text-warm-ivory transition-colors">
-                  Tentang Filosofi Arvanta
+                <Link href="/cara-kerja" className="hover:text-white transition-colors">
+                  Cara Kerja &amp; Alur
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-warm-ivory transition-colors">
-                  Hubungi Tim Desainer
+                <Link href="/faq" className="hover:text-white transition-colors">
+                  Pusat Bantuan &amp; FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/order" className="hover:text-warm-ivory transition-colors">
-                  Formulir Order Kustom
+                <Link href="/about" className="hover:text-white transition-colors">
+                  Tentang Arvanta Studio
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-white transition-colors">
+                  Hubungi Kami
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Contact Direct Col */}
+          {/* Legalitas & Akses */}
           <div>
-            <h4 className="text-xs font-mono uppercase tracking-widest text-muted-olive font-semibold mb-4">
-              Kontak Resmi
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[#2D2D2D] mb-4 font-space pb-2 border-b border-[#2D2D2D]/20">
+              Legalitas &amp; Akun
             </h4>
-            <div className="space-y-3 text-xs text-warm-ivory/75">
-              <div>
-                <span className="block text-[10px] text-warm-ivory/50 uppercase font-mono">
-                  WhatsApp Admin (24/7)
-                </span>
-                <a
-                  href="https://wa.me/62895322465836"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-mono text-warm-ivory hover:text-muted-olive transition-colors flex items-center gap-1.5 mt-0.5"
-                >
-                  <MessageCircle className="w-3.5 h-3.5 text-muted-olive" />
-                  +62 895-3224-65836
-                </a>
-              </div>
-              <div>
-                <span className="block text-[10px] text-warm-ivory/50 uppercase font-mono">
-                  Email Kerjasama
-                </span>
-                <a
-                  href="mailto:contact@arvanta.studio"
-                  className="font-mono text-warm-ivory hover:text-muted-olive transition-colors flex items-center gap-1.5 mt-0.5"
-                >
-                  <Mail className="w-3.5 h-3.5 text-muted-olive" />
-                  contact@arvanta.studio
-                </a>
-              </div>
-              <div>
-                <span className="block text-[10px] text-warm-ivory/50 uppercase font-mono">
-                  Jam Konsultasi
-                </span>
-                <span className="font-mono text-warm-ivory/80">
-                  Senin – Sabtu, 08.00 – 21.00 WIB
-                </span>
-              </div>
-            </div>
+            <ul className="space-y-2.5 text-xs text-[#2D2D2D]/85 font-sans">
+              <li>
+                <Link href="/terms" className="hover:text-white transition-colors">
+                  Syarat &amp; Ketentuan
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="hover:text-white transition-colors">
+                  Kebijakan Privasi
+                </Link>
+              </li>
+              <li>
+                <Link href="/login" className="hover:text-white transition-colors">
+                  Login Pelanggan
+                </Link>
+              </li>
+              <li>
+                <Link href="/register" className="hover:text-white transition-colors">
+                  Registrasi Akun Baru
+                </Link>
+              </li>
+              <li>
+                <Link href="/admin" className="hover:text-white transition-colors flex items-center gap-1">
+                  <span>Admin Panel</span>
+                  <ArrowUpRight className="w-3 h-3 text-[#2D2D2D]" />
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
 
-      {/* Bottom Sub-bar */}
-      <div className="border-t border-warm-ivory/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-warm-ivory/50 font-mono">
-          <p>© {currentYear} Arvanta Studio. All rights reserved. Crafted with Purpose.</p>
-          <div className="flex items-center gap-6">
-            <span>MySQL Laragon Powered</span>
+      {/* Bottom Bar with Hubs & Copyright */}
+      <div className="border-t border-[#2D2D2D]/15 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#2D2D2D]/80 font-space">
+          <div>
+            &copy; {currentYear} ARVANTA STUDIO. HAK CIPTA DILINDUNGI UNDANG-UNDANG.
+          </div>
+          <div className="flex items-center gap-4 text-[11px] uppercase tracking-wider">
+            <span className="font-semibold text-[#2D2D2D]">
+              PURWOKERTO • BANYUMAS • JAKARTA • INDONESIA
+            </span>
             <span>•</span>
-            <span>Secure RBAC & VAPID Push</span>
-            <span>•</span>
-            <Link href="/login" className="hover:text-warm-ivory transition-colors">
-              Staff Portal
-            </Link>
+            <span className="flex items-center gap-1.5 font-semibold text-[#2D2D2D]">
+              <span className="w-2 h-2 rounded-full bg-[#2D2D2D] animate-pulse" />
+              100% BAHASA INDONESIA
+            </span>
           </div>
         </div>
       </div>

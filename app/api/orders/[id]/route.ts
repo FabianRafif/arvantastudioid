@@ -134,6 +134,84 @@ export async function PATCH(
       updateData.internalNotes = body.internalNotes;
     }
 
+    // Customer or Admin can claim promo coupon during payment
+    if (body.action === "CLAIM_PROMO" || body.action === "CLAIM_COUPON") {
+      const code = (body.promoCode || body.couponCode || "").trim().toUpperCase();
+      // Look up coupon from database or flash sale dynamically
+      let validCoupon: { code: string; discountPercent: number; discountAmount: number } | null = null;
+
+      const flashSaleActive = await prisma.siteSetting.findUnique({ where: { key: "flash_sale_active" } });
+      const flashSaleVoucher = await prisma.siteSetting.findUnique({ where: { key: "flash_sale_voucher_code" } });
+      const flashSaleDiscount = await prisma.siteSetting.findUnique({ where: { key: "flash_sale_discount_percent" } });
+
+      if (
+        flashSaleActive?.value === "true" &&
+        code.toUpperCase() === (flashSaleVoucher?.value || "PROMO20").toUpperCase()
+      ) {
+        const pct = Number(flashSaleDiscount?.value) || 20;
+        const disc = Math.round(order.totalAmount * (pct / 100));
+        validCoupon = { code: code.toUpperCase(), discountPercent: pct, discountAmount: disc };
+      } else {
+        const dbCoupon = await prisma.coupon.findUnique({
+          where: { code: code.toUpperCase() },
+        });
+        if (dbCoupon && dbCoupon.isActive) {
+          let disc = 0;
+          if (dbCoupon.discountType === "PERCENTAGE") {
+            disc = Math.round(order.totalAmount * (dbCoupon.discountValue / 100));
+          } else {
+            disc = Math.min(order.totalAmount, dbCoupon.discountValue);
+          }
+          validCoupon = {
+            code: dbCoupon.code,
+            discountPercent: dbCoupon.discountType === "PERCENTAGE" ? dbCoupon.discountValue : 0,
+            discountAmount: disc,
+          };
+        }
+      }
+
+      if (!validCoupon) {
+        return NextResponse.json(
+          { error: "Kode kupon tidak valid atau sudah kadaluarsa." },
+          { status: 400 }
+        );
+      }
+
+      if (order.notes?.includes(`[KUPON: ${validCoupon.code}`) || order.notes?.includes("Klaim Kupon")) {
+        return NextResponse.json(
+          { error: "Kupon diskon sudah diterapkan pada pesanan ini." },
+          { status: 400 }
+        );
+      }
+
+      if (order.status === "COMPLETED" || order.status === "DELIVERED") {
+        return NextResponse.json(
+          { error: "Pesanan sudah berstatus selesai. Kupon diskon tidak dapat diterapkan." },
+          { status: 400 }
+        );
+      }
+
+      const discount = validCoupon.discountAmount;
+      const newTotal = Math.max(0, order.totalAmount - discount);
+      const newDp = Math.round(newTotal * 0.5);
+      const newRemaining = newTotal - newDp;
+
+      updateData.totalAmount = newTotal;
+      updateData.dpAmount = newDp;
+      updateData.remainingAmount = newRemaining;
+      updateData.notes = (order.notes ? order.notes + "\n" : "") +
+        `[KUPON: ${validCoupon.code} - Hemat Rp${discount.toLocaleString("id-ID")}]`;
+
+      await prisma.orderStatusHistory.create({
+        data: {
+          orderId: order.id,
+          previousStatus: order.status,
+          newStatus: order.status,
+          notes: `Klaim Kupon ${validCoupon.code} saat pembayaran: Hemat Rp${discount.toLocaleString("id-ID")}`,
+        },
+      });
+    }
+
     // Customer can request revision
     if (body.action === "REQUEST_REVISION" && !isAdmin) {
       updateData.status = "REVISION";

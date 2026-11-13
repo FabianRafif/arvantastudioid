@@ -17,7 +17,7 @@ model User {
   avatar           String?
   role             String            @default("CUSTOMER") // SUPER_ADMIN, ADMIN, CUSTOMER
   isActive         Boolean           @default(true) @map("is_active")
-  resetToken       String?           @map("reset_token")
+  resetToken       String?           @map("reset_token") @db.VarChar(500)
   resetTokenExpiry DateTime?         @map("reset_token_expiry")
   createdAt        DateTime          @default(now()) @map("created_at")
   updatedAt        DateTime          @updatedAt @map("updated_at")
@@ -39,7 +39,7 @@ model User {
 model UserSession {
   id        String   @id @default(cuid())
   userId    String   @map("user_id")
-  token     String   @unique
+  token     String   @unique @db.VarChar(500)
   ipAddress String?  @map("ip_address")
   userAgent String?  @map("user_agent") @db.Text
   expiresAt DateTime @map("expires_at")
@@ -539,4 +539,23 @@ model Faq {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("faqs")
+}
+
+model Banner {
+  id        String    @id @default(cuid())
+  title     String
+  subtitle  String?
+  badge     String?   @default("PROMO SPESIAL")
+  imageUrl  String    @map("image_url") @db.LongText
+  targetUrl String?   @map("target_url")
+  isActive  Boolean   @default(true) @map("is_active")
+  sortOrder Int       @default(0) @map("sort_order")
+  startDate DateTime? @map("start_date")
+  endDate   DateTime? @map("end_date")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@index([isActive])
+  @@index([sortOrder])
+  @@map("banners")
 }

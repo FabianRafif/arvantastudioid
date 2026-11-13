@@ -108,10 +108,6 @@ export default function DashboardHeader({
     return pathname.startsWith(href);
   };
 
-  const displayName = session.fullName
-    ? session.fullName.split(" ")[0]
-    : session.username;
-
   return (
     <header className="fixed top-3 sm:top-5 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
       {/* Floating Centered Pill Container (EXACT max-w-5xl as Gambar 3, centered with ample margin) */}
@@ -148,7 +144,7 @@ export default function DashboardHeader({
 
         {/* Right Section: Compact, Balanced & Elegant Actions */}
         <div className="flex items-center gap-2 shrink-0">
-          {/* + PESAN BARU Pill Button (Pill style like MULAI ORDER in Gambar 3) */}
+          {/* + PESAN BARU Pill Button */}
           <Link
             href="/order"
             className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-[#FF9857] hover:bg-[#2D2D2D] text-[#2D2D2D] hover:text-white font-space font-bold text-[11px] uppercase tracking-wider transition-all shadow-2xs shrink-0 select-none cursor-pointer"
@@ -163,32 +159,20 @@ export default function DashboardHeader({
             <NotificationBell />
           </div>
 
-          {/* User Account Capsule (Identical to AKUN pill in Gambar 3) */}
-          <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-[#D8D8D4]">
-            <Link
-              href="/dashboard/profile"
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#EDECE8] hover:bg-[#2D2D2D] hover:text-white text-[#2D2D2D] text-[11px] font-space font-bold uppercase tracking-wider transition-all shrink-0"
-              title={`${session.fullName} (@${session.username} • ${session.role})`}
+          {/* Logout Icon */}
+          <form
+            action="/api/auth/logout"
+            method="POST"
+            className="shrink-0 pl-1.5 border-l border-[#D8D8D4]"
+          >
+            <button
+              type="submit"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[#787875] hover:text-red-600 hover:bg-white/80 transition-colors cursor-pointer"
+              title="Keluar dari Akun"
             >
-              {session.role === "SUPER_ADMIN" || session.role === "ADMIN" ? (
-                <Shield className="w-3.5 h-3.5 text-[#FF9857]" />
-              ) : (
-                <UserIcon className="w-3.5 h-3.5 text-[#FF9857]" />
-              )}
-              <span className="truncate max-w-[85px]">{displayName}</span>
-            </Link>
-
-            {/* Logout Icon */}
-            <form action="/api/auth/logout" method="POST" className="shrink-0">
-              <button
-                type="submit"
-                className="w-7 h-7 rounded-full flex items-center justify-center text-[#787875] hover:text-red-600 hover:bg-white/80 transition-colors cursor-pointer"
-                title="Keluar dari Akun"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            </form>
-          </div>
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </form>
 
           {/* Mobile Hamburger Button */}
           <button

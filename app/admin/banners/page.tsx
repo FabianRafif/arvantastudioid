@@ -58,6 +58,7 @@ export default function AdminBannersPage() {
   const [uploadProgress, setUploadProgress] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [autoPublish, setAutoPublish] = useState(true);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const loadData = async () => {
@@ -195,26 +196,105 @@ export default function AdminBannersPage() {
       return;
     }
 
-    // If it's a huge PNG or JPG (> 3MB) and not an SVG, optimize it to prevent browser tab lag
-    if (file.size > 3 * 1024 * 1024 && !fileName.endsWith(".svg")) {
+    // Optimize raster images (PNG, JPG, WEBP) to web-friendly resolution to prevent payload limits
+    let fileToUse = file;
+    if (!fileName.endsWith(".svg")) {
       setIsOptimizing(true);
       try {
-        const optimizedFile = await optimizeBannerImage(file);
-        setFileToUpload(optimizedFile);
-        const localUrl = URL.createObjectURL(optimizedFile);
-        setPreviewUrl(localUrl);
-        setIsOptimizing(false);
-        return;
+        fileToUse = await optimizeBannerImage(file);
       } catch {
+        fileToUse = file;
+      } finally {
         setIsOptimizing(false);
       }
     }
 
-    setFileToUpload(file);
-    const localUrl = URL.createObjectURL(file);
+    setFileToUpload(fileToUse);
+    const localUrl = URL.createObjectURL(fileToUse);
     setPreviewUrl(localUrl);
+
+    const autoTitle = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").toUpperCase();
     if (!title) {
-      setTitle(file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").toUpperCase());
+      setTitle(autoTitle);
+    }
+
+    // Direct automatic publish if enabled
+    if (autoPublish) {
+      await autoPublishBanner(fileToUse, autoTitle);
+    }
+  };
+
+  const autoPublishBanner = async (file: File, fallbackTitle: string) => {
+    setSubmitting(true);
+    setUploadProgress(true);
+    setErrorMsg("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      let finalImageUrl = "";
+      try {
+        const res = await fetch("/api/admin/banners/upload", {
+          method: "POST",
+          body: formData,
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.url) finalImageUrl = data.url;
+        }
+      } catch (err) {
+        console.warn("Upload API error, using base64 fallback:", err);
+      }
+
+      if (!finalImageUrl) {
+        finalImageUrl = await fileToBase64(file);
+      }
+
+      if (!finalImageUrl) {
+        throw new Error("Gagal memproses gambar banner.");
+      }
+
+      const effectiveTitle = (title || fallbackTitle || "BANNER ARVANTA STUDIO").trim();
+      const resCreate = await fetch("/api/admin/banners", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: effectiveTitle,
+          subtitle: subtitle || "Promo & Penawaran Spesial Arvanta Studio",
+          badge: badge || "PROMO SPESIAL",
+          imageUrl: finalImageUrl,
+          targetUrl: targetUrl || "/order",
+          sortOrder: Number(sortOrder) || banners.length + 1,
+          isActive: true,
+        }),
+      });
+
+      const createData = await resCreate.json();
+      if (resCreate.ok && createData.success && createData.banner) {
+        setBanners((prev) => [
+          createData.banner,
+          ...prev.filter((b) => b.id !== createData.banner.id),
+        ]);
+        setSuccessMsg(`✓ Banner "${effectiveTitle}" berhasil diunggah dan langsung aktif di Beranda!`);
+        setTimeout(() => setSuccessMsg(""), 6000);
+
+        setFileToUpload(null);
+        setPreviewUrl("");
+        setImageUrl("");
+        if (fileInputRef.current) fileInputRef.current.value = "";
+
+        broadcastLiveUpdate();
+        await loadData();
+      } else {
+        throw new Error(createData.error || "Gagal menyimpan banner ke database.");
+      }
+    } catch (err: any) {
+      console.error("Auto publish error:", err);
+      setErrorMsg(err.message || "Gagal mengunggah banner otomatis.");
+    } finally {
+      setSubmitting(false);
+      setUploadProgress(false);
     }
   };
 
@@ -661,6 +741,23 @@ export default function AdminBannersPage() {
                   Maksimal 50MB. Format: JPG, PNG, WEBP, SVG.
                 </span>
               </label>
+            </div>
+
+            <div className="flex items-center justify-between mt-2.5 px-1 py-2 bg-emerald-50/60 border border-emerald-200 rounded-xs">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={autoPublish}
+                  onChange={(e) => setAutoPublish(e.target.checked)}
+                  className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
+                />
+                <span className="text-xs font-bold text-emerald-950">
+                  ⚡ Terbitkan Otomatis saat file dipilih (Upload langsung masuk ke daftar &amp; tampil di user)
+                </span>
+              </label>
+              <span className="text-[11px] text-emerald-700 hidden sm:inline font-mono">
+                {autoPublish ? "Aktif: 1-Klik Otomatis" : "Manual: Isi form dulu"}
+              </span>
             </div>
           </div>
 

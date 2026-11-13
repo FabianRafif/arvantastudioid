@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -26,8 +27,8 @@ import {
   Settings,
   ExternalLink,
   LogOut,
-  Shield,
   ChevronRight,
+  Shield,
 } from "lucide-react";
 import Logo from "@/components/Logo";
 
@@ -82,7 +83,12 @@ const navSections = [
 
 export default function AdminMobileNav({ session }: AdminMobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close drawer on path change
   useEffect(() => {
@@ -106,38 +112,24 @@ export default function AdminMobileNav({ session }: AdminMobileNavProps) {
     return pathname.startsWith(href);
   };
 
-  return (
-    <>
-      {/* Mobile Hamburger Trigger Button (Shown on mobile header) */}
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        className="md:hidden flex items-center gap-1.5 px-2.5 py-1.5 rounded-xs bg-[#2D2D2D]/10 hover:bg-[#2D2D2D]/20 text-[#2D2D2D] transition-colors cursor-pointer select-none"
-        aria-label="Buka Menu Admin"
-      >
-        <Menu className="w-5 h-5" />
-        <span className="text-[11px] font-mono font-bold uppercase tracking-wider">
-          Menu
-        </span>
-      </button>
+  const initialLetter = (session.fullName || session.username || "A").charAt(0).toUpperCase();
 
-      {/* Backdrop overlay */}
-      {isOpen && (
-        <div
-          onClick={() => setIsOpen(false)}
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs transition-opacity md:hidden"
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Slide-over Drawer from Left */}
+  const drawerContent = (
+    <div className="fixed inset-0 z-[99999] md:hidden pointer-events-auto">
+      {/* Dark Backdrop */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-[#181916] text-[#EDECE8] flex flex-col justify-between shadow-2xl transition-transform duration-300 ease-in-out md:hidden ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        onClick={() => setIsOpen(false)}
+        className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity"
+        aria-hidden="true"
+      />
+
+      {/* Slide-over Drawer Panel */}
+      <div
+        className="fixed inset-y-0 left-0 w-80 max-w-[85vw] h-full h-[100dvh] bg-[#181916] text-[#EDECE8] flex flex-col justify-between shadow-2xl z-[100000] border-r border-white/10"
+        style={{ touchAction: "pan-y" }}
       >
         {/* Top Drawer Header */}
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+        <div className="p-4 border-b border-white/10 flex items-center justify-between shrink-0 bg-[#141512]">
           <div className="flex items-center gap-2">
             <Logo variant="light" size="sm" withTagline={false} href="/admin" />
             <span className="text-[9px] font-mono uppercase bg-[#FF9857] text-[#2D2D2D] font-bold px-2 py-0.5 rounded-xs">
@@ -155,16 +147,16 @@ export default function AdminMobileNav({ session }: AdminMobileNavProps) {
           </button>
         </div>
 
-        {/* Scrollable Navigation Items */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          {/* User profile quick view */}
+        {/* Scrollable Navigation Body */}
+        <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-6">
+          {/* User profile card */}
           <div className="p-3 bg-white/5 border border-white/10 rounded-xs flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-[#FF9857] text-[#2D2D2D] flex items-center justify-center font-bold text-xs shrink-0">
-              {session.fullName.charAt(0)}
+              {initialLetter}
             </div>
             <div className="truncate flex-1">
               <span className="block font-bold text-white text-xs truncate">
-                {session.fullName}
+                {session.fullName || session.username}
               </span>
               <span className="text-[10px] text-[#FF9857] font-mono block">
                 {session.role}
@@ -188,7 +180,7 @@ export default function AdminMobileNav({ session }: AdminMobileNavProps) {
                       key={item.href}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className={`flex items-center justify-between px-3 py-2 rounded-xs text-xs transition-colors ${
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-xs text-xs transition-colors ${
                         active
                           ? "bg-[#FF9857] text-[#2D2D2D] font-bold shadow-xs"
                           : "text-white/80 hover:text-white hover:bg-white/10"
@@ -196,13 +188,13 @@ export default function AdminMobileNav({ session }: AdminMobileNavProps) {
                     >
                       <div className="flex items-center gap-2.5 truncate">
                         <Icon
-                          className={`w-3.5 h-3.5 shrink-0 ${
+                          className={`w-4 h-4 shrink-0 ${
                             active ? "text-[#2D2D2D]" : "text-[#FF9857]"
                           }`}
                         />
                         <span className="truncate">{item.label}</span>
                       </div>
-                      {active && <ChevronRight className="w-3.5 h-3.5 text-[#2D2D2D] shrink-0" />}
+                      {active && <ChevronRight className="w-4 h-4 text-[#2D2D2D] shrink-0" />}
                     </Link>
                   );
                 })}
@@ -212,7 +204,7 @@ export default function AdminMobileNav({ session }: AdminMobileNavProps) {
         </div>
 
         {/* Bottom Drawer Footer */}
-        <div className="p-4 border-t border-white/10 space-y-3 bg-[#121310]">
+        <div className="p-4 border-t border-white/10 space-y-3 bg-[#121310] shrink-0">
           <div className="flex items-center justify-between">
             <Link
               href="/"
@@ -236,6 +228,24 @@ export default function AdminMobileNav({ session }: AdminMobileNavProps) {
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Mobile Hamburger Trigger Button */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xs bg-[#2D2D2D] hover:bg-muted-olive text-warm-ivory text-xs font-bold font-space uppercase tracking-wider transition-colors cursor-pointer select-none shadow-xs shrink-0"
+        aria-label="Buka Menu Admin"
+      >
+        <Menu className="w-4 h-4 text-[#FF9857]" />
+        <span>Menu</span>
+      </button>
+
+      {/* Render Drawer to document.body via Portal to escape all parent containers */}
+      {mounted && isOpen && createPortal(drawerContent, document.body)}
     </>
   );
 }

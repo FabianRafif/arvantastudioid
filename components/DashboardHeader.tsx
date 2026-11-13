@@ -6,13 +6,11 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
-  Bell,
   LogOut,
-  User as UserIcon,
   Shield,
   Menu,
   X,
-  ArrowUpRight,
+  User as UserIcon,
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 
@@ -24,7 +22,7 @@ export interface UserSessionInfo {
   email?: string;
 }
 
-// Rolling Nav Link (Crafto Interaction)
+// Rolling Nav Link (Crafto Interaction matching Gambar 2)
 function DashboardRollingNavLink({
   href,
   label,
@@ -41,9 +39,9 @@ function DashboardRollingNavLink({
       href={href}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="relative flex items-center h-8 px-2.5 rounded-full select-none transition-colors group shrink-0"
+      className="relative flex items-center h-7 px-2 rounded-full select-none transition-colors group shrink-0"
     >
-      <div className="relative h-4 overflow-hidden text-[12px] font-space uppercase tracking-wider font-semibold whitespace-nowrap">
+      <div className="relative h-3.5 overflow-hidden text-[11px] font-space uppercase tracking-wider font-semibold whitespace-nowrap">
         <motion.div
           animate={{ y: isHovered ? "-50%" : "0%" }}
           transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
@@ -51,7 +49,7 @@ function DashboardRollingNavLink({
         >
           {/* Default Label */}
           <span
-            className={`flex h-4 items-center leading-none whitespace-nowrap ${
+            className={`flex h-3.5 items-center leading-none whitespace-nowrap ${
               isActive
                 ? "text-[#2D2D2D] font-bold"
                 : "text-[#787875] group-hover:text-[#2D2D2D]"
@@ -60,7 +58,7 @@ function DashboardRollingNavLink({
             {label}
           </span>
           {/* Hover Rolled In Label */}
-          <span className="flex h-4 items-center leading-none whitespace-nowrap text-[#FF9857] font-bold">
+          <span className="flex h-3.5 items-center leading-none whitespace-nowrap text-[#FF9857] font-bold">
             {label}
           </span>
         </motion.div>
@@ -70,7 +68,7 @@ function DashboardRollingNavLink({
       {isActive && (
         <motion.span
           layoutId="activeDashboardPill"
-          className="absolute -bottom-1 left-2.5 right-2.5 h-[2px] bg-[#FF9857] rounded-full"
+          className="absolute -bottom-1 left-1.5 right-1.5 h-[2px] bg-[#FF9857] rounded-full"
           transition={{ type: "spring", stiffness: 380, damping: 30 }}
         />
       )}
@@ -111,27 +109,29 @@ export default function DashboardHeader({
   };
 
   return (
-    <header className="fixed top-3 sm:top-5 left-0 right-0 z-50 flex justify-center px-3 sm:px-6 pointer-events-none">
-      {/* Floating Pill Container (Exact concept as Gambar 2) */}
+    <header className="fixed top-3 sm:top-5 left-0 right-0 z-50 flex justify-center px-4 sm:px-8 pointer-events-none">
+      {/* Floating Centered Pill Container (Centered with generous margin left & right) */}
       <nav
-        className={`pointer-events-auto flex items-center justify-between gap-2 lg:gap-4 rounded-full bg-[#EDECE8]/95 backdrop-blur-md px-3 sm:px-4 border border-[#D8D8D4] shadow-[0_15px_35px_-10px_rgba(45,45,45,0.12)] transition-all duration-300 max-w-7xl w-full select-none ${
+        className={`pointer-events-auto flex items-center justify-between gap-3 lg:gap-5 rounded-full bg-[#EDECE8]/95 backdrop-blur-md pl-4 pr-3 sm:pl-5 sm:pr-4 border border-[#D8D8D4] shadow-[0_15px_35px_-10px_rgba(45,45,45,0.12)] transition-all duration-300 max-w-6xl w-full mx-auto select-none ${
           scrolled ? "py-1.5 shadow-[0_20px_40px_-10px_rgba(45,45,45,0.18)]" : "py-2"
         }`}
       >
         {/* Left: Logo */}
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 pl-2 pr-2 py-0.5 rounded-full transition-transform hover:scale-105 active:scale-95 shrink-0"
+          className="flex items-center gap-1.5 py-0.5 rounded-full transition-transform hover:scale-105 active:scale-95 shrink-0"
           aria-label="Dashboard Customer"
         >
-          <span className="font-mono text-lg font-black text-[#FF9857] tracking-tight">//</span>
-          <span className="font-mono font-bold text-[#2D2D2D] text-xs sm:text-sm tracking-widest uppercase">
+          <span className="font-mono text-base sm:text-lg font-black text-[#FF9857] tracking-tight">
+            //
+          </span>
+          <span className="font-mono font-bold text-[#2D2D2D] text-xs sm:text-sm tracking-wider uppercase whitespace-nowrap">
             ARVANTA<span className="text-[#FF9857]">.</span>STUDIO
           </span>
         </Link>
 
-        {/* Center: Desktop Nav Links (Retaining Exact Teks of Gambar 1) */}
-        <div className="hidden xl:flex items-center gap-1 2xl:gap-2 px-1">
+        {/* Center: Desktop Nav Links (Retaining 100% of Teks from Gambar 1) */}
+        <div className="hidden xl:flex items-center gap-0.5 2xl:gap-1 px-1">
           {navLinks.map((item) => (
             <DashboardRollingNavLink
               key={item.href}
@@ -142,12 +142,12 @@ export default function DashboardHeader({
           ))}
         </div>
 
-        {/* Right Section: Actions from Gambar 1 */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* + PESAN BARU Pill Button (Exact text and bag icon from Gambar 1) */}
+        {/* Right Section: Actions (Teks & Elemen Gambar 1 dengan Spasi Lega) */}
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          {/* + PESAN BARU Button */}
           <Link
             href="/order"
-            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-full bg-[#FF9857] hover:bg-[#2D2D2D] text-[#2D2D2D] hover:text-white font-space font-bold text-xs uppercase tracking-wider transition-all shadow-xs shrink-0 select-none cursor-pointer"
+            className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-[#FF9857] hover:bg-[#2D2D2D] text-[#2D2D2D] hover:text-white font-space font-bold text-[11px] uppercase tracking-wider transition-all shadow-2xs shrink-0 select-none cursor-pointer"
           >
             <ShoppingBag className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">+ PESAN BARU</span>
@@ -159,12 +159,12 @@ export default function DashboardHeader({
             <NotificationBell />
           </div>
 
-          {/* User Profile Badge (Exact text from Gambar 1) */}
-          <div className="hidden lg:flex flex-col text-right leading-tight px-1 shrink-0">
-            <span className="text-xs font-bold text-[#2D2D2D] truncate max-w-[150px]">
+          {/* User Profile Info & Role */}
+          <div className="hidden lg:flex flex-col text-right leading-tight pl-1 shrink-0">
+            <span className="text-[11px] font-bold text-[#2D2D2D] truncate max-w-[125px]">
               {session.fullName}
             </span>
-            <span className="text-[10px] text-[#787875] font-space uppercase">
+            <span className="text-[9px] text-[#787875] font-space uppercase">
               @{session.username} • {session.role}
             </span>
           </div>
@@ -173,7 +173,7 @@ export default function DashboardHeader({
           {(session.role === "SUPER_ADMIN" || session.role === "ADMIN") && (
             <Link
               href="/admin"
-              className="hidden md:inline-flex items-center gap-1 px-3 py-1.5 bg-[#2D2D2D] hover:bg-[#FF9857] text-white hover:text-[#2D2D2D] text-[10px] font-space font-bold uppercase rounded-full transition-all shrink-0"
+              className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 bg-[#2D2D2D] hover:bg-[#FF9857] text-white hover:text-[#2D2D2D] text-[10px] font-space font-bold uppercase rounded-full transition-all shrink-0"
               title="Buka Console Admin"
             >
               <Shield className="w-3 h-3 text-[#FF9857]" />
@@ -181,14 +181,14 @@ export default function DashboardHeader({
             </Link>
           )}
 
-          {/* Logout Button (From Gambar 1) */}
+          {/* Logout Button */}
           <form action="/api/auth/logout" method="POST" className="shrink-0">
             <button
               type="submit"
-              className="w-8 h-8 rounded-full flex items-center justify-center text-[#787875] hover:text-red-600 hover:bg-white/80 border border-transparent hover:border-[#D8D8D4] transition-all cursor-pointer"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[#787875] hover:text-red-600 hover:bg-white/80 border border-transparent hover:border-[#D8D8D4] transition-all cursor-pointer"
               title="Keluar dari Akun"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3.5 h-3.5" />
             </button>
           </form>
 
@@ -196,7 +196,7 @@ export default function DashboardHeader({
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="xl:hidden w-8 h-8 rounded-full flex items-center justify-center text-[#2D2D2D] hover:bg-white/80 border border-[#D8D8D4] transition-colors shrink-0"
+            className="xl:hidden w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[#2D2D2D] hover:bg-white/80 border border-[#D8D8D4] transition-colors shrink-0"
             aria-label="Toggle Dashboard Menu"
           >
             {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}

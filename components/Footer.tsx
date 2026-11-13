@@ -47,13 +47,15 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Studio Brand Col */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="inline-flex items-center gap-2 group">
-              <span className="w-8 h-8 rounded-full bg-[#2D2D2D] text-[#FF9857] flex items-center justify-center font-bold text-base font-space">
-                A
-              </span>
-              <span className="font-bebas tracking-wider text-2xl sm:text-3xl text-[#2D2D2D]">
-                // ARVANTA.STUDIO
-              </span>
+            <Link href="/" className="inline-block group" aria-label="Arvanta Studio">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/arvanta-logo-dark.png"
+                alt="Arvanta Studio"
+                width={160}
+                height={160}
+                className="w-32 sm:w-36 h-auto object-contain transition-transform duration-200 group-hover:scale-105"
+              />
             </Link>
 
             <p className="text-xs sm:text-sm text-[#2D2D2D]/80 leading-relaxed max-w-sm pt-2 font-sans">

@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import Logo from "@/components/Logo";
 import NotificationBell from "@/components/NotificationBell";
+import AdminMobileNav from "@/components/AdminMobileNav";
 
 export const dynamic = "force-dynamic";
 
@@ -159,8 +160,17 @@ export default async function AdminLayout({
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="bg-white/80 backdrop-blur-sm border-b border-[#D9D7CF] sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between shadow-2xs">
-          <div className="flex items-center gap-3">
+        <header className="bg-white/80 backdrop-blur-sm border-b border-[#D9D7CF] sticky top-0 z-40 px-4 sm:px-6 py-3 flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Mobile Hamburger Drawer Trigger */}
+            <AdminMobileNav
+              session={{
+                fullName: session.fullName,
+                username: session.username,
+                role: session.role,
+              }}
+            />
+
             <div className="md:hidden">
               <Logo variant="dark" size="sm" href="/admin" />
             </div>
@@ -169,7 +179,7 @@ export default async function AdminLayout({
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <NotificationBell />
             <Link
               href="/order"

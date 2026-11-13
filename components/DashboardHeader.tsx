@@ -39,9 +39,9 @@ function DashboardRollingNavLink({
       href={href}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="relative flex items-center h-8 px-2 sm:px-2.5 rounded-full select-none transition-colors group shrink-0"
+      className="relative flex items-center h-8 px-1.5 xl:px-2.5 rounded-full select-none transition-colors group shrink-0"
     >
-      <div className="relative h-3.5 overflow-hidden text-[11px] font-space uppercase tracking-wider font-semibold whitespace-nowrap">
+      <div className="relative h-3.5 overflow-hidden text-[10.5px] xl:text-[11.5px] font-space uppercase tracking-wider font-semibold whitespace-nowrap">
         <motion.div
           animate={{ y: isHovered ? "-50%" : "0%" }}
           transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
@@ -68,7 +68,7 @@ function DashboardRollingNavLink({
       {isActive && (
         <motion.span
           layoutId="activeDashboardPill"
-          className="absolute -bottom-1 left-2 right-2 h-[2px] bg-[#FF9857] rounded-full"
+          className="absolute -bottom-0.5 left-1.5 right-1.5 h-[2px] bg-[#FF9857] rounded-full"
           transition={{ type: "spring", stiffness: 380, damping: 30 }}
         />
       )}
@@ -109,82 +109,86 @@ export default function DashboardHeader({
   };
 
   return (
-    <header className="fixed top-3 sm:top-5 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
-      {/* Floating Centered Pill Container (EXACT max-w-5xl as Gambar 3, centered with ample margin) */}
-      <nav
-        className={`pointer-events-auto flex items-center justify-between gap-2 sm:gap-3 rounded-full bg-[#EDECE8]/95 backdrop-blur-md px-3 sm:px-4 border border-[#D8D8D4] shadow-[0_15px_35px_-10px_rgba(45,45,45,0.12)] transition-all duration-300 max-w-5xl w-full mx-auto select-none ${
-          scrolled ? "py-1.5 shadow-[0_20px_40px_-10px_rgba(45,45,45,0.18)]" : "py-2"
-        }`}
-      >
-        {/* Left: Logo */}
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-1.5 pl-1.5 pr-2 py-0.5 rounded-full transition-transform hover:scale-105 active:scale-95 shrink-0"
-          aria-label="Dashboard Customer"
+    <header className="fixed top-3 sm:top-5 inset-x-0 z-50 flex justify-center pointer-events-none">
+      {/* Aligned Container matching exact max-w-7xl px-4 sm:px-6 lg:px-8 grid of Gambar 2 */}
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
+        <nav
+          className={`pointer-events-auto flex items-center justify-between lg:grid lg:grid-cols-[1fr_auto_1fr] rounded-full bg-[#EDECE8]/95 backdrop-blur-md px-3 sm:px-4 border border-[#D8D8D4] shadow-[0_15px_35px_-10px_rgba(45,45,45,0.12)] transition-all duration-300 w-full select-none ${
+            scrolled ? "py-1.5 shadow-[0_20px_40px_-10px_rgba(45,45,45,0.18)]" : "py-2"
+          }`}
         >
-          <span className="font-mono text-base sm:text-lg font-black text-[#FF9857] tracking-tight">
-            //
-          </span>
-          <span className="font-mono font-bold text-[#2D2D2D] text-xs sm:text-sm tracking-wider uppercase whitespace-nowrap">
-            ARVANTA<span className="text-[#FF9857]">.</span>STUDIO
-          </span>
-        </Link>
-
-        {/* Center: Desktop Nav Links (Retaining 100% of Teks from Gambar 1, spaced like Gambar 3) */}
-        <div className="hidden lg:flex items-center gap-0.5 xl:gap-1 px-1">
-          {navLinks.map((item) => (
-            <DashboardRollingNavLink
-              key={item.href}
-              href={item.href}
-              label={item.label}
-              isActive={isActive(item.href)}
-            />
-          ))}
-        </div>
-
-        {/* Right Section: Compact, Balanced & Elegant Actions */}
-        <div className="flex items-center gap-2 shrink-0">
-          {/* + PESAN BARU Pill Button */}
-          <Link
-            href="/order"
-            className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-[#FF9857] hover:bg-[#2D2D2D] text-[#2D2D2D] hover:text-white font-space font-bold text-[11px] uppercase tracking-wider transition-all shadow-2xs shrink-0 select-none cursor-pointer"
-          >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">+ PESAN BARU</span>
-            <span className="sm:hidden font-bold">+ PESAN</span>
-          </Link>
-
-          {/* Notification Bell */}
-          <div className="shrink-0 flex items-center">
-            <NotificationBell />
+          {/* Left: Logo (Col 1: 1fr, aligned start) */}
+          <div className="flex items-center justify-start">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-1.5 pl-1.5 pr-2 py-0.5 rounded-full transition-transform hover:scale-105 active:scale-95 shrink-0"
+              aria-label="Dashboard Customer"
+            >
+              <span className="font-mono text-base sm:text-lg font-black text-[#FF9857] tracking-tight">
+                //
+              </span>
+              <span className="font-mono font-bold text-[#2D2D2D] text-xs sm:text-sm tracking-wider uppercase whitespace-nowrap">
+                ARVANTA<span className="text-[#FF9857]">.</span>STUDIO
+              </span>
+            </Link>
           </div>
 
-          {/* Logout Icon */}
-          <form
-            action="/api/auth/logout"
-            method="POST"
-            className="shrink-0 pl-1.5 border-l border-[#D8D8D4]"
-          >
-            <button
-              type="submit"
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[#787875] hover:text-red-600 hover:bg-white/80 transition-colors cursor-pointer"
-              title="Keluar dari Akun"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-            </button>
-          </form>
+          {/* Center: Desktop Nav Links (Col 2: auto, mathematically centered at exact 50% centerline matching Gambar 2) */}
+          <div className="hidden lg:flex items-center justify-center gap-0.5 xl:gap-1 px-1">
+            {navLinks.map((item) => (
+              <DashboardRollingNavLink
+                key={item.href}
+                href={item.href}
+                label={item.label}
+                isActive={isActive(item.href)}
+              />
+            ))}
+          </div>
 
-          {/* Mobile Hamburger Button */}
-          <button
-            type="button"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[#2D2D2D] hover:bg-white/80 border border-[#D8D8D4] transition-colors shrink-0"
-            aria-label="Toggle Dashboard Menu"
-          >
-            {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-          </button>
-        </div>
-      </nav>
+          {/* Right Section: Compact, Balanced & Elegant Actions (Col 3: 1fr, aligned end) */}
+          <div className="flex items-center justify-end gap-2 shrink-0">
+            {/* + PESAN BARU Pill Button */}
+            <Link
+              href="/order"
+              className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-[#FF9857] hover:bg-[#2D2D2D] text-[#2D2D2D] hover:text-white font-space font-bold text-[10.5px] xl:text-[11px] uppercase tracking-wider transition-all shadow-2xs shrink-0 select-none cursor-pointer"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span className="hidden xl:inline">+ PESAN BARU</span>
+              <span className="xl:hidden font-bold">+ PESAN</span>
+            </Link>
+
+            {/* Notification Bell */}
+            <div className="shrink-0 flex items-center">
+              <NotificationBell />
+            </div>
+
+            {/* Logout Icon */}
+            <form
+              action="/api/auth/logout"
+              method="POST"
+              className="shrink-0 pl-1.5 border-l border-[#D8D8D4]"
+            >
+              <button
+                type="submit"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[#787875] hover:text-red-600 hover:bg-white/80 transition-colors cursor-pointer"
+                title="Keluar dari Akun"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </form>
+
+            {/* Mobile Hamburger Button */}
+            <button
+              type="button"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="lg:hidden w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[#2D2D2D] hover:bg-white/80 border border-[#D8D8D4] transition-colors shrink-0"
+              aria-label="Toggle Dashboard Menu"
+            >
+              {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </button>
+          </div>
+        </nav>
+      </div>
 
       {/* Mobile Menu Drawer */}
       <AnimatePresence>

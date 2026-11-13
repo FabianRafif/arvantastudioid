@@ -40,9 +40,9 @@ function RollingNavLink({
       href={href}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="relative flex items-center h-8 px-2.5 rounded-full select-none transition-colors group shrink-0"
+      className="relative flex items-center h-8 px-1.5 xl:px-2.5 rounded-full select-none transition-colors group shrink-0"
     >
-      <div className="relative h-4 overflow-hidden text-[12px] font-space uppercase tracking-wider font-semibold whitespace-nowrap">
+      <div className="relative h-4 overflow-hidden text-[11px] xl:text-[12px] font-space uppercase tracking-wider font-semibold whitespace-nowrap">
         <motion.div
           animate={{ y: isHovered ? "-50%" : "0%" }}
           transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
@@ -73,7 +73,7 @@ function RollingNavLink({
       {isActive && (
         <motion.span
           layoutId="activeNavPill"
-          className="absolute -bottom-1 left-2.5 right-2.5 h-[2px] bg-[#FF9857] rounded-full"
+          className="absolute -bottom-1 left-1.5 xl:left-2.5 right-1.5 xl:right-2.5 h-[2px] bg-[#FF9857] rounded-full"
           transition={{ type: "spring", stiffness: 380, damping: 30 }}
         />
       )}
@@ -86,11 +86,11 @@ function ActionPill({ user }: { user: UserSessionInfo | null }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
       {user && (
         <Link
           href={user.role === "SUPER_ADMIN" || user.role === "ADMIN" ? "/admin" : "/dashboard"}
-          className="relative flex h-9 sm:h-10 items-center justify-center rounded-full bg-[#EDECE8] hover:bg-[#2D2D2D] px-3.5 text-xs font-space uppercase tracking-wider font-semibold text-[#2D2D2D] hover:text-white transition-all shadow-xs shrink-0"
+          className="relative flex h-9 sm:h-10 items-center justify-center rounded-full bg-[#EDECE8] hover:bg-[#2D2D2D] px-3 sm:px-3.5 text-xs font-space uppercase tracking-wider font-semibold text-[#2D2D2D] hover:text-white transition-all shadow-xs shrink-0"
           title={user.role === "SUPER_ADMIN" || user.role === "ADMIN" ? "Admin Panel" : "Dashboard Klien"}
         >
           <span className="flex items-center gap-1.5">
@@ -110,9 +110,9 @@ function ActionPill({ user }: { user: UserSessionInfo | null }) {
         href="/order"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="relative flex h-9 sm:h-10 items-center justify-center rounded-full bg-[#2D2D2D] hover:bg-[#FF9857] px-5 sm:px-6 text-xs font-space uppercase tracking-wider font-bold text-white overflow-hidden shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all select-none shrink-0"
+        className="relative flex h-9 sm:h-10 items-center justify-center rounded-full bg-[#2D2D2D] hover:bg-[#FF9857] px-4 sm:px-5 xl:px-6 text-xs font-space uppercase tracking-wider font-bold text-white overflow-hidden shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all select-none shrink-0"
       >
-        <div className="relative h-4 overflow-hidden w-[105px] text-center">
+        <div className="relative h-4 overflow-hidden w-[96px] xl:w-[105px] text-center">
           <motion.div
             animate={{ y: isHovered ? "-50%" : "0%" }}
             transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
@@ -182,27 +182,27 @@ export default function Navbar() {
   };
 
   return (
-    <header className="fixed top-3 sm:top-5 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+    <header className="fixed top-3 sm:top-5 left-0 right-0 z-50 flex justify-center px-3 sm:px-4 pointer-events-none">
       {/* Floating Architectural Bar (Warm Alabaster Canvas with Subtle 1px Border) */}
       <nav
-        className={`pointer-events-auto flex items-center justify-between gap-3 sm:gap-6 rounded-full bg-[#EDECE8]/95 backdrop-blur-md px-3 sm:px-4 py-2 border border-[#D8D8D4] shadow-[0_15px_35px_-10px_rgba(45,45,45,0.12)] transition-all duration-300 max-w-5xl ${
+        className={`pointer-events-auto flex items-center justify-between gap-2 sm:gap-4 xl:gap-6 rounded-full bg-[#EDECE8]/95 backdrop-blur-md px-3 sm:px-4 xl:px-5 py-2 border border-[#D8D8D4] shadow-[0_15px_35px_-10px_rgba(45,45,45,0.12)] transition-all duration-300 w-full max-w-6xl xl:max-w-7xl ${
           scrolled ? "py-1.5 shadow-[0_20px_40px_-10px_rgba(45,45,45,0.18)]" : "py-2"
         }`}
       >
         {/* Left: Crafto // Logomark */}
         <Link
           href="/"
-          className="flex items-center gap-2 pl-2 pr-2 py-0.5 rounded-full transition-transform hover:scale-105 active:scale-95 shrink-0"
+          className="flex items-center gap-1.5 sm:gap-2 pl-1 sm:pl-2 pr-1 sm:pr-2 py-0.5 rounded-full transition-transform hover:scale-105 active:scale-95 shrink-0"
           aria-label="Arvanta Studio Home"
         >
-          <span className="font-mono text-lg font-black text-[#FF9857] tracking-tight">//</span>
-          <span className="font-mono font-bold text-[#2D2D2D] text-xs sm:text-sm tracking-widest uppercase">
+          <span className="font-mono text-base sm:text-lg font-black text-[#FF9857] tracking-tight">//</span>
+          <span className="font-mono font-bold text-[#2D2D2D] text-xs sm:text-sm tracking-wider sm:tracking-widest uppercase">
             ARVANTA<span className="text-[#FF9857]">.</span>STUDIO
           </span>
         </Link>
 
         {/* Center: Desktop Rolling Nav Links */}
-        <div className="hidden lg:flex items-center gap-1 xl:gap-2 px-1">
+        <div className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 px-0.5 xl:px-1">
           {navLinks.map((item) => (
             <RollingNavLink
               key={item.href}
@@ -215,7 +215,7 @@ export default function Navbar() {
         </div>
 
         {/* Right Section: Action Button & Login */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {!user && (
             <Link
               href="/login"
@@ -230,7 +230,7 @@ export default function Navbar() {
           {/* Mobile Hamburger Toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden flex h-9 w-9 items-center justify-center rounded-full bg-[#2D2D2D]/10 text-[#2D2D2D] hover:bg-[#2D2D2D]/20 transition-colors cursor-pointer"
+            className="lg:hidden flex h-9 w-9 items-center justify-center rounded-full bg-[#2D2D2D]/10 text-[#2D2D2D] hover:bg-[#2D2D2D]/20 transition-colors cursor-pointer shrink-0"
             aria-label="Toggle Menu"
           >
             {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}

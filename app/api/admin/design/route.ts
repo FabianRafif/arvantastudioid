@@ -94,6 +94,7 @@ export async function PUT(req: NextRequest) {
       where: { id },
       data: {
         name: data.name,
+        categoryId: data.categoryId ? data.categoryId : undefined,
         description: data.description,
         priceStarting: data.priceStarting ? parseInt(data.priceStarting, 10) : undefined,
         priceFinal: data.priceFinal ? parseInt(data.priceFinal, 10) : null,
@@ -122,8 +123,8 @@ export async function PUT(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const session = await getSessionUser();
-    if (!session || session.role !== "SUPER_ADMIN") {
-      return NextResponse.json({ error: "Hanya Super Admin yang dapat menghapus produk desain." }, { status: 403 });
+    if (!session || (session.role !== "SUPER_ADMIN" && session.role !== "ADMIN")) {
+      return NextResponse.json({ error: "Akses ditolak." }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);

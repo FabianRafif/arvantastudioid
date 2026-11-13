@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2, Check, Code2, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { Plus, Edit2, Trash2, Check, Code2, AlertCircle, Palette } from "lucide-react";
 
 export default function AdminServicesPage() {
   const [services, setServices] = useState<any[]>([]);
@@ -98,6 +99,21 @@ export default function AdminServicesPage() {
 
   return (
     <div className="space-y-6">
+      {/* Top Section Switcher */}
+      <div className="flex items-center gap-2 border-b border-[#D9D7CF] pb-3">
+        <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-deep-charcoal text-warm-ivory text-xs font-semibold uppercase tracking-wider rounded-xs">
+          <Code2 className="w-3.5 h-3.5 text-[#FF9857]" />
+          <span>Layanan Website &amp; Sistem</span>
+        </span>
+        <Link
+          href="/admin/design"
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-warm-ivory border border-[#D9D7CF] text-deep-charcoal text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors"
+        >
+          <Palette className="w-3.5 h-3.5 text-[#FF9857]" />
+          <span>Katalog Desain Grafis</span>
+        </Link>
+      </div>
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#D9D7CF] pb-4">
         <div>
           <h1 className="text-2xl font-display font-bold text-deep-charcoal">

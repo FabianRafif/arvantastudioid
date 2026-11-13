@@ -23,6 +23,7 @@ import {
   History,
   Lock,
   Layers,
+  Palette,
 } from "lucide-react";
 import Logo from "@/components/Logo";
 import NotificationBell from "@/components/NotificationBell";
@@ -52,7 +53,8 @@ export default async function AdminLayout({
     {
       title: "Layanan & Harga Dinamis",
       items: [
-        { label: "Katalog Layanan", href: "/admin/services", icon: Code2 },
+        { label: "Katalog Layanan Website", href: "/admin/services", icon: Code2 },
+        { label: "Katalog Desain Grafis", href: "/admin/design", icon: Palette },
         { label: "Manajemen Harga Dinamis", href: "/admin/pricing", icon: DollarSign },
         { label: "Promo & Kode Voucher", href: "/admin/promotions", icon: Tag },
         { label: "Banner & Pengumuman", href: "/admin/banners", icon: ImageIcon },

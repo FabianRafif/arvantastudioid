@@ -93,10 +93,33 @@ export default function BannerCarousel({
     };
   }, []);
 
+  const touchStartXRef = useRef<number | null>(null);
+
   // Guaranteed continuous auto-slide without requiring manual buttons
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % (banners.length || 1));
   }, [banners.length]);
+
+  const prevSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + (banners.length || 1)) % (banners.length || 1));
+  }, [banners.length]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return;
+    const diff = touchStartXRef.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+    touchStartXRef.current = null;
+  };
 
   useEffect(() => {
     if (banners.length <= 1) return;
@@ -134,11 +157,14 @@ export default function BannerCarousel({
         </div>
       )}
 
-      {/* Container: 160 x 60 cm (8:3) with Rounded 2xl Frame */}
+      {/* Container: 160 x 60 cm (8:3) with Rounded Frame */}
       <div
-        className={`relative w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-[8/3] ${
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        className={`relative w-full aspect-[8/3] sm:aspect-[16/10] md:aspect-[8/3] ${
           compact ? "max-h-[360px]" : "md:max-h-[520px]"
-        } bg-[#2D2D2D] rounded-2xl overflow-hidden border border-[#D8D8D4] shadow-xl select-none group`}
+        } bg-[#2D2D2D] rounded-xl sm:rounded-2xl overflow-hidden border border-[#D8D8D4] shadow-md sm:shadow-xl select-none group`}
+        style={{ touchAction: "pan-y" }}
       >
         {/* PHYSICAL HORIZONTAL SLIDING TRACK */}
         <div
@@ -216,9 +242,9 @@ export default function BannerCarousel({
           })}
         </div>
 
-        {/* Carousel Indicators / Dots (Bottom Center) */}
+        {/* Carousel Indicators / Dots (Desktop: inside banner) */}
         {banners.length > 1 && (
-          <div className="absolute bottom-3.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-black/50 backdrop-blur-xs px-3 py-1.5 rounded-full border border-white/10 shadow-lg">
+          <div className="hidden sm:flex absolute bottom-3.5 left-1/2 -translate-x-1/2 z-20 items-center gap-1.5 bg-black/50 backdrop-blur-xs px-3 py-1.5 rounded-full border border-white/10 shadow-lg">
             {banners.map((_, i) => (
               <button
                 key={i}
@@ -239,6 +265,25 @@ export default function BannerCarousel({
           </div>
         )}
       </div>
+
+      {/* Carousel Indicators / Dots (Mobile: cleanly underneath banner so it never covers banner text) */}
+      {banners.length > 1 && (
+        <div className="flex sm:hidden justify-center items-center gap-1.5 mt-2.5">
+          {banners.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setCurrentIndex(i)}
+              className={`transition-all rounded-full cursor-pointer ${
+                currentIndex === i
+                  ? "w-5 h-1.5 bg-[#FF9857]"
+                  : "w-1.5 h-1.5 bg-[#2D2D2D]/30 hover:bg-[#2D2D2D]/60"
+              }`}
+              aria-label={`Lihat banner ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

@@ -17,7 +17,9 @@ import {
   ShieldCheck,
   Copy,
   Check,
+  RefreshCw,
 } from "lucide-react";
+import { broadcastLiveUpdate } from "@/lib/live-sync";
 
 interface ServiceItem {
   id: string;
@@ -221,15 +223,21 @@ function OrderFormContent() {
   }, []);
 
   // Compute estimate with live package prices
+  const availablePackages =
+    services.flatMap((s) => s.packages || []).length > 0
+      ? services.flatMap((s) => s.packages || [])
+      : liveSync.pricing.packages;
+
+  useEffect(() => {
+    if (!selectedPackageId && availablePackages.length > 0) {
+      setSelectedPackageId(availablePackages[0].id);
+    }
+  }, [availablePackages, selectedPackageId]);
+
   const calculateSubtotal = () => {
     if (serviceType === "WEBSITE") {
-      const livePkg = liveSync.pricing.packages.find((p) => p.id === selectedPackageId);
+      const livePkg = availablePackages.find((p) => p.id === selectedPackageId);
       if (livePkg) return livePkg.price;
-
-      for (const s of services) {
-        const foundPkg = s.packages?.find((p) => p.id === selectedPackageId);
-        if (foundPkg) return foundPkg.price;
-      }
       return liveSync.pricing.lowestWebsitePrice || 1500000;
     } else {
       const foundDesign = designItems.find((d) => d.id === selectedDesignId);
@@ -252,8 +260,16 @@ function OrderFormContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setErrorMsg("");
+
+    if (!customerName.trim() || !customerPhone.trim()) {
+      setErrorMsg("Nama Lengkap dan Nomor WhatsApp wajib diisi sebelum mengirim pesanan.");
+      const errElem = document.getElementById("order-form-error-bottom");
+      if (errElem) errElem.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const fd = new FormData();
@@ -263,9 +279,9 @@ function OrderFormContent() {
       const finalNotes = promoNote + (notes || "");
 
       fd.append("serviceType", serviceType);
-      fd.append("customerName", customerName);
-      fd.append("customerPhone", customerPhone);
-      fd.append("customerEmail", customerEmail);
+      fd.append("customerName", customerName.trim());
+      fd.append("customerPhone", customerPhone.trim());
+      fd.append("customerEmail", customerEmail.trim());
       fd.append("notes", finalNotes);
       fd.append("deadline", deadline);
       fd.append("preferredBudget", `Rp${totalEstimate.toLocaleString("id-ID")}`);
@@ -276,10 +292,10 @@ function OrderFormContent() {
         fd.append("websiteType", websiteType);
         fd.append("websiteGoal", websiteGoal);
         fd.append("featuresNeeded", featuresNeeded);
-        fd.append("servicePackageId", selectedPackageId);
+        fd.append("servicePackageId", selectedPackageId || availablePackages[0]?.id || "");
         fd.append("referenceUrl", referenceUrl);
       } else {
-        fd.append("designCatalogId", selectedDesignId);
+        fd.append("designCatalogId", selectedDesignId || designItems[0]?.id || "");
         fd.append("designSize", designSize);
         fd.append("designQuantity", String(designQuantity));
         fd.append("designConcept", designConcept);
@@ -298,10 +314,27 @@ function OrderFormContent() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Gagal mengirim pesanan.");
+        throw new Error(data.error || "Gagal memproses pesanan.");
       }
 
       setOrderSuccess(data);
+
+      // Trigger instant real-time live sync to all Admin tabs in 0ms!
+      broadcastLiveUpdate();
+
+      // Automatically open WhatsApp to Admin with prefilled order
+      const targetWaUrl = data.whatsappUrl || data.manualWhatsAppUrl;
+      if (targetWaUrl) {
+        try {
+          const opened = window.open(targetWaUrl, "_blank");
+          if (!opened || opened.closed || typeof opened.closed === "undefined") {
+            // Popup blocker might have blocked it, redirect tab directly
+            window.location.href = targetWaUrl;
+          }
+        } catch {
+          window.location.href = targetWaUrl;
+        }
+      }
     } catch (err: any) {
       setErrorMsg(err.message || "Terjadi kesalahan saat memproses pesanan.");
     } finally {
@@ -350,41 +383,45 @@ function OrderFormContent() {
 
               <div className="space-y-2">
                 <span className="text-xs uppercase tracking-wider text-[#FF9857] font-semibold font-space">
-                  Pesanan Berhasil Diterima!
+                  Pesanan Berhasil Diterima & Terhubung ke WA!
                 </span>
                 <h2 className="text-3xl sm:text-4xl font-bold text-[#2D2D2D] font-bebas">
-                  Nomor Order: {orderSuccess.orderNumber}
+                  Nomor Order: {orderSuccess.orderNumber || orderSuccess.order?.orderNumber}
                 </h2>
                 <p className="text-xs sm:text-sm text-[#787875] max-w-md mx-auto">
-                  Detail kebutuhan dan file Anda telah tersimpan secara aman di database. Tim Arvanta Studio segera meninjau dan mengonfirmasi via WhatsApp.
+                  Detail kebutuhan dan brief proyek Anda telah tersimpan secara aman di database dan diteruskan langsung ke WhatsApp Admin Arvanta Studio.
                 </p>
               </div>
 
               <div className="p-5 bg-[#EDECE8] border border-[#D8D8D4] rounded-xl text-xs font-space text-[#2D2D2D] space-y-1.5 max-w-md mx-auto">
                 <div className="flex justify-between">
                   <span>Estimasi Total:</span>
-                  <span className="font-bold">Rp{orderSuccess.totalAmount?.toLocaleString("id-ID")}</span>
+                  <span className="font-bold">
+                    Rp{(orderSuccess.totalAmount || orderSuccess.order?.totalAmount)?.toLocaleString("id-ID")}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Down Payment (50%):</span>
-                  <span className="font-bold text-[#FF9857]">Rp{orderSuccess.dpAmount?.toLocaleString("id-ID")}</span>
+                  <span className="font-bold text-[#FF9857]">
+                    Rp{(orderSuccess.dpAmount || orderSuccess.order?.dpAmount)?.toLocaleString("id-ID")}
+                  </span>
                 </div>
               </div>
 
               <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
-                {orderSuccess.manualWhatsAppUrl && (
+                {(orderSuccess.whatsappUrl || orderSuccess.manualWhatsAppUrl) && (
                   <a
-                    href={orderSuccess.manualWhatsAppUrl}
+                    href={orderSuccess.whatsappUrl || orderSuccess.manualWhatsAppUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-7 py-4 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold uppercase tracking-wider font-space rounded-full shadow-lg transition-all"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#25D366] hover:bg-[#1ebd5b] text-white text-xs font-bold uppercase tracking-wider font-space rounded-full shadow-lg transition-all hover:scale-105"
                   >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Konfirmasi ke WhatsApp Admin</span>
+                    <MessageCircle className="w-5 h-5 fill-white" />
+                    <span>Lanjutkan ke WhatsApp Admin ↗</span>
                   </a>
                 )}
                 <a
-                  href={`/dashboard/orders/${orderSuccess.orderNumber}`}
+                  href={`/dashboard/orders/${orderSuccess.orderNumber || orderSuccess.order?.orderNumber}`}
                   className="inline-flex items-center justify-center gap-2 px-7 py-4 bg-[#2D2D2D] hover:bg-[#FF9857] text-white hover:text-[#2D2D2D] text-xs font-semibold uppercase tracking-wider font-space rounded-full shadow-md transition-all"
                 >
                   <span>Buka Tracking Order</span>
@@ -532,7 +569,7 @@ function OrderFormContent() {
                         Pilih Paket Layanan Website
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {services.flatMap((s) => s.packages || []).map((pkg) => (
+                        {availablePackages.map((pkg) => (
                           <label
                             key={pkg.id}
                             className={`p-3.5 border rounded-xs cursor-pointer flex items-center justify-between text-xs transition-colors ${
@@ -847,11 +884,28 @@ function OrderFormContent() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full sm:w-auto px-9 py-4 bg-[#2D2D2D] hover:bg-[#FF9857] text-white hover:text-[#2D2D2D] text-xs font-semibold uppercase tracking-wider font-space rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
+                      className="w-full sm:w-auto px-9 py-4 bg-[#2D2D2D] hover:bg-[#FF9857] text-white hover:text-[#2D2D2D] text-xs font-semibold uppercase tracking-wider font-space rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2.5"
                     >
-                      {loading ? "Memproses Pesanan..." : "Kirim Pesanan Sekarang ↗"}
+                      {loading ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin text-[#FF9857]" />
+                          <span>Menghubungkan ke WA &amp; Admin...</span>
+                        </>
+                      ) : (
+                        <span>Kirim Pesanan Sekarang ↗</span>
+                      )}
                     </button>
                   </div>
+
+                  {errorMsg && (
+                    <div
+                      id="order-form-error-bottom"
+                      className="p-4 bg-red-50 border border-red-300 text-xs text-red-800 rounded-xl flex items-center gap-2 shadow-xs"
+                    >
+                      <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                      <span className="font-semibold">{errorMsg}</span>
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-2 text-[11px] text-deep-charcoal/60 justify-center font-mono">
                     <ShieldCheck className="w-4 h-4 text-emerald-700" />

@@ -33,25 +33,27 @@ export function formatWhatsAppNumber(phone: string): string {
 }
 
 export function buildOrderMessageText(data: WhatsAppNotificationPayload): string {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL || "https://arvantastudioid.vercel.app";
   const dashboardLink = `${appUrl}/admin/orders/${data.orderId || data.orderNumber}`;
 
-  return `[ORDER BARU — ARVANTA STUDIO]
+  return `*PESANAN BARU — ARVANTA STUDIO*
+━━━━━━━━━━━━━━━━━━━━
+*Nomor Order:* ${data.orderNumber}
+*Nama Pemesan:* ${data.customerName}
+*WhatsApp Pemesan:* ${data.customerPhone}
 
-Nomor Order: ${data.orderNumber}
+*Layanan:* ${data.serviceType === "WEBSITE" ? "Pengembangan Website & Sistem" : "Graphic Design & Branding"}
+*Paket / Produk:* ${data.packageNameOrProduct}
+*Total Estimasi:* ${data.priceFormatted}
 
-Nama: ${data.customerName}
-WhatsApp: ${data.customerPhone}
-
-Layanan: ${data.serviceType}
-Produk/Paket: ${data.packageNameOrProduct}
-Harga: ${data.priceFormatted}
-
-Catatan & Kebutuhan:
+*Detail Kebutuhan & Catatan:*
 ${data.notes || data.details || "Tidak ada catatan khusus."}
+━━━━━━━━━━━━━━━━━━━━
+*Buka Detail di Dashboard Admin:*
+${dashboardLink}
 
-Silakan periksa dashboard admin untuk melihat detail pesanan:
-${dashboardLink}`;
+_Pesan ini dikirim otomatis melalui formulir pemesanan resmi Arvanta Studio._`;
 }
 
 export function generateManualWhatsAppLink(
@@ -65,9 +67,20 @@ export function generateManualWhatsAppLink(
 
 export async function sendWhatsAppNotification(
   data: WhatsAppNotificationPayload
-): Promise<{ success: boolean; status: string; message: string; waLink?: string }> {
-  const adminPhone =
-    process.env.ADMIN_WHATSAPP_NUMBER || "62895322465836";
+): Promise<{ success: boolean; status: string; message: string; waLink: string }> {
+  let adminPhone = process.env.ADMIN_WHATSAPP_NUMBER || "62895322465836";
+
+  try {
+    const siteSetting = await prisma.siteSetting.findUnique({
+      where: { key: "admin_whatsapp" },
+    });
+    if (siteSetting?.value) {
+      adminPhone = siteSetting.value;
+    }
+  } catch {
+    // fallback to env var
+  }
+
   const formattedAdminPhone = formatWhatsAppNumber(adminPhone);
   const messageText = buildOrderMessageText(data);
   const manualLink = generateManualWhatsAppLink(formattedAdminPhone, messageText);

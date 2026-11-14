@@ -74,6 +74,8 @@ export async function POST(req: NextRequest) {
     // Determine initial package price from database
     let baseAmount = 0;
     let packageNameOrProduct = "Layanan Pembuatan Website";
+    let validServicePackageId: string | null = null;
+    let validDesignCatalogId: string | null = null;
 
     if (serviceType === "WEBSITE" && servicePackageId) {
       const pkg = await prisma.servicePackage.findUnique({
@@ -81,6 +83,7 @@ export async function POST(req: NextRequest) {
         include: { service: true },
       });
       if (pkg) {
+        validServicePackageId = pkg.id;
         baseAmount = pkg.price;
         packageNameOrProduct = `${pkg.service.name} — ${pkg.name}`;
       } else {
@@ -91,6 +94,7 @@ export async function POST(req: NextRequest) {
         where: { id: designCatalogId },
       });
       if (design) {
+        validDesignCatalogId = design.id;
         baseAmount = (design.priceFinal || design.priceStarting) * (designQuantity || 1);
         packageNameOrProduct = `${design.name} (${designQuantity}x)`;
       }
@@ -215,8 +219,8 @@ export async function POST(req: NextRequest) {
       await tx.orderItem.create({
         data: {
           orderId: order.id,
-          servicePackageId: servicePackageId || null,
-          designCatalogId: designCatalogId || null,
+          servicePackageId: validServicePackageId,
+          designCatalogId: validDesignCatalogId,
           name: packageNameOrProduct,
           price: totalAmount,
           quantity: designQuantity || 1,
@@ -278,12 +282,47 @@ export async function POST(req: NextRequest) {
       return order;
     });
 
+    // Send WhatsApp notification to Admin & generate direct wa.me link
+    let whatsappUrl = "";
+    try {
+      const waRes = await sendWhatsAppNotification({
+        orderId: newOrder.id,
+        orderNumber: newOrder.orderNumber,
+        customerName,
+        customerPhone,
+        serviceType,
+        packageNameOrProduct,
+        priceFormatted: formatRupiah(totalAmount),
+        notes: notes || undefined,
+        details:
+          serviceType === "WEBSITE"
+            ? `Website: ${websiteType || "-"}, Goal: ${websiteGoal || "-"}, Fitur: ${featuresNeeded || "-"}`
+            : `Desain: ${designSize || "-"}, Qty: ${designQuantity}, Konsep: ${designConcept || "-"}`,
+      });
+      whatsappUrl = waRes.waLink || "";
+    } catch (waErr: any) {
+      console.warn("WhatsApp notification error:", waErr?.message);
+    }
+
     // Notify admins via Web Push
     try {
       await sendPushNotificationToAdmins({
         title: `Pesanan Baru: ${newOrder.orderNumber}`,
         message: `${customerName} baru saja memesan ${packageNameOrProduct}. Total: ${formatRupiah(totalAmount)}.`,
         url: `/admin/orders/${newOrder.id}`,
+      });
+    } catch {}
+
+    // Touch last_data_version for instant cross-tab real-time sync in Admin
+    try {
+      await prisma.siteSetting.upsert({
+        where: { key: "last_data_version" },
+        update: { value: Date.now().toString() },
+        create: {
+          key: "last_data_version",
+          value: Date.now().toString(),
+          description: "Global live sync trigger",
+        },
       });
     } catch {}
 
@@ -301,7 +340,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       order: newOrder,
-      message: "Pesanan berhasil dibuat dan snapshot harga telah dikunci.",
+      orderNumber: newOrder.orderNumber,
+      totalAmount,
+      dpAmount,
+      remainingAmount,
+      whatsappUrl,
+      manualWhatsAppUrl: whatsappUrl,
+      message: "Pesanan berhasil dibuat dan langsung terhubung ke WhatsApp Admin.",
     });
   } catch (error: any) {
     console.error("Gagal membuat pesanan:", error);

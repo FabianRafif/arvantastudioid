@@ -33,8 +33,10 @@ export function formatWhatsAppNumber(phone: string): string {
 }
 
 export function buildOrderMessageText(data: WhatsAppNotificationPayload): string {
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL || "https://arvantastudioid.vercel.app";
+  const isVercel = Boolean(process.env.VERCEL || process.env.NEXT_PUBLIC_VERCEL_URL);
+  const appUrl = isVercel
+    ? "https://arvantastudioid.vercel.app"
+    : (process.env.NEXT_PUBLIC_APP_URL || "https://arvantastudioid.vercel.app");
   const dashboardLink = `${appUrl}/admin/orders/${data.orderId || data.orderNumber}`;
 
   return `*PESANAN BARU — ARVANTA STUDIO*

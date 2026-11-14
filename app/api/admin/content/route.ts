@@ -41,6 +41,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Touch last_data_version for instant cross-tab live synchronization
+    const nowVersion = Date.now().toString();
+    await prisma.siteSetting.upsert({
+      where: { key: "last_data_version" },
+      update: { value: nowVersion },
+      create: { key: "last_data_version", value: nowVersion, description: "Global data version" },
+    });
+
     await logActivity({
       userId: session.userId,
       action: "CMS_UPDATE",

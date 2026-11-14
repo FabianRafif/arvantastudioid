@@ -5,6 +5,7 @@ import BannerCarousel from "@/components/BannerCarousel";
 import AnnouncementSection from "@/components/AnnouncementSection";
 import HeroQuickPricing from "@/components/HeroQuickPricing";
 import LivePricingCards from "@/components/LivePricingCards";
+import RunningTextMarquee from "@/components/RunningTextMarquee";
 import { prisma } from "@/lib/prisma";
 import {
   ArrowUpRight,
@@ -120,6 +121,15 @@ export default async function HomePage() {
     settings["hero_subheadline"] ||
     "Arvanta Studio membangun platform web berkinerja tinggi, sistem digital terintegrasi, dan identitas visual berkelas untuk mendorong pertumbuhan bisnis Anda.";
   const adminWhatsApp = settings["admin_whatsapp"] || "62895322465836";
+
+  let runningTextConfig = null;
+  if (settings["RUNNING_TEXT_SETTINGS"]) {
+    try {
+      runningTextConfig = JSON.parse(settings["RUNNING_TEXT_SETTINGS"]);
+    } catch {
+      runningTextConfig = null;
+    }
+  }
 
   // Fallback testimonials if empty
   const displayTestimonials =
@@ -277,6 +287,9 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Real-time Running Text Ticker (Logo & Tools Berjalan "Tanpa Jeda") */}
+        <RunningTextMarquee initialConfig={runningTextConfig} />
+
         {/* Dynamic Studio Banner Carousel (160 x 60 cm) Prominent Placement */}
         <BannerCarousel initialBanners={banners} />
 
@@ -289,7 +302,7 @@ export default async function HomePage() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-16">
               <div>
                 <span className="text-xs uppercase tracking-widest font-space text-[#787875] font-semibold block mb-2">
-                  // 01 · LAYANAN KAMI
+                  // LAYANAN KAMI
                 </span>
                 <h2 className="text-4xl sm:text-6xl font-bold tracking-tight text-[#2D2D2D] font-bebas">
                   KEMAMPUAN &amp; SPESIALISASI DIGITAL
@@ -435,7 +448,7 @@ export default async function HomePage() {
               {/* Left Column: Big Philosophy & Action Hook */}
               <div className="lg:col-span-5 space-y-6">
                 <span className="text-xs uppercase tracking-widest font-space text-[#787875] font-semibold block">
-                  // 02 · MENGAPA MEMILIH KAMI
+                  // MENGAPA MEMILIH KAMI
                 </span>
                 <h2 className="text-4xl sm:text-6xl font-bold tracking-tight text-[#2D2D2D] font-bebas leading-[0.95]">
                   DIBANGUN DENGAN TUJUAN. DIRANCANG UNTUK HASIL.
@@ -466,9 +479,9 @@ export default async function HomePage() {
                 <div className="p-8 rounded-2xl bg-white/70 hover:bg-white border border-[#D8D8D4] hover:border-[#2D2D2D] transition-all space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-space font-bold text-[#FF9857] uppercase tracking-wider">
-                      // PRINSIP 01
+                      // STANDAR REKAYASA
                     </span>
-                    <span className="text-xs font-space text-[#787875]">Standar Rekayasa</span>
+                    <span className="text-xs font-space text-[#787875]">Keunggulan Mutu</span>
                   </div>
                   <h3 className="text-2xl sm:text-3xl font-bold text-[#2D2D2D] font-bebas">
                     KUALITAS KODE &amp; DESAIN TANPA KOMPROMI
@@ -481,9 +494,9 @@ export default async function HomePage() {
                 <div className="p-8 rounded-2xl bg-white/70 hover:bg-white border border-[#D8D8D4] hover:border-[#2D2D2D] transition-all space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-space font-bold text-[#FF9857] uppercase tracking-wider">
-                      // PRINSIP 02
+                      // INTEGRITAS DATA
                     </span>
-                    <span className="text-xs font-space text-[#787875]">Integritas Data</span>
+                    <span className="text-xs font-space text-[#787875]">Sinkronisasi Real-Time</span>
                   </div>
                   <h3 className="text-2xl sm:text-3xl font-bold text-[#2D2D2D] font-bebas">
                     DATABASE MYSQL &amp; REAL-TIME LIVE SYNC
@@ -496,9 +509,9 @@ export default async function HomePage() {
                 <div className="p-8 rounded-2xl bg-white/70 hover:bg-white border border-[#D8D8D4] hover:border-[#2D2D2D] transition-all space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-space font-bold text-[#FF9857] uppercase tracking-wider">
-                      // PRINSIP 03
+                      // TRANSPARANSI PENUH
                     </span>
-                    <span className="text-xs font-space text-[#787875]">Transparansi Penuh</span>
+                    <span className="text-xs font-space text-[#787875]">Hak Milik 100%</span>
                   </div>
                   <h3 className="text-2xl sm:text-3xl font-bold text-[#2D2D2D] font-bebas">
                     HAK MILIK PENUH 100% &amp; TANPA BIAYA TERSEMBUNYI
@@ -620,7 +633,7 @@ export default async function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mb-12 space-y-3">
               <span className="text-xs uppercase tracking-widest font-space text-[#787875] font-semibold block">
-                // 03 · DAFTAR HARGA TRANSPARAN
+                // DAFTAR HARGA TRANSPARAN
               </span>
               <h2 className="text-4xl sm:text-6xl font-bold tracking-tight text-[#2D2D2D] font-bebas">
                 PAKET JASA PEMBUATAN WEBSITE RESMI
@@ -644,7 +657,7 @@ export default async function HomePage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end mb-16">
               <div className="lg:col-span-8">
                 <span className="text-xs uppercase tracking-widest font-space text-[#787875] font-semibold block mb-2">
-                  // 04 · REPUTASI &amp; ULASAN KLIEN
+                  // REPUTASI &amp; ULASAN KLIEN
                 </span>
                 <h2 className="text-4xl sm:text-6xl font-bold tracking-tight text-[#2D2D2D] font-bebas">
                   DIPERCAYAI OLEH PEMILIK BISNIS &amp; MITRA
@@ -721,7 +734,7 @@ export default async function HomePage() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16 space-y-3">
               <span className="text-xs uppercase tracking-widest font-space text-[#787875] font-semibold block">
-                // 05 · PUSAT BANTUAN &amp; FAQ
+                // PUSAT BANTUAN &amp; FAQ
               </span>
               <h2 className="text-4xl sm:text-6xl font-bold tracking-tight text-[#2D2D2D] font-bebas">
                 PERTANYAAN YANG SERING DIAJUKAN

@@ -149,7 +149,7 @@ export default function BannerCarousel({
       {showHeader && (
         <div className="mb-6 sm:mb-8">
           <span className="text-xs uppercase tracking-widest font-space text-[#787875] font-semibold block mb-2">
-            // 02 · CASE STUDIES &amp; OFFERS
+            // CASE STUDIES &amp; OFFERS
           </span>
           <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#2D2D2D] font-bebas">
             PENAWARAN &amp; KAMPANYE PROMO TERKINI

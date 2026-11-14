@@ -45,6 +45,7 @@ export async function GET() {
               "flash_sale_voucher_code",
               "flash_sale_end_time",
               "last_data_version",
+              "RUNNING_TEXT_SETTINGS",
             ],
           },
         },
@@ -148,6 +149,15 @@ export async function GET() {
         banners,
         navbarBadge,
       },
+      runningText: settingsMap["RUNNING_TEXT_SETTINGS"]
+        ? (() => {
+            try {
+              return JSON.parse(settingsMap["RUNNING_TEXT_SETTINGS"]);
+            } catch {
+              return null;
+            }
+          })()
+        : null,
     });
   } catch (error: any) {
     console.error("Live-sync API error:", error);

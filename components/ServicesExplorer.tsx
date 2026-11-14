@@ -307,7 +307,7 @@ function ServicesExplorerInner({
           <div className="border-b border-[#D8D8D4] pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
             <div>
               <span className="text-xs font-space uppercase text-[#787875] font-semibold block mb-1">
-                // 01 · PENGEMBANGAN WEBSITE &amp; SISTEM
+                // PENGEMBANGAN WEBSITE &amp; SISTEM
               </span>
               <h2 className="text-3xl sm:text-5xl font-bold text-[#2D2D2D] font-bebas tracking-wide">
                 WEBSITE DEVELOPMENT &amp; SISTEM DIGITAL
@@ -456,7 +456,7 @@ function ServicesExplorerInner({
           <div className="border-b border-[#D8D8D4] pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
             <div>
               <span className="text-xs font-space uppercase text-[#787875] font-semibold block mb-1">
-                // 02 · KATALOG DESAIN GRAFIS &amp; BRAND IDENTITY
+                // KATALOG DESAIN GRAFIS &amp; BRAND IDENTITY
               </span>
               <h2 className="text-3xl sm:text-5xl font-bold text-[#2D2D2D] font-bebas tracking-wide">
                 VISUAL IDENTITY &amp; GRAPHIC DESIGN STUDIO

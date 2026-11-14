@@ -136,3 +136,26 @@ body {
 .font-space {
   font-family: var(--font-space), "Space Grotesk", sans-serif;
 }
+
+/* Real-time Infinite Seamless Marquee Ticker ("Tanpa Jeda") */
+@keyframes marquee-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-marquee-infinite {
+  display: flex;
+  flex-direction: row;
+  width: max-content;
+  will-change: transform;
+  animation: marquee-scroll var(--marquee-speed, 28s) linear infinite;
+}
+
+.marquee-container:hover .animate-marquee-infinite {
+  animation-play-state: paused;
+}
+

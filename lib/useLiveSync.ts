@@ -82,6 +82,7 @@ export interface LiveSyncData {
     banners: LiveBanner[];
     navbarBadge: string | null;
   };
+  runningText?: any;
 }
 
 export function useLiveSync(initialData?: Partial<LiveSyncData>) {

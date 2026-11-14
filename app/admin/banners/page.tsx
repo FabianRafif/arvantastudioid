@@ -810,6 +810,15 @@ export default function AdminBannersPage() {
             {announcements.length}
           </span>
         </button>
+
+        <Link
+          href="/admin/content"
+          className="flex items-center gap-2 px-5 py-3 text-xs font-bold font-space uppercase tracking-wider border-b-2 border-transparent text-deep-charcoal/60 hover:text-deep-charcoal hover:bg-white/30 transition-all"
+          title="Kelola Logo & Teks Berjalan di Beranda"
+        >
+          <Sparkles className="w-4 h-4 text-[#FF9857]" />
+          <span>3. Running Text Ticker ↗</span>
+        </Link>
       </div>
 
       {/* Notifications */}

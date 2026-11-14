@@ -88,10 +88,18 @@ export async function GET() {
             },
           ];
 
+    const sanitizedEffectiveBanners = effectiveBanners.map((b: any) => ({
+      ...b,
+      imageUrl:
+        b.imageUrl && b.imageUrl.startsWith("data:")
+          ? `/api/banners/${b.id}/image`
+          : b.imageUrl,
+    }));
+
     return NextResponse.json(
       {
         success: true,
-        banners: effectiveBanners,
+        banners: sanitizedEffectiveBanners,
         flashSale: {
           isActive: flashSale["flash_sale_active"] === "true",
           title: (flashSale["flash_sale_title"] || "PROMO SPESIAL ARVANTA STUDIO").replace(/[⚡✨★⭐🔥]/g, "").trim(),

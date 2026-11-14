@@ -54,6 +54,8 @@ export default function Footer() {
                 alt="Arvanta Studio Symbol"
                 width={40}
                 height={40}
+                loading="lazy"
+                decoding="async"
                 className="w-8 h-8 sm:w-9 sm:h-9 object-contain transition-transform duration-200 group-hover:scale-105 shrink-0"
               />
               <span className="text-lg sm:text-xl font-bold tracking-wider font-space text-[#2D2D2D]">

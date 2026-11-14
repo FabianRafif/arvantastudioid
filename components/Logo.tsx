@@ -52,6 +52,7 @@ export default function Logo({
             alt="Arvanta Studio Symbol"
             width={currentSize.symbol}
             height={currentSize.symbol}
+            decoding="async"
             className="w-full h-full object-contain"
             style={{
               imageRendering: "crisp-edges",
@@ -71,6 +72,7 @@ export default function Logo({
               alt="Arvanta Studio Symbol"
               width={currentSize.symbol}
               height={currentSize.symbol}
+              decoding="async"
               className="w-full h-full object-contain"
               style={{
                 imageRendering: "crisp-edges",

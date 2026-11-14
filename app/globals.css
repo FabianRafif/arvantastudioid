@@ -35,12 +35,6 @@
 }
 
 :root {
-  --font-bebas: "Bebas Neue", sans-serif;
-  --font-space: "Space Grotesk", sans-serif;
-  --font-inter: "Inter", system-ui, -apple-system, sans-serif;
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-bebas);
-  --font-mono: var(--font-space);
   --bg-primary: #EDECE8;
   --text-primary: #2D2D2D;
   --text-muted: #787875;

@@ -200,6 +200,8 @@ export default function BannerCarousel({
                       alt={banner.title}
                       className="w-full h-full object-cover object-center pointer-events-none"
                       loading={index === 0 ? "eager" : "lazy"}
+                      decoding={index === 0 ? "sync" : "async"}
+                      {...(index === 0 ? { fetchPriority: "high" as const } : {})}
                       onError={(e) => {
                         const target = e.currentTarget;
                         const retryCount = Number(target.dataset.retry || "0");

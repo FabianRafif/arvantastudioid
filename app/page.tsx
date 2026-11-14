@@ -71,7 +71,13 @@ export default async function HomePage() {
     portfolios = results[2];
     testimonials = results[3];
     faqs = results[4];
-    banners = results[5];
+    banners = (results[5] || []).map((b: any) => ({
+      ...b,
+      imageUrl:
+        b.imageUrl && b.imageUrl.startsWith("data:")
+          ? `/api/banners/${b.id}/image`
+          : b.imageUrl,
+    }));
     settingsList = results[6];
   } catch (error) {
     console.error("Database query fallback engaged in HomePage:", error);
@@ -226,7 +232,11 @@ export default async function HomePage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/crafto/feather-01.svg"
-                alt="Sculptural Ribbon Ornament"
+                alt=""
+                aria-hidden="true"
+                width={420}
+                height={380}
+                decoding="async"
                 className="absolute -top-16 -right-6 sm:top-[-40px] sm:right-10 md:right-32 w-32 sm:w-48 md:w-64 lg:w-72 pointer-events-none z-20 opacity-90 drop-shadow-[0_20px_35px_rgba(255,152,87,0.3)] animate-pulse"
                 style={{ animationDuration: "6s" }}
               />
@@ -235,7 +245,11 @@ export default async function HomePage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/crafto/feather-02.svg"
-                alt="Floating Ribbon Wing"
+                alt=""
+                aria-hidden="true"
+                width={340}
+                height={340}
+                decoding="async"
                 className="absolute top-28 -left-8 sm:top-24 sm:left-4 md:left-24 w-28 sm:w-40 md:w-52 pointer-events-none z-20 opacity-80 drop-shadow-[0_15px_30px_rgba(255,152,87,0.25)] hidden sm:block"
               />
 

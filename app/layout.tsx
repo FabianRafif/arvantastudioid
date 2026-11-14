@@ -1,6 +1,31 @@
 import type { Metadata, Viewport } from "next";
+import { Bebas_Neue, Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
 import AnnouncementBar from "@/components/AnnouncementBar";
+
+const bebasNeue = Bebas_Neue({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-bebas",
+  display: "swap",
+  preload: true,
+});
+
+const spaceGrotesk = Space_Grotesk({
+  weight: ["500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-space",
+  display: "swap",
+  preload: true,
+});
+
+const inter = Inter({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  preload: true,
+});
 
 export const metadata: Metadata = {
   title: {
@@ -46,17 +71,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className="scroll-smooth">
+    <html
+      lang="id"
+      className={`scroll-smooth ${bebasNeue.variable} ${spaceGrotesk.variable} ${inter.variable}`}
+    >
       <head>
         <meta
           name="google-site-verification"
           content="80T_mzwf3B65Qdwh5-rloJo3tx0c6aXulHw7CFA3fdE"
-        />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
         />
       </head>
       <body className="min-h-screen flex flex-col bg-[#EDECE8] text-[#2D2D2D] font-sans antialiased selection:bg-[#FF9857] selection:text-[#2D2D2D]">

@@ -22,7 +22,7 @@ import {
   RunningItem,
   RunningTextConfig,
   DEFAULT_RUNNING_TEXT_CONFIG,
-} from "@/components/RunningTextMarquee";
+} from "@/lib/running-text";
 
 const ICON_OPTIONS = [
   { value: "canva", label: "Canva" },

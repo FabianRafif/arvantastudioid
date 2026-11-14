@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { logActivity } from "@/lib/security";
-import { DEFAULT_RUNNING_TEXT_CONFIG, RunningTextConfig } from "@/components/RunningTextMarquee";
+import { DEFAULT_RUNNING_TEXT_CONFIG, RunningTextConfig } from "@/lib/running-text";
 
 export const dynamic = "force-dynamic";
 

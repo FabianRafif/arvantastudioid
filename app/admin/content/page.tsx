@@ -351,41 +351,45 @@ export default function AdminContentPage() {
                 className="animate-marquee-infinite flex items-center select-none"
                 style={
                   {
-                    "--marquee-speed": `${runningConfig.speed || 28}s`,
+                    "--marquee-speed": `${Math.max(25, (runningConfig.speed || 24) * 2)}s`,
                   } as React.CSSProperties
                 }
               >
-                {/* Track 1 */}
+                {/* Track 1 (Half 1 - 4 repetitions for seamless continuity) */}
                 <div className="flex items-center shrink-0">
-                  {runningConfig.items
-                    .filter((it) => it.isActive)
-                    .map((it, idx) => (
-                      <div key={`p1-${it.id}-${idx}`} className="inline-flex items-center gap-3 shrink-0">
-                        <TechIcon name={it.icon} customIconUrl={it.customIconUrl} className="w-5 h-5" />
-                        <span className="font-space font-semibold text-xs tracking-widest uppercase">
-                          {it.text}
-                        </span>
-                        <span className="mx-4 text-xs font-bold text-[#FF9857]">
-                          {runningConfig.separator || "✦"}
-                        </span>
-                      </div>
-                    ))}
+                  {[0, 1, 2, 3].flatMap((r) =>
+                    runningConfig.items
+                      .filter((it) => it.isActive)
+                      .map((it, idx) => (
+                        <div key={`p1-r${r}-${it.id}-${idx}`} className="inline-flex items-center gap-3 shrink-0">
+                          <TechIcon name={it.icon} customIconUrl={it.customIconUrl} className="w-5 h-5" />
+                          <span className="font-space font-semibold text-xs tracking-widest uppercase">
+                            {it.text}
+                          </span>
+                          <span className="mx-4 text-xs font-bold text-[#FF9857]">
+                            {runningConfig.separator || "✦"}
+                          </span>
+                        </div>
+                      ))
+                  )}
                 </div>
-                {/* Track 2 for seamless loop */}
-                <div className="flex items-center shrink-0">
-                  {runningConfig.items
-                    .filter((it) => it.isActive)
-                    .map((it, idx) => (
-                      <div key={`p2-${it.id}-${idx}`} className="inline-flex items-center gap-3 shrink-0">
-                        <TechIcon name={it.icon} customIconUrl={it.customIconUrl} className="w-5 h-5" />
-                        <span className="font-space font-semibold text-xs tracking-widest uppercase">
-                          {it.text}
-                        </span>
-                        <span className="mx-4 text-xs font-bold text-[#FF9857]">
-                          {runningConfig.separator || "✦"}
-                        </span>
-                      </div>
-                    ))}
+                {/* Track 2 (Half 2 - Exact clone for zero gap loop) */}
+                <div className="flex items-center shrink-0" aria-hidden="true">
+                  {[0, 1, 2, 3].flatMap((r) =>
+                    runningConfig.items
+                      .filter((it) => it.isActive)
+                      .map((it, idx) => (
+                        <div key={`p2-r${r}-${it.id}-${idx}`} className="inline-flex items-center gap-3 shrink-0">
+                          <TechIcon name={it.icon} customIconUrl={it.customIconUrl} className="w-5 h-5" />
+                          <span className="font-space font-semibold text-xs tracking-widest uppercase">
+                            {it.text}
+                          </span>
+                          <span className="mx-4 text-xs font-bold text-[#FF9857]">
+                            {runningConfig.separator || "✦"}
+                          </span>
+                        </div>
+                      ))
+                  )}
                 </div>
               </div>
             </div>

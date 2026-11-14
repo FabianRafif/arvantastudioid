@@ -137,7 +137,7 @@ body {
   font-family: var(--font-space), "Space Grotesk", sans-serif;
 }
 
-/* Real-time Infinite Seamless Marquee Ticker ("Tanpa Jeda") */
+/* Real-time Infinite Seamless Marquee Ticker ("Tanpa Jeda" & Non-Stop Running) */
 @keyframes marquee-scroll {
   0% {
     transform: translate3d(0, 0, 0);
@@ -152,10 +152,17 @@ body {
   flex-direction: row;
   width: max-content;
   will-change: transform;
-  animation: marquee-scroll var(--marquee-speed, 28s) linear infinite;
+  animation: marquee-scroll var(--marquee-speed, 35s) linear infinite;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
 }
 
-.marquee-container:hover .animate-marquee-infinite {
-  animation-play-state: paused;
+/* Ensure marquee NEVER pauses or stops on hover, touch, or active state */
+.marquee-container:hover .animate-marquee-infinite,
+.marquee-container:active .animate-marquee-infinite,
+.marquee-container:focus .animate-marquee-infinite {
+  animation-play-state: running !important;
 }
 

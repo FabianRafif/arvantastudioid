@@ -65,6 +65,36 @@ export default function AdminOrderDetailPage({
 
   useEffect(() => {
     fetchOrder();
+
+    // 1. Cross-tab real-time sync with BroadcastChannel
+    let channel: BroadcastChannel | null = null;
+    try {
+      if ("BroadcastChannel" in window) {
+        channel = new BroadcastChannel("arvanta_live_sync");
+        channel.onmessage = () => {
+          fetchOrder();
+        };
+      }
+    } catch {}
+
+    // 2. Storage event listener (multi-tab)
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "arvanta_live_sync_trigger") {
+        fetchOrder();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+
+    // 3. Periodic polling (every 4 seconds) for real-time updates across devices
+    const interval = setInterval(() => {
+      fetchOrder();
+    }, 4000);
+
+    return () => {
+      if (channel) channel.close();
+      window.removeEventListener("storage", handleStorage);
+      clearInterval(interval);
+    };
   }, [id]);
 
   const handleSaveChanges = async (e: React.FormEvent) => {
@@ -244,16 +274,20 @@ export default function AdminOrderDetailPage({
               )}
             </div>
 
-            {order.notes && (
-              <div className="pt-2 border-t border-[#D9D7CF]/60 text-xs">
-                <span className="text-deep-charcoal/60 block text-[10px] font-mono uppercase mb-1">
-                  Catatan Klien:
-                </span>
-                <p className="p-3 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-deep-charcoal/80 leading-relaxed">
-                  {order.notes}
-                </p>
-              </div>
-            )}
+            <div className="pt-2 border-t border-[#D9D7CF]/60 text-xs">
+              <span className="text-deep-charcoal/60 block text-[10px] font-mono uppercase mb-1">
+                Catatan Klien:
+              </span>
+              <p className="p-3 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-deep-charcoal/80 leading-relaxed font-mono whitespace-pre-wrap">
+                {(() => {
+                  const raw = order.notes || "";
+                  const cleaned = raw.includes("--- SNAPSHOT HARGA TERKUNCI ---")
+                    ? raw.split("--- SNAPSHOT HARGA TERKUNCI ---")[0].trim()
+                    : raw.trim();
+                  return cleaned && cleaned !== "-" ? cleaned : "-";
+                })()}
+              </p>
+            </div>
           </div>
 
           {/* Reference Files Uploaded by Customer */}

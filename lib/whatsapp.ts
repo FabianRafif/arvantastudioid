@@ -49,8 +49,8 @@ export function buildOrderMessageText(data: WhatsAppNotificationPayload): string
 *Paket / Produk:* ${data.packageNameOrProduct}
 *Total Estimasi:* ${data.priceFormatted}
 
-*Detail Kebutuhan & Catatan:*
-${data.notes || data.details || "Tidak ada catatan khusus."}
+*Catatan Klien:* ${data.notes || "-"}
+*Spesifikasi / Detail:* ${data.details || "-"}
 ━━━━━━━━━━━━━━━━━━━━
 *Buka Detail di Dashboard Admin:*
 ${dashboardLink}

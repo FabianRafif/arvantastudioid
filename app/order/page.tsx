@@ -273,16 +273,13 @@ function OrderFormContent() {
 
     try {
       const fd = new FormData();
-      const promoNote = appliedPromo
-        ? `[KUPON: ${appliedPromo} - Potongan Rp${discountAmount.toLocaleString("id-ID")}] `
-        : "";
-      const finalNotes = promoNote + (notes || "");
+      const cleanNotes = notes.trim() || "-";
 
       fd.append("serviceType", serviceType);
       fd.append("customerName", customerName.trim());
       fd.append("customerPhone", customerPhone.trim());
       fd.append("customerEmail", customerEmail.trim());
-      fd.append("notes", finalNotes);
+      fd.append("notes", cleanNotes);
       fd.append("deadline", deadline);
       fd.append("preferredBudget", `Rp${totalEstimate.toLocaleString("id-ID")}`);
       fd.append("promoCode", appliedPromo || "");

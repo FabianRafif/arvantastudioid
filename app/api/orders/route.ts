@@ -14,7 +14,9 @@ export async function POST(req: NextRequest) {
     const customerName = formData.get("customerName") as string;
     const customerPhone = formData.get("customerPhone") as string;
     const customerEmail = formData.get("customerEmail") as string;
-    const notes = (formData.get("notes") as string) || "";
+    const rawNotes = (formData.get("notes") as string) || "";
+    const cleanNotes = rawNotes.trim();
+    const clientNotes = cleanNotes && cleanNotes !== "-" ? cleanNotes : "-";
 
     // Website fields
     const businessName = (formData.get("businessName") as string) || null;
@@ -171,7 +173,7 @@ export async function POST(req: NextRequest) {
       priceVersion: "v2026.1",
     };
 
-    const combinedNotes = `${notes ? notes + "\n\n" : ""}--- SNAPSHOT HARGA TERKUNCI ---\n${JSON.stringify(
+    const priceSnapshotText = `--- SNAPSHOT HARGA TERKUNCI ---\n${JSON.stringify(
       priceSnapshotData,
       null,
       2
@@ -203,7 +205,8 @@ export async function POST(req: NextRequest) {
           referenceUrl,
           preferredBudget,
           deadline,
-          notes: combinedNotes,
+          notes: clientNotes,
+          internalNotes: priceSnapshotText,
         },
       });
 
@@ -293,7 +296,7 @@ export async function POST(req: NextRequest) {
         serviceType,
         packageNameOrProduct,
         priceFormatted: formatRupiah(totalAmount),
-        notes: notes || undefined,
+        notes: clientNotes !== "-" ? clientNotes : undefined,
         details:
           serviceType === "WEBSITE"
             ? `Website: ${websiteType || "-"}, Goal: ${websiteGoal || "-"}, Fitur: ${featuresNeeded || "-"}`

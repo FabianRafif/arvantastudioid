@@ -59,6 +59,19 @@ export async function GET(
       return NextResponse.json({ error: "Anda tidak memiliki akses ke pesanan ini." }, { status: 403 });
     }
 
+    // Sanitize client notes: strip any legacy snapshot text, ensure "-" if empty
+    if (order.notes) {
+      if (order.notes.includes("--- SNAPSHOT HARGA TERKUNCI ---")) {
+        const parts = order.notes.split("--- SNAPSHOT HARGA TERKUNCI ---");
+        const clientPart = parts[0].trim();
+        order.notes = clientPart && clientPart !== "-" ? clientPart : "-";
+      } else if (!order.notes.trim() || order.notes.trim() === "-") {
+        order.notes = "-";
+      }
+    } else {
+      order.notes = "-";
+    }
+
     return NextResponse.json({ order });
   } catch (error) {
     console.error("Get order detail error:", error);

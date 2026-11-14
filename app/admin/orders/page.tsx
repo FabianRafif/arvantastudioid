@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ShoppingBag, ArrowRight, ExternalLink, Search, Filter } from "lucide-react";
+import AdminOrdersLiveWatcher from "@/components/admin/AdminOrdersLiveWatcher";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,7 @@ export default async function AdminOrdersListPage({
 
   return (
     <div className="space-y-6">
+      <AdminOrdersLiveWatcher />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#D9D7CF] pb-4">
         <div>
           <h1 className="text-2xl font-display font-bold text-deep-charcoal">

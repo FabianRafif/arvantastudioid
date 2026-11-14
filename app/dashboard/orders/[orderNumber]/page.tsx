@@ -126,6 +126,34 @@ export default function CustomerOrderDetailPage({
 
   useEffect(() => {
     fetchOrderDetail();
+
+    // Cross-tab real-time sync with BroadcastChannel
+    let channel: BroadcastChannel | null = null;
+    try {
+      if ("BroadcastChannel" in window) {
+        channel = new BroadcastChannel("arvanta_live_sync");
+        channel.onmessage = () => {
+          fetchOrderDetail();
+        };
+      }
+    } catch {}
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "arvanta_live_sync_trigger") {
+        fetchOrderDetail();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+
+    const interval = setInterval(() => {
+      fetchOrderDetail();
+    }, 4000);
+
+    return () => {
+      if (channel) channel.close();
+      window.removeEventListener("storage", handleStorage);
+      clearInterval(interval);
+    };
   }, [orderNumber]);
 
   const handlePaymentSubmit = async (e: React.FormEvent) => {
@@ -485,16 +513,20 @@ export default function CustomerOrderDetailPage({
               )}
             </div>
 
-            {order.notes && (
-              <div className="pt-2 border-t border-[#D9D7CF]/60 text-xs">
-                <span className="text-deep-charcoal/60 block font-mono text-[10px] uppercase mb-1">
-                  Catatan Klien:
-                </span>
-                <p className="p-3 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-deep-charcoal/80 leading-relaxed">
-                  {order.notes}
-                </p>
-              </div>
-            )}
+            <div className="pt-2 border-t border-[#D9D7CF]/60 text-xs">
+              <span className="text-deep-charcoal/60 block font-mono text-[10px] uppercase mb-1">
+                Catatan Klien:
+              </span>
+              <p className="p-3 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-deep-charcoal/80 leading-relaxed font-mono whitespace-pre-wrap">
+                {(() => {
+                  const raw = order.notes || "";
+                  const cleaned = raw.includes("--- SNAPSHOT HARGA TERKUNCI ---")
+                    ? raw.split("--- SNAPSHOT HARGA TERKUNCI ---")[0].trim()
+                    : raw.trim();
+                  return cleaned && cleaned !== "-" ? cleaned : "-";
+                })()}
+              </p>
+            </div>
           </div>
 
           {/* Interactive Chat / Notes with Admin */}

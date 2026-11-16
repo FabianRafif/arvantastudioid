@@ -1,59 +1,90 @@
-import { Wrench, Clock, MessageCircle, Mail } from "lucide-react";
-import Logo from "@/components/Logo";
+import Link from "next/link";
+import { Clock, ArrowRight } from "lucide-react";
 
 export const metadata = {
-  title: "Sistem Sedang Dalam Pemeliharaan | Arvanta Studio",
-  description: "Arvanta Studio sedang melakukan pemeliharaan terjadwal.",
+  title: "Website Maintenance in Progress 🚧 | Arvanta Studio",
+  description: "Arvanta Studio sedang melakukan peningkatan sistem & website.",
 };
 
 export default function MaintenancePage() {
   return (
-    <div className="min-h-screen bg-[#F5F2EB] flex flex-col justify-between p-6 sm:p-12 text-deep-charcoal">
-      <header className="flex justify-between items-center">
-        <Logo variant="dark" size="md" href="/" />
-        <span className="text-xs font-mono uppercase tracking-widest text-amber-700 bg-amber-100 px-2.5 py-1 rounded-xs font-semibold">
-          Maintenance Mode
+    <div className="min-h-screen bg-[#FFFAF4] text-[#1A1A1A] flex flex-col justify-between items-center w-full px-5 py-8 sm:py-12 select-none overflow-y-auto">
+      {/* Subtle top indicator */}
+      <header className="w-full max-w-xl mx-auto flex justify-between items-center pb-4 text-xs">
+        <div className="flex items-center gap-2">
+          <span className="font-serif font-black text-lg tracking-wider text-[#B18141]">
+            ARVANTA STUDIO
+          </span>
+        </div>
+        <span className="text-[11px] font-mono tracking-wider text-[#B18141] bg-[#B18141]/10 border border-[#B18141]/20 px-3 py-1 rounded-full font-bold flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-[#B18141] animate-pulse" />
+          Maintenance
         </span>
       </header>
 
-      <main className="max-w-2xl mx-auto my-auto text-center space-y-6 py-12">
-        <div className="w-16 h-16 rounded-full bg-muted-olive/10 text-muted-olive flex items-center justify-center mx-auto">
-          <Wrench className="w-8 h-8" />
-        </div>
-        <h1 className="text-3xl sm:text-5xl font-display font-bold tracking-tight text-deep-charcoal">
-          Pemeliharaan Sistem Terjadwal
+      {/* Center Card - Identical aesthetic to user reference image */}
+      <main className="max-w-xl mx-auto my-auto text-center flex flex-col items-center justify-center py-4">
+        <h1 className="text-3xl sm:text-4xl md:text-[46px] font-bold tracking-tight text-[#B18141] leading-[1.18] mb-4 sm:mb-6 font-serif">
+          Website Maintenance <br />
+          in Progress 🚧
         </h1>
-        <p className="text-sm sm:text-base text-deep-charcoal/70 leading-relaxed max-w-lg mx-auto">
-          Kami sedang melakukan peningkatan infrastruktur server dan basis data untuk memberikan performa yang lebih optimal dan aman bagi seluruh klien Arvanta Studio.
-        </p>
 
-        <div className="p-4 bg-white border border-[#D9D7CF] rounded-xs text-xs text-deep-charcoal/80 max-w-md mx-auto flex items-center justify-center gap-2 font-mono">
-          <Clock className="w-4 h-4 text-muted-olive shrink-0" />
-          <span>Estimasi selesai: Segera kembali dalam waktu dekat</span>
+        {/* 3D Claymorphic Illustration matching user image */}
+        <div className="w-full max-w-[280px] sm:max-w-[380px] mx-auto my-2 sm:my-3 select-none pointer-events-none">
+          <img
+            src="/images/maintenance-3d.png"
+            alt="Website Maintenance in Progress"
+            width={480}
+            height={328}
+            className="w-full h-auto object-contain mx-auto"
+          />
         </div>
 
-        <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center text-xs">
-          <a
-            href="https://wa.me/62895322465836"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-deep-charcoal text-warm-ivory font-semibold uppercase tracking-wider rounded-xs hover:bg-muted-olive transition-colors"
-          >
-            <MessageCircle className="w-4 h-4 text-muted-olive" />
-            <span>Hubungi WhatsApp Admin</span>
-          </a>
-          <a
-            href="mailto:rafifazmi466@gmail.com"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 border border-deep-charcoal/30 text-deep-charcoal font-semibold uppercase tracking-wider rounded-xs hover:border-deep-charcoal transition-colors"
-          >
-            <Mail className="w-4 h-4 text-muted-olive" />
-            <span>Kirim Email Darurat</span>
-          </a>
+        {/* Message & Contact callouts */}
+        <div className="space-y-3 max-w-md mx-auto mt-4 sm:mt-5">
+          <p className="text-sm sm:text-base text-[#2D2D2D] font-medium leading-relaxed">
+            We&apos;re currently making improvements to our website. Need help?
+          </p>
+
+          <div className="pt-2 space-y-1.5 text-xs sm:text-sm text-[#2D2D2D]">
+            <p>
+              Message us on{" "}
+              <a
+                href="https://wa.me/62895322465836?text=Halo%20Admin%20Arvanta%20Studio,%20saya%20ingin%20menanyakan%20status%20maintenance%20website"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#B18141] hover:underline font-bold inline-flex items-center gap-1 active:scale-95 transition-transform"
+              >
+                WhatsApp
+              </a>{" "}
+              or social media
+            </p>
+
+            <p>
+              Or email us at{" "}
+              <a
+                href="mailto:rafifazmi466@gmail.com"
+                className="text-[#B18141] hover:underline font-bold transition-colors"
+              >
+                rafifazmi466@gmail.com
+              </a>
+            </p>
+          </div>
         </div>
       </main>
 
-      <footer className="text-center text-xs text-deep-charcoal/50 font-mono">
-        © {new Date().getFullYear()} Arvanta Studio • Dedicated Enterprise Infrastructure.
+      {/* Footer with discreet Admin Studio Login */}
+      <footer className="w-full max-w-xl mx-auto pt-6 flex items-center justify-between text-[11px] text-[#8C827A] border-t border-[#EAE3D2] mt-auto">
+        <span>
+          © {new Date().getFullYear()} Arvanta Studio • All systems protected.
+        </span>
+        <Link
+          href="/login?redirect=/admin"
+          className="text-[#8C827A] hover:text-[#B18141] transition-colors underline flex items-center gap-1"
+        >
+          <span>Akses Admin Studio</span>
+          <ArrowRight className="w-3 h-3" />
+        </Link>
       </footer>
     </div>
   );

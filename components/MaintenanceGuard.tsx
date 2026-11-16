@@ -76,75 +76,94 @@ export default function MaintenanceGuard({
   // If maintenance is ON and user is NOT an admin on a non-whitelisted route: LOCK DOWN!
   if (isMaintenance && !isAdmin && !isWhitelisted) {
     return (
-      <div className="min-h-screen bg-[#1C1C1A] text-[#EDECE8] flex flex-col justify-between p-6 sm:p-12 font-sans selection:bg-[#FF9857] selection:text-[#2D2D2D] relative z-9999">
-        {/* Top Header */}
-        <header className="flex justify-between items-center max-w-5xl mx-auto w-full border-b border-white/10 pb-5">
+      <div className="fixed inset-0 z-[999999] bg-[#FFFAF4] text-[#1A1A1A] flex flex-col justify-between items-center min-h-screen w-full px-5 py-8 sm:py-12 select-none overflow-y-auto">
+        {/* Subtle top indicator */}
+        <header className="w-full max-w-xl mx-auto flex justify-between items-center pb-4 text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-xl font-black text-[#FF9857]">//</span>
-            <span className="font-mono font-bold text-white text-sm sm:text-base tracking-wider uppercase">
-              ARVANTA<span className="text-[#FF9857]">.</span>STUDIO
+            <span className="font-serif font-black text-lg tracking-wider text-[#B18141]">
+              ARVANTA STUDIO
             </span>
           </div>
-          <span className="text-[11px] font-mono uppercase tracking-widest text-[#FF9857] bg-[#FF9857]/10 border border-[#FF9857]/30 px-3 py-1 rounded-full font-bold flex items-center gap-1.5 animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-[#FF9857]" />
-            Maintenance Mode
+          <span className="text-[11px] font-mono tracking-wider text-[#B18141] bg-[#B18141]/10 border border-[#B18141]/20 px-3 py-1 rounded-full font-bold flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#B18141] animate-pulse" />
+            Maintenance
           </span>
         </header>
 
-        {/* Center Card */}
-        <main className="max-w-2xl mx-auto my-auto text-center space-y-6 py-12 px-4">
-          <div className="w-20 h-20 rounded-full bg-[#FF9857]/15 border border-[#FF9857]/30 text-[#FF9857] flex items-center justify-center mx-auto shadow-lg animate-pulse">
-            <Wrench className="w-10 h-10" />
+        {/* Center Card - Identical aesthetic to user reference image */}
+        <main className="max-w-xl mx-auto my-auto text-center flex flex-col items-center justify-center py-4">
+          <h1 className="text-3xl sm:text-4xl md:text-[46px] font-bold tracking-tight text-[#B18141] leading-[1.18] mb-4 sm:mb-6 font-serif">
+            Website Maintenance <br />
+            in Progress 🚧
+          </h1>
+
+          {/* 3D Claymorphic Illustration matching user image */}
+          <div className="w-full max-w-[280px] sm:max-w-[380px] mx-auto my-2 sm:my-3 select-none pointer-events-none">
+            <img
+              src="/images/maintenance-3d.png"
+              alt="Website Maintenance in Progress"
+              width={480}
+              height={328}
+              className="w-full h-auto object-contain mx-auto"
+            />
           </div>
 
-          <div className="space-y-3">
-            <span className="text-xs font-mono uppercase tracking-wider text-[#FF9857] font-bold block">
-              Pemberitahuan Resmi Pemeliharaan Sistem
-            </span>
-            <h1 className="text-3xl sm:text-5xl font-display font-black tracking-tight text-white uppercase leading-tight">
-              {title}
-            </h1>
-          </div>
+          {/* Message & Contact callouts */}
+          <div className="space-y-3 max-w-md mx-auto mt-4 sm:mt-5">
+            <p className="text-sm sm:text-base text-[#2D2D2D] font-medium leading-relaxed">
+              We&apos;re currently making improvements to our website. Need help?
+            </p>
 
-          <p className="text-xs sm:text-sm text-[#EDECE8]/80 leading-relaxed max-w-xl mx-auto font-sans">
-            {message}
-          </p>
+            <div className="pt-2 space-y-1.5 text-xs sm:text-sm text-[#2D2D2D]">
+              <p>
+                Message us on{" "}
+                <a
+                  href="https://wa.me/62895322465836?text=Halo%20Admin%20Arvanta%20Studio,%20saya%20ingin%20menanyakan%20status%20maintenance%20website"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#B18141] hover:underline font-bold inline-flex items-center gap-1 active:scale-95 transition-transform"
+                >
+                  WhatsApp
+                </a>{" "}
+                or social media
+              </p>
 
-          {eta && (
-            <div className="p-4 bg-white/5 border border-white/10 rounded-xs text-xs text-[#EDECE8] max-w-md mx-auto flex items-center justify-center gap-2.5 font-mono">
-              <Clock className="w-4 h-4 text-[#FF9857] shrink-0" />
-              <span>Estimasi Selesai: <strong className="text-white">{eta}</strong></span>
+              <p>
+                Or email us at{" "}
+                <a
+                  href="mailto:rafifazmi466@gmail.com"
+                  className="text-[#B18141] hover:underline font-bold transition-colors"
+                >
+                  rafifazmi466@gmail.com
+                </a>
+              </p>
             </div>
-          )}
 
-          <div className="pt-6 flex flex-col sm:flex-row gap-3 justify-center text-xs font-mono">
-            <a
-              href="https://wa.me/62895322465836?text=Halo%20Admin%20Arvanta,%20saya%20ingin%20menanyakan%20status%20maintenance%20website"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#FF9857] text-[#2D2D2D] font-bold uppercase tracking-wider rounded-xs hover:bg-[#FF8840] transition-all shadow-md active:scale-95"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>WhatsApp Admin (Darurat)</span>
-            </a>
-            <a
-              href="mailto:rafifazmi466@gmail.com"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 border border-white/20 hover:border-white text-white font-bold uppercase tracking-wider rounded-xs hover:bg-white/5 transition-all"
-            >
-              <Mail className="w-4 h-4 text-[#FF9857]" />
-              <span>Kirim Email Resmi</span>
-            </a>
+            {/* Optional dynamic notes set by Admin */}
+            {(eta || (message && message !== "Kami sedang melakukan peningkatan infrastruktur server dan basis data untuk memberikan performa yang lebih optimal dan aman bagi seluruh klien Arvanta Studio.")) && (
+              <div className="mt-5 p-3.5 rounded-xl bg-white/80 border border-[#EADBCA] text-xs text-[#555] max-w-sm mx-auto shadow-xs text-center space-y-1">
+                {message && message !== "Kami sedang melakukan peningkatan infrastruktur server dan basis data untuk memberikan performa yang lebih optimal dan aman bagi seluruh klien Arvanta Studio." && (
+                  <p className="text-[#333] font-medium">{message}</p>
+                )}
+                {eta && (
+                  <p className="text-[#B18141] font-semibold flex items-center justify-center gap-1.5 pt-0.5">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>Estimasi: <strong>{eta}</strong></span>
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </main>
 
-        {/* Footer with discreet Admin Bypass Login */}
-        <footer className="max-w-5xl mx-auto w-full pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#EDECE8]/50 font-mono">
+        {/* Footer with discreet Admin Studio Login */}
+        <footer className="w-full max-w-xl mx-auto pt-6 flex items-center justify-between text-[11px] text-[#8C827A] border-t border-[#EAE3D2] mt-auto">
           <span>
-            © {new Date().getFullYear()} Arvanta Studio • Dedicated Enterprise Infrastructure.
+            © {new Date().getFullYear()} Arvanta Studio • All systems protected.
           </span>
           <Link
             href="/login?redirect=/admin"
-            className="text-[#EDECE8]/40 hover:text-[#FF9857] transition-colors underline flex items-center gap-1"
+            className="text-[#8C827A] hover:text-[#B18141] transition-colors underline flex items-center gap-1"
           >
             <span>Akses Admin Studio</span>
             <ArrowRight className="w-3 h-3" />

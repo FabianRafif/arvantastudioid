@@ -617,9 +617,16 @@ export default function AdminBannersPage() {
         });
       }
 
+      if (res.status === 401) {
+        throw new Error("Sesi login Admin Anda telah berakhir atau Anda sedang login sebagai akun klien. Silakan login kembali sebagai Admin.");
+      }
+
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Gagal menyimpan pengumuman.");
+        const errMsg = data.error === "Unauthorized"
+          ? "Sesi login Admin Anda telah berakhir atau Anda sedang login sebagai akun klien. Silakan login kembali sebagai Admin."
+          : (data.error || "Gagal menyimpan pengumuman.");
+        throw new Error(errMsg);
       }
 
       const inAppCount = data.broadcastStats?.totalInApp || 0;
@@ -723,8 +730,16 @@ export default function AdminBannersPage() {
           eta: maintEta,
         }),
       });
+      if (res.status === 401) {
+        throw new Error("Sesi login Admin Anda telah berakhir atau Anda sedang login sebagai akun klien. Silakan login kembali sebagai Admin.");
+      }
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Gagal mengubah mode maintenance.");
+      if (!res.ok) {
+        const errMsg = data.error === "Unauthorized"
+          ? "Sesi login Admin Anda telah berakhir atau Anda sedang login sebagai akun klien. Silakan login kembali sebagai Admin."
+          : (data.error || "Gagal mengubah mode maintenance.");
+        throw new Error(errMsg);
+      }
 
       setIsMaintenanceActive(enable);
       setSuccessMsg(data.message || (enable ? "Website berhasil dikunci!" : "Website berhasil dibuka!"));
@@ -930,18 +945,28 @@ export default function AdminBannersPage() {
       )}
 
       {errorMsg && (
-        <div className="p-4 bg-red-50 border border-red-300 text-xs text-red-900 rounded-xs flex items-center justify-between gap-2 shadow-xs">
+        <div className="p-4 bg-red-50 border border-red-300 text-xs text-red-900 rounded-xs flex flex-wrap items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2.5">
             <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
             <span className="font-semibold">{errorMsg}</span>
           </div>
-          <button
-            type="button"
-            onClick={() => setErrorMsg("")}
-            className="text-red-700 hover:text-red-950 font-bold px-2"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-2">
+            {(errorMsg.toLowerCase().includes("sesi") || errorMsg.toLowerCase().includes("unauthorized") || errorMsg.toLowerCase().includes("login")) && (
+              <a
+                href="/login?redirect=/admin/banners"
+                className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xs text-[11px] font-bold uppercase tracking-wider transition-colors shadow-2xs"
+              >
+                Login Ulang Admin →
+              </a>
+            )}
+            <button
+              type="button"
+              onClick={() => setErrorMsg("")}
+              className="text-red-700 hover:text-red-950 font-bold px-2 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       )}
 

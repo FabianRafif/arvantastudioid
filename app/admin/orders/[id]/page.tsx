@@ -225,23 +225,46 @@ export default function AdminOrderDetailPage({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Link
-            href={`/admin/orders/${order.id}/document?type=all`}
-            target="_blank"
-            className="px-4 py-2 bg-[#FF9857] text-[#20211F] text-xs font-bold font-mono uppercase tracking-wider hover:bg-[#e07f40] transition-colors rounded-xs flex items-center gap-1.5 shadow-xs"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Cetak Dokumen Resmi</span>
-          </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Document Download & Print Options Separated for Admin */}
+          <div className="inline-flex rounded-xs border border-[#D9D7CF] bg-white shadow-2xs overflow-hidden text-xs font-mono">
+            <Link
+              href={`/admin/orders/${order.id}/document?type=invoice`}
+              target="_blank"
+              title="Cetak Faktur Tagihan (Invoice) Saja"
+              className="px-3 py-2 hover:bg-warm-ivory text-deep-charcoal border-r border-[#D9D7CF] flex items-center gap-1.5 transition-colors font-medium"
+            >
+              <FileText className="w-3.5 h-3.5 text-[#FF9857]" />
+              <span>Invoice</span>
+            </Link>
+            <Link
+              href={`/admin/orders/${order.id}/document?type=kuitansi`}
+              target="_blank"
+              title="Cetak Bukti Pembayaran (Kuitansi) Saja"
+              className="px-3 py-2 hover:bg-warm-ivory text-deep-charcoal border-r border-[#D9D7CF] flex items-center gap-1.5 transition-colors font-medium"
+            >
+              <Receipt className="w-3.5 h-3.5 text-emerald-700" />
+              <span>Kuitansi</span>
+            </Link>
+            <Link
+              href={`/admin/orders/${order.id}/document?type=all`}
+              target="_blank"
+              title="Cetak Kedua Dokumen Sekaligus"
+              className="px-3 py-2 bg-[#FF9857] text-[#20211F] font-bold flex items-center gap-1.5 hover:bg-[#e07f40] transition-colors"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Semua Dokumen</span>
+            </Link>
+          </div>
+
           <a
             href={waCustomerLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 bg-emerald-800 text-white text-xs font-semibold uppercase tracking-wider hover:bg-emerald-900 transition-colors rounded-xs flex items-center gap-1.5 shadow-xs"
+            className="px-3.5 py-2 bg-emerald-800 text-white text-xs font-semibold uppercase tracking-wider hover:bg-emerald-900 transition-colors rounded-xs flex items-center gap-1.5 shadow-xs"
           >
             <MessageCircle className="w-3.5 h-3.5" />
-            <span>WhatsApp Pelanggan</span>
+            <span>WhatsApp Klien</span>
           </a>
         </div>
       </div>

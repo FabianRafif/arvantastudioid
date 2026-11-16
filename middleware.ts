@@ -34,6 +34,16 @@ export function middleware(req: NextRequest) {
     }
   }
 
+  // Allow direct document viewing without login: rewrite legacy dashboard document links to public viewer
+  if (pathname.includes("/document")) {
+    const match = pathname.match(/\/dashboard\/orders\/([^/]+)\/document/);
+    if (match && match[1]) {
+      const docUrl = new URL(`/document/${match[1]}`, req.url);
+      docUrl.search = req.nextUrl.search;
+      return NextResponse.redirect(docUrl);
+    }
+  }
+
   // Protect Customer Dashboard routes
   if (pathname.startsWith("/dashboard")) {
     if (!token) {

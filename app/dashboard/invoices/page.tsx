@@ -109,15 +109,32 @@ export default async function CustomerInvoicesPage() {
 
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2 flex-wrap">
-                        <Link
-                          href={`/dashboard/orders/${inv.order.orderNumber}/document?type=all`}
-                          target="_blank"
-                          title="Cetak Faktur Tagihan & Kuitansi Resmi"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-warm-ivory border border-[#D9D7CF] text-deep-charcoal text-xs font-mono font-semibold rounded-xs hover:border-deep-charcoal hover:bg-white transition-colors shadow-2xs"
-                        >
-                          <Printer className="w-3.5 h-3.5 text-[#FF9857]" />
-                          <span>Invoice & Kuitansi</span>
-                        </Link>
+                        <div className="inline-flex rounded-xs border border-[#D9D7CF] bg-warm-ivory text-xs font-mono divide-x divide-[#D9D7CF] shadow-2xs overflow-hidden">
+                          <Link
+                            href={`/document/${inv.order.orderNumber}?type=invoice`}
+                            target="_blank"
+                            title="Unduh / Cetak Faktur Invoice"
+                            className="px-2.5 py-1.5 text-deep-charcoal hover:bg-white hover:text-black transition-colors"
+                          >
+                            Invoice
+                          </Link>
+                          <Link
+                            href={`/document/${inv.order.orderNumber}?type=kuitansi`}
+                            target="_blank"
+                            title="Unduh / Cetak Bukti Kuitansi"
+                            className="px-2.5 py-1.5 text-deep-charcoal hover:bg-white hover:text-black transition-colors"
+                          >
+                            Kuitansi
+                          </Link>
+                          <Link
+                            href={`/document/${inv.order.orderNumber}?type=all`}
+                            target="_blank"
+                            title="Unduh / Cetak Kedua Dokumen Sekaligus"
+                            className="px-2.5 py-1.5 text-deep-charcoal font-bold hover:bg-[#FF9857] hover:text-[#20211F] transition-colors"
+                          >
+                            Lengkap
+                          </Link>
+                        </div>
                         <Link
                           href={`/dashboard/orders/${inv.order.orderNumber}`}
                           className="inline-flex items-center gap-1 px-3 py-1.5 bg-deep-charcoal text-warm-ivory text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-muted-olive transition-colors"

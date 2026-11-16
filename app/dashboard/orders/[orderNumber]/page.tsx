@@ -298,14 +298,32 @@ export default function CustomerOrderDetailPage({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Link
-            href={`/dashboard/orders/${order.orderNumber}/document?type=all`}
-            target="_blank"
-            className="px-3 py-2 bg-warm-ivory border border-[#D9D7CF] text-deep-charcoal text-xs font-semibold uppercase tracking-wider hover:bg-white hover:border-deep-charcoal transition-colors rounded-xs flex items-center gap-1.5 shadow-2xs font-mono"
-          >
-            <Printer className="w-3.5 h-3.5 text-[#FF9857]" />
-            <span>Invoice & Kuitansi</span>
-          </Link>
+          <div className="inline-flex rounded-xs border border-[#D9D7CF] bg-warm-ivory text-xs font-mono divide-x divide-[#D9D7CF] shadow-2xs overflow-hidden">
+            <Link
+              href={`/document/${order.orderNumber}?type=invoice`}
+              target="_blank"
+              title="Unduh / Cetak Faktur Invoice"
+              className="px-2.5 py-1.5 text-deep-charcoal hover:bg-white hover:text-black transition-colors"
+            >
+              Invoice
+            </Link>
+            <Link
+              href={`/document/${order.orderNumber}?type=kuitansi`}
+              target="_blank"
+              title="Unduh / Cetak Bukti Kuitansi"
+              className="px-2.5 py-1.5 text-deep-charcoal hover:bg-white hover:text-black transition-colors"
+            >
+              Kuitansi
+            </Link>
+            <Link
+              href={`/document/${order.orderNumber}?type=all`}
+              target="_blank"
+              title="Unduh / Cetak Dokumen Lengkap"
+              className="px-2.5 py-1.5 text-deep-charcoal font-bold hover:bg-[#FF9857] hover:text-[#20211F] transition-colors"
+            >
+              Lengkap
+            </Link>
+          </div>
           <button
             onClick={fetchOrderDetail}
             className="p-2 border border-[#D9D7CF] text-deep-charcoal hover:bg-white rounded-xs text-xs font-mono flex items-center gap-1"

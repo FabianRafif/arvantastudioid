@@ -45,12 +45,18 @@ export default function OrderDocumentViewer({
 
     const fetchOrder = async () => {
       try {
-        const res = await fetch(`/api/orders/${orderIdOrNumber}`);
+        const cleanId = encodeURIComponent(orderIdOrNumber);
+        // 1. Try public document endpoint first (no login required for clients with valid order link)
+        let res = await fetch(`/api/document/${cleanId}`, { cache: "no-store" });
+        if (!res.ok) {
+          // 2. Fall back to internal authenticated orders endpoint
+          res = await fetch(`/api/orders/${cleanId}`, { cache: "no-store" });
+        }
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Gagal memuat data dokumen.");
+        if (!res.ok || !data.order) throw new Error(data.error || "Gagal memuat data dokumen.");
         setOrder(data.order);
       } catch (err: any) {
-        setErrorMsg(err.message);
+        setErrorMsg(err.message || "Gagal memuat dokumen.");
       } finally {
         setLoading(false);
       }
@@ -322,68 +328,70 @@ export default function OrderDocumentViewer({
             </p>
 
             {/* Tabel Rincian Biaya (Sesuai Template 3) */}
-            <table className="w-full text-xs border border-[#1A1A1A] border-collapse mb-4">
-              <thead>
-                <tr className="bg-[#F4F1EA] border-b border-[#1A1A1A] font-bold text-center">
-                  <th className="py-2.5 px-3 border-r border-[#1A1A1A] w-12">No</th>
-                  <th className="py-2.5 px-4 border-r border-[#1A1A1A] text-left">
-                    Deskripsi Layanan / Komponen Pekerjaan
-                  </th>
-                  <th className="py-2.5 px-3 border-r border-[#1A1A1A] w-24">Qty</th>
-                  <th className="py-2.5 px-4 border-r border-[#1A1A1A] text-right w-36">Harga Satuan (Rp)</th>
-                  <th className="py-2.5 px-4 text-right w-36">Jumlah (Rp)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#1A1A1A]">
-                {lineItems.map((item) => (
-                  <tr key={item.no} className="hover:bg-warm-ivory/20">
-                    <td className="py-2 px-3 text-center border-r border-[#1A1A1A] font-mono">{item.no}.</td>
-                    <td className="py-2 px-4 border-r border-[#1A1A1A] leading-relaxed">{item.description}</td>
-                    <td className="py-2 px-3 text-center border-r border-[#1A1A1A] font-mono">{item.qty}</td>
-                    <td className="py-2 px-4 text-right border-r border-[#1A1A1A] font-mono">
-                      Rp {item.unitPrice.toLocaleString("id-ID")}
+            <div className="overflow-x-auto print:overflow-visible mb-4">
+              <table className="w-full text-xs border border-[#1A1A1A] border-collapse min-w-[500px] print:min-w-0">
+                <thead>
+                  <tr className="bg-[#F4F1EA] border-b border-[#1A1A1A] font-bold text-center">
+                    <th className="py-2.5 px-3 border-r border-[#1A1A1A] w-12">No</th>
+                    <th className="py-2.5 px-4 border-r border-[#1A1A1A] text-left">
+                      Deskripsi Layanan / Komponen Pekerjaan
+                    </th>
+                    <th className="py-2.5 px-3 border-r border-[#1A1A1A] w-24">Qty</th>
+                    <th className="py-2.5 px-4 border-r border-[#1A1A1A] text-right w-36">Harga Satuan (Rp)</th>
+                    <th className="py-2.5 px-4 text-right w-36">Jumlah (Rp)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#1A1A1A]">
+                  {lineItems.map((item) => (
+                    <tr key={item.no} className="hover:bg-warm-ivory/20">
+                      <td className="py-2 px-3 text-center border-r border-[#1A1A1A] font-mono">{item.no}.</td>
+                      <td className="py-2 px-4 border-r border-[#1A1A1A] leading-relaxed">{item.description}</td>
+                      <td className="py-2 px-3 text-center border-r border-[#1A1A1A] font-mono">{item.qty}</td>
+                      <td className="py-2 px-4 text-right border-r border-[#1A1A1A] font-mono">
+                        Rp {item.unitPrice.toLocaleString("id-ID")}
+                      </td>
+                      <td className="py-2 px-4 text-right font-mono font-semibold">
+                        Rp {item.totalPrice.toLocaleString("id-ID")}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot className="border-t-2 border-[#1A1A1A] divide-y divide-[#1A1A1A] font-mono text-xs">
+                  <tr>
+                    <td colSpan={4} className="py-2 px-4 text-right font-bold border-r border-[#1A1A1A]">
+                      Subtotal Biaya
                     </td>
-                    <td className="py-2 px-4 text-right font-mono font-semibold">
-                      Rp {item.totalPrice.toLocaleString("id-ID")}
+                    <td className="py-2 px-4 text-right font-bold">
+                      Rp {totalAmount.toLocaleString("id-ID")}
                     </td>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot className="border-t-2 border-[#1A1A1A] divide-y divide-[#1A1A1A] font-mono text-xs">
-                <tr>
-                  <td colSpan={4} className="py-2 px-4 text-right font-bold border-r border-[#1A1A1A]">
-                    Subtotal Biaya
-                  </td>
-                  <td className="py-2 px-4 text-right font-bold">
-                    Rp {totalAmount.toLocaleString("id-ID")}
-                  </td>
-                </tr>
-                <tr>
-                  <td colSpan={4} className="py-2 px-4 text-right border-r border-[#1A1A1A]">
-                    Potongan / Diskon
-                  </td>
-                  <td className="py-2 px-4 text-right">
-                    Rp 0
-                  </td>
-                </tr>
-                <tr>
-                  <td colSpan={4} className="py-2 px-4 text-right border-r border-[#1A1A1A]">
-                    Uang Muka (DP) / Pembayaran Sebelumnya
-                  </td>
-                  <td className="py-2 px-4 text-right">
-                    Rp {dpAmount.toLocaleString("id-ID")}
-                  </td>
-                </tr>
-                <tr className="bg-[#F4F1EA] font-bold text-sm">
-                  <td colSpan={4} className="py-2.5 px-4 text-right border-r border-[#1A1A1A]">
-                    Total Pembayaran
-                  </td>
-                  <td className="py-2.5 px-4 text-right text-[#1A1A1A]">
-                    Rp {totalAmount.toLocaleString("id-ID")}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
+                  <tr>
+                    <td colSpan={4} className="py-2 px-4 text-right border-r border-[#1A1A1A]">
+                      Potongan / Diskon
+                    </td>
+                    <td className="py-2 px-4 text-right">
+                      Rp 0
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colSpan={4} className="py-2 px-4 text-right border-r border-[#1A1A1A]">
+                      Uang Muka (DP) / Pembayaran Sebelumnya
+                    </td>
+                    <td className="py-2 px-4 text-right">
+                      Rp {dpAmount.toLocaleString("id-ID")}
+                    </td>
+                  </tr>
+                  <tr className="bg-[#F4F1EA] font-bold text-sm">
+                    <td colSpan={4} className="py-2.5 px-4 text-right border-r border-[#1A1A1A]">
+                      Total Pembayaran
+                    </td>
+                    <td className="py-2.5 px-4 text-right text-[#1A1A1A]">
+                      Rp {totalAmount.toLocaleString("id-ID")}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
 
             {/* Terbilang */}
             <div className="p-3 bg-[#F4F1EA] border border-[#1A1A1A] text-xs font-mono mb-6">

@@ -147,15 +147,32 @@ export default async function AdminOrdersListPage({
                     </td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-1.5">
-                        <Link
-                          href={`/admin/orders/${o.id}/document?type=all`}
-                          target="_blank"
-                          title="Cetak Faktur Invoice & Kuitansi"
-                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-warm-ivory border border-[#D9D7CF] text-deep-charcoal text-[11px] font-mono rounded-xs hover:border-deep-charcoal hover:bg-white transition-colors"
-                        >
-                          <Printer className="w-3 h-3 text-[#FF9857]" />
-                          <span className="hidden sm:inline">Dokumen</span>
-                        </Link>
+                        <div className="inline-flex rounded-xs border border-[#D9D7CF] bg-warm-ivory text-[11px] font-mono divide-x divide-[#D9D7CF] shadow-2xs overflow-hidden">
+                          <Link
+                            href={`/admin/orders/${o.id}/document?type=invoice`}
+                            target="_blank"
+                            title="Unduh / Cetak Faktur Invoice Saja"
+                            className="px-2 py-1 text-deep-charcoal hover:bg-white hover:text-black transition-colors"
+                          >
+                            Inv
+                          </Link>
+                          <Link
+                            href={`/admin/orders/${o.id}/document?type=kuitansi`}
+                            target="_blank"
+                            title="Unduh / Cetak Bukti Kuitansi Saja"
+                            className="px-2 py-1 text-deep-charcoal hover:bg-white hover:text-black transition-colors"
+                          >
+                            Kui
+                          </Link>
+                          <Link
+                            href={`/admin/orders/${o.id}/document?type=all`}
+                            target="_blank"
+                            title="Unduh / Cetak Semua Dokumen Resmi"
+                            className="px-2 py-1 text-deep-charcoal font-bold hover:bg-[#FF9857] hover:text-[#20211F] transition-colors"
+                          >
+                            Lengkap
+                          </Link>
+                        </div>
                         <Link
                           href={`/admin/orders/${o.id}`}
                           className="inline-flex items-center gap-1 px-3 py-1 bg-deep-charcoal text-warm-ivory text-[11px] font-mono uppercase rounded-xs hover:bg-muted-olive transition-colors"

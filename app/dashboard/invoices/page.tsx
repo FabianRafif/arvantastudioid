@@ -2,7 +2,7 @@ import { getSessionUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { FileText, Download, CheckCircle2, Clock, ArrowRight } from "lucide-react";
+import { FileText, Download, CheckCircle2, Clock, ArrowRight, Printer } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -108,12 +108,23 @@ export default async function CustomerInvoicesPage() {
                     </td>
 
                     <td className="p-4 text-right">
-                      <Link
-                        href={`/dashboard/orders/${inv.order.orderNumber}`}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-deep-charcoal text-warm-ivory text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-muted-olive transition-colors"
-                      >
-                        <span>Bayar / Cek Order</span>
-                      </Link>
+                      <div className="flex items-center justify-end gap-2 flex-wrap">
+                        <Link
+                          href={`/dashboard/orders/${inv.order.orderNumber}/document?type=all`}
+                          target="_blank"
+                          title="Cetak Faktur Tagihan & Kuitansi Resmi"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-warm-ivory border border-[#D9D7CF] text-deep-charcoal text-xs font-mono font-semibold rounded-xs hover:border-deep-charcoal hover:bg-white transition-colors shadow-2xs"
+                        >
+                          <Printer className="w-3.5 h-3.5 text-[#FF9857]" />
+                          <span>Invoice & Kuitansi</span>
+                        </Link>
+                        <Link
+                          href={`/dashboard/orders/${inv.order.orderNumber}`}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-deep-charcoal text-warm-ivory text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-muted-olive transition-colors"
+                        >
+                          <span>Detail Order</span>
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

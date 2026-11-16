@@ -73,47 +73,79 @@ export default function OrderDocumentViewer({
   }
 
   if (errorMsg || !order) {
+    const isAuthError =
+      errorMsg?.toLowerCase().includes("akses tidak diizinkan") ||
+      errorMsg?.toLowerCase().includes("unauthorized") ||
+      errorMsg?.toLowerCase().includes("tidak memiliki akses");
+
     return (
       <div className="min-h-screen bg-[#F4F1EA] flex flex-col items-center justify-center p-6 space-y-4 text-center">
-        <AlertCircle className="w-12 h-12 text-red-600" />
-        <h2 className="text-lg font-bold text-[#2D2D2D]">Dokumen Tidak Dapat Dimuat</h2>
-        <p className="text-xs text-[#2D2D2D]/70 font-mono">{errorMsg || "Pesanan tidak ditemukan."}</p>
-        <Link
-          href={backUrl}
-          className="px-4 py-2 bg-[#2D2D2D] text-white text-xs font-mono uppercase tracking-wider rounded-xs"
-        >
-          Kembali ke Detail Pesanan
-        </Link>
+        <AlertCircle className="w-12 h-12 text-[#FF9857]" />
+        <h2 className="text-lg font-bold text-[#2D2D2D]">
+          {isAuthError ? "Silakan Masuk ke Akun Anda" : "Dokumen Tidak Dapat Dimuat"}
+        </h2>
+        <p className="text-xs text-[#2D2D2D]/70 font-mono max-w-md leading-relaxed">
+          {isAuthError
+            ? "Untuk alasan keamanan data dan privasi klien, faktur tagihan dan kuitansi resmi hanya dapat dibuka setelah masuk ke akun resmi Arvanta Studio."
+            : errorMsg || "Pesanan tidak ditemukan atau tautan berkas kadaluwarsa."}
+        </p>
+        <div className="flex items-center gap-3 pt-2">
+          {isAuthError ? (
+            <Link
+              href={`/login?redirect=${encodeURIComponent(typeof window !== "undefined" ? window.location.pathname + window.location.search : backUrl)}`}
+              className="px-5 py-2.5 bg-[#FF9857] text-[#20211F] text-xs font-bold font-mono uppercase tracking-wider rounded-xs hover:bg-[#FF8840] transition-colors shadow-xs"
+            >
+              Masuk / Login Sekarang
+            </Link>
+          ) : null}
+          <Link
+            href={backUrl}
+            className="px-4 py-2.5 bg-[#2D2D2D] text-white text-xs font-mono uppercase tracking-wider rounded-xs hover:bg-black transition-colors"
+          >
+            Kembali ke Pesanan
+          </Link>
+        </div>
       </div>
     );
   }
 
-  const createdDate = formatIndoDate(order.createdAt);
-  const dueDate = formatIndoDate(
-    new Date(new Date(order.createdAt).getTime() + 7 * 24 * 60 * 60 * 1000)
-  );
+  const createdDate = formatIndoDate(order?.createdAt);
+  const orderCreatedTime = order?.createdAt ? new Date(order.createdAt).getTime() : Date.now();
+  const dueDate = formatIndoDate(new Date(orderCreatedTime + 7 * 24 * 60 * 60 * 1000));
 
-  const invoiceNumber = generateInvoiceNumber(order.orderNumber, order.createdAt);
-  const kuitansiNumber = generateKuitansiNumber(order.orderNumber, order.createdAt);
+  const invoiceNumber = generateInvoiceNumber(order?.orderNumber || "001", order?.createdAt);
+  const kuitansiNumber = generateKuitansiNumber(order?.orderNumber || "001", order?.createdAt);
 
-  const lineItems = buildInvoiceLineItems(order);
-  const totalAmount = order.totalAmount || 0;
-  const dpAmount = order.dpAmount || 0;
-  const remainingAmount = order.remainingAmount ?? Math.max(0, totalAmount - dpAmount);
+  const rawLineItems = buildInvoiceLineItems(order);
+  const lineItems = Array.isArray(rawLineItems) && rawLineItems.length > 0
+    ? rawLineItems
+    : [
+        {
+          no: 1,
+          description: order?.serviceType === "WEBSITE" ? "Layanan Pembuatan Website & Sistem Digital" : "Layanan Graphic Design & Branding Identity",
+          qty: "1 Paket",
+          unitPrice: Number(order?.totalAmount) || 0,
+          totalPrice: Number(order?.totalAmount) || 0,
+        },
+      ];
+
+  const totalAmount = Number(order?.totalAmount) || 0;
+  const dpAmount = Number(order?.dpAmount) || 0;
+  const remainingAmount = order?.remainingAmount ?? Math.max(0, totalAmount - dpAmount);
 
   // Status flags
   const isPaidFull =
-    order.status === "COMPLETED" ||
-    order.status === "PEMBAYARAN_DIVERIFIKASI" ||
+    order?.status === "COMPLETED" ||
+    order?.status === "PEMBAYARAN_DIVERIFIKASI" ||
     remainingAmount === 0;
 
   const amountReceived = isPaidFull ? totalAmount : (dpAmount > 0 ? dpAmount : totalAmount);
   const kuitansiTerbilang = terbilang(amountReceived);
   const invoiceTerbilang = terbilang(totalAmount);
 
-  const clientCompany = order.businessName || "-";
-  const clientName = order.customerName || "Klien Arvanta Studio";
-  const clientPhone = order.customerPhone || "-";
+  const clientCompany = order?.businessName || "-";
+  const clientName = order?.customerName || "Klien Arvanta Studio";
+  const clientPhone = order?.customerPhone || "-";
 
   return (
     <div className="min-h-screen bg-[#E5E3DC] text-[#1A1A1A] font-sans antialiased pb-16 print:bg-white print:p-0 print:m-0">

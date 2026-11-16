@@ -39,7 +39,8 @@ export function buildOrderMessageText(data: WhatsAppNotificationPayload): string
   const appUrl = isVercel
     ? "https://arvantastudioid.vercel.app"
     : (process.env.NEXT_PUBLIC_APP_URL || "https://arvantastudioid.vercel.app");
-  const dashboardLink = `${appUrl}/admin/orders/${data.orderId || data.orderNumber}`;
+  const clientDocLink = `${appUrl}/dashboard/orders/${data.orderNumber}/document?type=all`;
+  const adminDocLink = `${appUrl}/admin/orders/${data.orderId || data.orderNumber}/document?type=all`;
 
   return `*ARVANTA STUDIO — NOTIFIKASI PESANAN & STRUK RESMI*
 *Digital System Architecture & Creative Branding Platform*
@@ -71,10 +72,14 @@ ${data.details && data.details !== "-" ? `• *Rincian Teknis :* ${data.details}
 • *BRI (VA) :* 301341 + 082123989398
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-*UNDUH FAKTUR INVOICE & KUITANSI RESMI:*
-${dashboardLink}
+*AKSES FAKTUR INVOICE & KUITANSI RESMI:*
+• Unduh Dokumen (Klien):
+${clientDocLink}
 
-_Dokumen Kuitansi & Faktur Tagihan resmi dapat langsung diunduh dan dicetak melalui dashboard Arvanta Studio._`;
+• Kelola Dokumen (Admin):
+${adminDocLink}
+
+_Dokumen Faktur Tagihan & Kuitansi sah Arvanta Studio dapat langsung diunduh, disimpan PDF, atau dicetak kapan saja._`;
 }
 
 export function generateManualWhatsAppLink(

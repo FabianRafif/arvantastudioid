@@ -1,14 +1,11 @@
-"use client";
-
-import { use } from "react";
 import OrderDocumentViewer from "@/components/OrderDocumentViewer";
 
-export default function AdminOrderDocumentPage({
+export default async function AdminOrderDocumentPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
+  const { id } = await params;
 
   return (
     <OrderDocumentViewer

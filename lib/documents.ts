@@ -104,14 +104,17 @@ export const INDO_MONTHS = [
   "Desember",
 ];
 
-export function formatIndoDate(dateInput: Date | string | number) {
-  const d = new Date(dateInput);
-  const dayName = INDO_DAYS[d.getDay()];
-  const day = d.getDate();
-  const monthIndex = d.getMonth();
-  const monthName = INDO_MONTHS[monthIndex];
-  const year = d.getFullYear();
-  const romanMonth = ROMAN_MONTHS[monthIndex];
+export function formatIndoDate(dateInput?: Date | string | number | null) {
+  let d = dateInput ? new Date(dateInput) : new Date();
+  if (isNaN(d.getTime())) d = new Date();
+
+  const dayIndex = isNaN(d.getDay()) ? 1 : d.getDay();
+  const dayName = INDO_DAYS[dayIndex] || "Senin";
+  const day = isNaN(d.getDate()) ? 1 : d.getDate();
+  const monthIndex = isNaN(d.getMonth()) ? 10 : Math.max(0, Math.min(11, d.getMonth()));
+  const monthName = INDO_MONTHS[monthIndex] || "November";
+  const year = isNaN(d.getFullYear()) ? 2026 : d.getFullYear();
+  const romanMonth = ROMAN_MONTHS[monthIndex] || "XI";
 
   const padDay = String(day).padStart(2, "0");
   const padMonth = String(monthIndex + 1).padStart(2, "0");
@@ -128,8 +131,8 @@ export function formatIndoDate(dateInput: Date | string | number) {
   };
 }
 
-export function extractSequence(orderNumber: string): string {
-  // e.g. ARV-202611-0003 -> 003, or ARV-2026-0001 -> 001
+export function extractSequence(orderNumber?: string | null): string {
+  if (!orderNumber || typeof orderNumber !== "string") return "001";
   const match = orderNumber.match(/(\d+)$/);
   if (match) {
     const num = parseInt(match[1], 10);
@@ -138,19 +141,23 @@ export function extractSequence(orderNumber: string): string {
   return "001";
 }
 
-export function generateInvoiceNumber(orderNumber: string, dateInput?: Date | string): string {
-  const d = dateInput ? new Date(dateInput) : new Date();
+export function generateInvoiceNumber(orderNumber?: string | null, dateInput?: Date | string | null): string {
+  let d = dateInput ? new Date(dateInput) : new Date();
+  if (isNaN(d.getTime())) d = new Date();
   const seq = extractSequence(orderNumber);
-  const roman = ROMAN_MONTHS[d.getMonth()];
-  const year = d.getFullYear();
+  const monthIndex = isNaN(d.getMonth()) ? 10 : Math.max(0, Math.min(11, d.getMonth()));
+  const roman = ROMAN_MONTHS[monthIndex] || "XI";
+  const year = isNaN(d.getFullYear()) ? 2026 : d.getFullYear();
   return `${seq}/INV/ARV/${roman}/${year}`;
 }
 
-export function generateKuitansiNumber(orderNumber: string, dateInput?: Date | string): string {
-  const d = dateInput ? new Date(dateInput) : new Date();
+export function generateKuitansiNumber(orderNumber?: string | null, dateInput?: Date | string | null): string {
+  let d = dateInput ? new Date(dateInput) : new Date();
+  if (isNaN(d.getTime())) d = new Date();
   const seq = extractSequence(orderNumber);
-  const roman = ROMAN_MONTHS[d.getMonth()];
-  const year = d.getFullYear();
+  const monthIndex = isNaN(d.getMonth()) ? 10 : Math.max(0, Math.min(11, d.getMonth()));
+  const roman = ROMAN_MONTHS[monthIndex] || "XI";
+  const year = isNaN(d.getFullYear()) ? 2026 : d.getFullYear();
   return `${seq}/KUI/ARV/${roman}/${year}`;
 }
 
@@ -163,7 +170,8 @@ export interface InvoiceLineItem {
 }
 
 export function buildInvoiceLineItems(order: any): InvoiceLineItem[] {
-  const total = order.totalAmount || 0;
+  if (!order) return [];
+  const total = Number(order.totalAmount) || 0;
 
   // If order items exist in DB
   if (order.items && Array.isArray(order.items) && order.items.length > 0) {
@@ -171,8 +179,8 @@ export function buildInvoiceLineItems(order: any): InvoiceLineItem[] {
       no: idx + 1,
       description: item.productName || item.servicePackage?.name || "Layanan Arvanta Studio",
       qty: `${item.quantity || 1} Paket`,
-      unitPrice: item.unitPrice || item.totalPrice,
-      totalPrice: item.totalPrice || item.unitPrice,
+      unitPrice: Number(item.unitPrice || item.totalPrice) || total,
+      totalPrice: Number(item.totalPrice || item.unitPrice) || total,
     }));
   }
 
@@ -183,7 +191,7 @@ export function buildInvoiceLineItems(order: any): InvoiceLineItem[] {
     const item1Price = Math.round((total * 0.55) / 10000) * 10000;
     const item2Price = Math.round((total * 0.25) / 10000) * 10000;
     const item3Price = Math.round((total * 0.1) / 10000) * 10000;
-    const item4Price = total - (item1Price + item2Price + item3Price);
+    const item4Price = Math.max(0, total - (item1Price + item2Price + item3Price));
 
     return [
       {
@@ -220,7 +228,7 @@ export function buildInvoiceLineItems(order: any): InvoiceLineItem[] {
   // Graphic design breakdown
   const designName = order.designConcept || order.designSize || "Graphic Design & Branding";
   const item1Price = Math.round((total * 0.7) / 10000) * 10000;
-  const item2Price = total - item1Price;
+  const item2Price = Math.max(0, total - item1Price);
 
   return [
     {

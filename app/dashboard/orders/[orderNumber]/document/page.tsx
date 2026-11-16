@@ -1,14 +1,11 @@
-"use client";
-
-import { use } from "react";
 import OrderDocumentViewer from "@/components/OrderDocumentViewer";
 
-export default function CustomerOrderDocumentPage({
+export default async function CustomerOrderDocumentPage({
   params,
 }: {
   params: Promise<{ orderNumber: string }>;
 }) {
-  const { orderNumber } = use(params);
+  const { orderNumber } = await params;
 
   return (
     <OrderDocumentViewer

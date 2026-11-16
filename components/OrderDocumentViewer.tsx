@@ -22,15 +22,17 @@ interface Props {
   orderIdOrNumber: string;
   backUrl: string;
   role?: "ADMIN" | "CUSTOMER";
+  initialOrder?: any;
 }
 
 export default function OrderDocumentViewer({
   orderIdOrNumber,
   backUrl,
   role = "ADMIN",
+  initialOrder = null,
 }: Props) {
-  const [order, setOrder] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [order, setOrder] = useState<any | null>(initialOrder);
+  const [loading, setLoading] = useState(!initialOrder);
   const [errorMsg, setErrorMsg] = useState("");
   const [docType, setDocType] = useState<"all" | "invoice" | "kuitansi">("all");
 
@@ -43,26 +45,28 @@ export default function OrderDocumentViewer({
       }
     }
 
-    const fetchOrder = async () => {
-      try {
-        const cleanId = encodeURIComponent(orderIdOrNumber);
-        // 1. Try public document endpoint first (no login required for clients with valid order link)
-        let res = await fetch(`/api/document/${cleanId}`, { cache: "no-store" });
-        if (!res.ok) {
-          // 2. Fall back to internal authenticated orders endpoint
-          res = await fetch(`/api/orders/${cleanId}`, { cache: "no-store" });
+    if (!initialOrder) {
+      const fetchOrder = async () => {
+        try {
+          const cleanId = encodeURIComponent(orderIdOrNumber);
+          // 1. Try public document endpoint first (no login required for clients with valid order link)
+          let res = await fetch(`/api/document/${cleanId}`, { cache: "no-store" });
+          if (!res.ok) {
+            // 2. Fall back to internal authenticated orders endpoint
+            res = await fetch(`/api/orders/${cleanId}`, { cache: "no-store" });
+          }
+          const data = await res.json();
+          if (!res.ok || !data.order) throw new Error(data.error || "Gagal memuat data dokumen.");
+          setOrder(data.order);
+        } catch (err: any) {
+          setErrorMsg(err.message || "Gagal memuat dokumen.");
+        } finally {
+          setLoading(false);
         }
-        const data = await res.json();
-        if (!res.ok || !data.order) throw new Error(data.error || "Gagal memuat data dokumen.");
-        setOrder(data.order);
-      } catch (err: any) {
-        setErrorMsg(err.message || "Gagal memuat dokumen.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchOrder();
-  }, [orderIdOrNumber]);
+      };
+      fetchOrder();
+    }
+  }, [orderIdOrNumber, initialOrder]);
 
   const handlePrint = () => {
     if (typeof window !== "undefined") {

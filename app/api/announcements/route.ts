@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
     const priority = searchParams.get("priority");
     const limit = Number(searchParams.get("limit")) || 20;
     const isUrgentOnly = searchParams.get("urgent") === "true";
+    const isBar = searchParams.get("bar") === "true";
 
     const now = new Date();
 
@@ -29,6 +30,8 @@ export async function GET(req: NextRequest) {
 
     if (isUrgentOnly) {
       where.priority = { in: ["URGENT", "PENTING"] };
+    } else if (isBar) {
+      // Pengumuman Bar menampilkan pengumuman aktif berurutan: URGENT -> PENTING -> NORMAL
     } else if (priority && priority !== "ALL") {
       where.priority = priority.toUpperCase();
     }

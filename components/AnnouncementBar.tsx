@@ -20,7 +20,7 @@ export default function AnnouncementBar() {
 
   const fetchUrgentAnnouncement = async () => {
     try {
-      const res = await fetch(`/api/announcements?urgent=true&limit=1&t=${Date.now()}`, {
+      const res = await fetch(`/api/announcements?bar=true&limit=1&t=${Date.now()}`, {
         cache: "no-store",
         headers: { "Cache-Control": "no-cache" },
       });

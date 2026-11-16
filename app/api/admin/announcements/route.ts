@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { broadcastNotificationToAllClients } from "@/lib/push";
 
 export const dynamic = "force-dynamic";
 
@@ -139,7 +140,35 @@ export async function POST(req: NextRequest) {
       create: { key: "last_data_version", value: String(Date.now()), description: "Timestamp data version" },
     });
 
-    return NextResponse.json({ success: true, announcement: newAnnouncement });
+    let broadcastStats = { totalInApp: 0, totalPush: 0 };
+    if (effectiveStatus === "PUBLISHED" && effectiveIsActive) {
+      try {
+        const cleanSnippet = (summary || content.replace(/<[^>]*>?/gm, ""))
+          .replace(/\s+/g, " ")
+          .trim()
+          .slice(0, 160);
+
+        const res = await broadcastNotificationToAllClients({
+          title: `📢 ${String(title).trim()}`,
+          message: cleanSnippet || "Ada pengumuman & berita terbaru dari Arvanta Studio.",
+          link: `/pengumuman/${finalSlug}`,
+          type: "ANNOUNCEMENT",
+        });
+
+        broadcastStats = {
+          totalInApp: res.totalInApp,
+          totalPush: res.pushResult.totalSent,
+        };
+      } catch (e) {
+        console.error("Failed to broadcast announcement to clients:", e);
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      announcement: newAnnouncement,
+      broadcastStats,
+    });
   } catch (error: any) {
     console.error("Admin create announcement error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

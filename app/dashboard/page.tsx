@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getSessionUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import BannerCarousel from "@/components/BannerCarousel";
+import CustomerAnnouncementsBanner from "@/components/CustomerAnnouncementsBanner";
+import CustomerPushPrompt from "@/components/CustomerPushPrompt";
 import {
   ShoppingBag,
   Clock,
@@ -36,8 +38,36 @@ export default async function CustomerDashboardPage() {
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
   });
 
+  const now = new Date();
+  const announcements = await prisma.announcement.findMany({
+    where: {
+      status: "PUBLISHED",
+      isActive: true,
+      publishDate: { lte: now },
+      AND: [
+        {
+          OR: [
+            { endDate: null },
+            { endDate: { gte: now } },
+          ],
+        },
+      ],
+    },
+    orderBy: [
+      { priority: "desc" },
+      { publishDate: "desc" },
+    ],
+    take: 3,
+  });
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
+      {/* Pengumuman & Berita Resmi Terkini */}
+      <CustomerAnnouncementsBanner initialAnnouncements={announcements as any} />
+
+      {/* Push Notification HP Activation Card */}
+      <CustomerPushPrompt />
+
       {/* Welcome Banner */}
       <div className="p-8 bg-white border border-[#D9D7CF] rounded-xs flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xs">
         <div>

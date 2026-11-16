@@ -597,10 +597,16 @@ export default function AdminBannersPage() {
         throw new Error(data.error || "Gagal menyimpan pengumuman.");
       }
 
+      const inAppCount = data.broadcastStats?.totalInApp || 0;
+      const pushCount = data.broadcastStats?.totalPush || 0;
+      const broadcastInfo = inAppCount > 0
+        ? ` (Disiarkan otomatis ke ${inAppCount} akun klien & ${pushCount} notifikasi HP)`
+        : "";
+
       setSuccessMsg(
         editingAnnounceId
-          ? `✓ Pengumuman "${announceTitle}" berhasil diperbarui!`
-          : `✓ Pengumuman "${announceTitle}" berhasil ${effStatus === "PUBLISHED" ? "diterbitkan" : "disimpan sebagai draft"}!`
+          ? `✓ Pengumuman "${announceTitle}" berhasil diperbarui!${broadcastInfo}`
+          : `✓ Pengumuman "${announceTitle}" berhasil ${effStatus === "PUBLISHED" ? "diterbitkan" : "disimpan sebagai draft"}!${broadcastInfo}`
       );
       setTimeout(() => setSuccessMsg(""), 6000);
 

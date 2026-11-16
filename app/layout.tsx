@@ -113,9 +113,6 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
       </head>
-          content="80T_mzwf3B65Qdwh5-rloJo3tx0c6aXulHw7CFA3fdE"
-        />
-      </head>
       <body className="min-h-screen flex flex-col bg-[#EDECE8] text-[#2D2D2D] font-sans antialiased selection:bg-[#FF9857] selection:text-[#2D2D2D]">
         <AnnouncementBar />
         {children}

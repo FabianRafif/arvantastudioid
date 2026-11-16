@@ -20,6 +20,8 @@ import {
   Printer,
   Receipt,
   Layers,
+  Copy,
+  Check,
 } from "lucide-react";
 import { generateInvoiceNumber, generateKuitansiNumber } from "@/lib/documents";
 
@@ -49,6 +51,7 @@ export default function AdminOrderDetailPage({
   // Message
   const [adminMessage, setAdminMessage] = useState("");
   const [sendingMsg, setSendingMsg] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const fetchOrder = async () => {
     try {
@@ -201,7 +204,35 @@ export default function AdminOrderDetailPage({
   }
 
   const customerCleanPhone = order.customerPhone?.replace(/\D/g, "");
-  const waCustomerLink = `https://wa.me/${customerCleanPhone?.startsWith("0") ? "62" + customerCleanPhone.slice(1) : customerCleanPhone}`;
+  const formattedWaPhone = customerCleanPhone?.startsWith("0") ? "62" + customerCleanPhone.slice(1) : customerCleanPhone;
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://arvantastudioid.vercel.app";
+  const docAllLink = `${baseUrl}/document/${order.orderNumber}?type=all`;
+  const docInvLink = `${baseUrl}/document/${order.orderNumber}?type=invoice`;
+  const docKuiLink = `${baseUrl}/document/${order.orderNumber}?type=kuitansi`;
+
+  const waText = encodeURIComponent(
+`Halo kak ${order.customerName}, berikut berkas resmi Faktur Tagihan (Invoice) & Kuitansi Pembayaran untuk pesanan Anda di Arvanta Studio:
+
+*DETAIL PESANAN:*
+• No. Order: ${order.orderNumber}
+• Status: ${order.status.replace(/_/g, " ")}
+• Total: Rp ${Number(order.totalAmount || 0).toLocaleString("id-ID")}
+
+*UNDUH BERKAS RESMI (LANGSUNG TANPA LOGIN):*
+• Dokumen Lengkap (Semua): ${docAllLink}
+• Khusus Invoice: ${docInvLink}
+• Khusus Kuitansi: ${docKuiLink}
+
+Dokumen dapat langsung dibuka dan disimpan sebagai PDF. Terima kasih telah mempercayakan proyek Anda kepada Arvanta Studio!`
+  );
+
+  const waCustomerLink = `https://wa.me/${formattedWaPhone}?text=${waText}`;
+
+  const handleCopyDocLink = () => {
+    navigator.clipboard.writeText(docAllLink);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 3000);
+  };
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
@@ -257,14 +288,25 @@ export default function AdminOrderDetailPage({
             </Link>
           </div>
 
+          <button
+            type="button"
+            onClick={handleCopyDocLink}
+            title="Salin tautan invoice & kuitansi klien"
+            className="px-3 py-2 bg-warm-ivory border border-[#D9D7CF] text-deep-charcoal text-xs font-mono rounded-xs hover:border-deep-charcoal hover:bg-white transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
+          >
+            {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#FF9857]" />}
+            <span>{copiedLink ? "Link Tersalin!" : "Salin Link"}</span>
+          </button>
+
           <a
             href={waCustomerLink}
             target="_blank"
             rel="noopener noreferrer"
+            title="Kirim notifikasi & link struk invoice langsung via WhatsApp"
             className="px-3.5 py-2 bg-emerald-800 text-white text-xs font-semibold uppercase tracking-wider hover:bg-emerald-900 transition-colors rounded-xs flex items-center gap-1.5 shadow-xs"
           >
             <MessageCircle className="w-3.5 h-3.5" />
-            <span>WhatsApp Klien</span>
+            <span>Kirim WA</span>
           </a>
         </div>
       </div>

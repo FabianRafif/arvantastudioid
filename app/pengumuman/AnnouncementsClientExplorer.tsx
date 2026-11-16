@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { Search, Calendar, ArrowUpRight, Tag } from "lucide-react";
+import { Search, Calendar, ArrowUpRight, Tag, AlertTriangle, Wrench, Bell, ArrowRight } from "lucide-react";
 import { LIVE_SYNC_CHANNEL_NAME } from "@/lib/live-sync";
 
 interface AnnouncementItem {
@@ -78,8 +78,78 @@ export default function AnnouncementsClientExplorer({
     });
   }, [items, selectedCategory, searchQuery]);
 
+  const featuredAlert = useMemo(() => {
+    return (
+      items.find((i) => i.priority === "URGENT") ||
+      items.find((i) => i.category === "MAINTENANCE") ||
+      items.find((i) => i.priority === "PENTING") ||
+      null
+    );
+  }, [items]);
+
   return (
     <div className="space-y-8">
+      {/* Hero Featured Alert Banner (Maintenance / Urgent / Penting) */}
+      {featuredAlert && (
+        <div
+          className={`p-6 sm:p-8 rounded-2xl border-2 transition-all relative overflow-hidden shadow-md ${
+            featuredAlert.priority === "URGENT" || featuredAlert.category === "MAINTENANCE"
+              ? "bg-gradient-to-r from-red-950/90 via-[#2D2D2D] to-[#1C1C1A] text-white border-red-500/80"
+              : "bg-gradient-to-r from-[#2D2D2D] via-[#242424] to-[#1A1A1A] text-white border-[#FF9857]/80"
+          }`}
+        >
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-white/10 rounded-xl text-[#FF9857] shrink-0 mt-1">
+                {featuredAlert.category === "MAINTENANCE" ? (
+                  <Wrench className="w-6 h-6 text-[#FF9857] animate-pulse" />
+                ) : (
+                  <AlertTriangle className="w-6 h-6 text-red-400 animate-pulse" />
+                )}
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span
+                    className={`px-3 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider ${
+                      featuredAlert.priority === "URGENT" || featuredAlert.category === "MAINTENANCE"
+                        ? "bg-red-600 text-white animate-pulse"
+                        : "bg-[#FF9857] text-[#2D2D2D]"
+                    }`}
+                  >
+                    {featuredAlert.category === "MAINTENANCE"
+                      ? "PEMBERITAHUAN MAINTENANCE"
+                      : `${featuredAlert.priority} NOTICE`}
+                  </span>
+                  <span className="text-xs font-mono text-white/60">
+                    {new Date(featuredAlert.publishDate).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-display font-black tracking-tight text-white uppercase">
+                  {featuredAlert.title}
+                </h3>
+                {featuredAlert.summary && (
+                  <p className="text-xs sm:text-sm text-white/80 max-w-3xl leading-relaxed font-sans">
+                    {featuredAlert.summary}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <Link
+              href={`/pengumuman/${featuredAlert.slug}`}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#FF9857] hover:bg-[#FF8840] text-[#2D2D2D] font-bold font-space text-xs uppercase tracking-wider rounded-xl transition-all shadow-md shrink-0 active:scale-95"
+            >
+              <span>Baca Rincian Lengkap</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Category Tabs & Search Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Category Pills */}

@@ -63,7 +63,7 @@ export async function PUT(
     if (body.summary !== undefined) data.summary = body.summary ? String(body.summary).trim() : null;
     if (body.imageUrl !== undefined) data.imageUrl = body.imageUrl ? String(body.imageUrl).trim() : null;
     if (body.priority !== undefined) {
-      data.priority = ["NORMAL", "PENTING", "URGENT", "MAINTENANCE"].includes(body.priority)
+      data.priority = ["NORMAL", "PENTING", "URGENT"].includes(body.priority)
         ? body.priority
         : "NORMAL";
     }

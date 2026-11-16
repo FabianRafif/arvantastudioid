@@ -31,6 +31,9 @@ import {
   ChevronDown,
   ChevronUp,
   Share2,
+  Lock,
+  Unlock,
+  Wrench,
 } from "lucide-react";
 
 interface Banner {
@@ -57,7 +60,7 @@ interface Announcement {
   content: string;
   summary: string | null;
   imageUrl: string | null;
-  priority: "NORMAL" | "PENTING" | "URGENT" | "MAINTENANCE";
+  priority: "NORMAL" | "PENTING" | "URGENT";
   status: "DRAFT" | "PUBLISHED";
   isActive: boolean;
   publishDate: string;
@@ -134,7 +137,7 @@ export default function AdminBannersPage() {
   // Announcement Form state
   const [announceTitle, setAnnounceTitle] = useState("");
   const [announceCategory, setAnnounceCategory] = useState("PROMO");
-  const [announcePriority, setAnnouncePriority] = useState<"NORMAL" | "PENTING" | "URGENT" | "MAINTENANCE">("NORMAL");
+  const [announcePriority, setAnnouncePriority] = useState<"NORMAL" | "PENTING" | "URGENT">("NORMAL");
   const [announceStatus, setAnnounceStatus] = useState<"DRAFT" | "PUBLISHED">("PUBLISHED");
   const [announcePublishDate, setAnnouncePublishDate] = useState(new Date().toISOString().slice(0, 16));
   const [announceEndDate, setAnnounceEndDate] = useState("");
@@ -154,17 +157,39 @@ export default function AdminBannersPage() {
   const [announceStatusFilter, setAnnounceStatusFilter] = useState("ALL");
 
   // ==========================================
+  // MAINTENANCE MODE LOCKOUT STATE
+  // ==========================================
+  const [isMaintenanceActive, setIsMaintenanceActive] = useState(false);
+  const [maintTitle, setMaintTitle] = useState("Pemeliharaan Sistem Terjadwal");
+  const [maintMessage, setMaintMessage] = useState(
+    "Kami sedang melakukan peningkatan infrastruktur server dan basis data untuk memberikan performa yang lebih optimal dan aman bagi seluruh klien Arvanta Studio."
+  );
+  const [maintEta, setMaintEta] = useState("Segera kembali dalam waktu dekat");
+  const [maintSaving, setMaintSaving] = useState(false);
+  const [autoLockWebsite, setAutoLockWebsite] = useState(false);
+  const [showMaintDetails, setShowMaintDetails] = useState(false);
+
+  // ==========================================
   // DATA LOADING
   // ==========================================
   const loadData = async () => {
     setLoading(true);
     try {
       const ts = Date.now();
-      const [resBanners, resPublic, resAnnouncements] = await Promise.all([
+      const [resBanners, resPublic, resAnnouncements, resMaint] = await Promise.all([
         fetch(`/api/admin/banners?t=${ts}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } }),
         fetch(`/api/banners?t=${ts}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } }),
         fetch(`/api/admin/announcements?t=${ts}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } }),
+        fetch(`/api/admin/maintenance?t=${ts}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } }),
       ]);
+
+      if (resMaint.ok) {
+        const maintData = await resMaint.json();
+        setIsMaintenanceActive(Boolean(maintData.isMaintenance));
+        if (maintData.title) setMaintTitle(maintData.title);
+        if (maintData.message) setMaintMessage(maintData.message);
+        if (maintData.eta) setMaintEta(maintData.eta);
+      }
 
       if (resBanners.ok) {
         const data = await resBanners.json();
@@ -603,6 +628,23 @@ export default function AdminBannersPage() {
         ? ` (Disiarkan otomatis ke ${inAppCount} akun klien & ${pushCount} notifikasi HP)`
         : "";
 
+      // If admin opted to lock website during maintenance
+      if (effStatus === "PUBLISHED" && autoLockWebsite) {
+        try {
+          await fetch("/api/admin/maintenance", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              isMaintenance: true,
+              title: announceTitle,
+              message: announceSummary || announceContent.replace(/<[^>]*>?/gm, "").slice(0, 200),
+              eta: maintEta,
+            }),
+          });
+          setIsMaintenanceActive(true);
+        } catch {}
+      }
+
       setSuccessMsg(
         editingAnnounceId
           ? `✓ Pengumuman "${announceTitle}" berhasil diperbarui!${broadcastInfo}`
@@ -651,6 +693,49 @@ export default function AdminBannersPage() {
     setAnnouncePreviewUrl(a.imageUrl || "");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleToggleMaintenanceMode = async (enable: boolean) => {
+    const actionDesc = enable
+      ? "MENGUNCI SELURUH WEBSITE (MODE MAINTENANCE)"
+      : "MEMBUKA KEMBALI WEBSITE (MODE NORMAL)";
+
+    if (
+      !confirm(
+        `KONFIRMASI KEAMANAN ARVANTA:\nApakah Anda yakin ingin ${actionDesc}?\n\n` +
+          (enable
+            ? "Website akan langsung tertutup bagi seluruh pengunjung publik & klien. Pengunjung dan klien tidak bisa memesan ataupun membuka halaman. Hanya Admin yang dapat login dan mengelola."
+            : "Website akan langsung terbuka normal kembali untuk seluruh pengunjung dan klien di seluruh dunia.")
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setMaintSaving(true);
+      const res = await fetch("/api/admin/maintenance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          isMaintenance: enable,
+          title: maintTitle,
+          message: maintMessage,
+          eta: maintEta,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal mengubah mode maintenance.");
+
+      setIsMaintenanceActive(enable);
+      setSuccessMsg(data.message || (enable ? "Website berhasil dikunci!" : "Website berhasil dibuka!"));
+      setTimeout(() => setSuccessMsg(""), 6000);
+      broadcastLiveUpdate();
+      await loadData();
+    } catch (err: any) {
+      setErrorMsg(err.message || "Gagal mengubah status maintenance.");
+    } finally {
+      setMaintSaving(false);
+    }
   };
 
   const handleDuplicateAnnouncement = async (id: string) => {
@@ -1393,6 +1478,145 @@ export default function AdminBannersPage() {
       {/* ========================================================= */}
       {activeTab === "announcements" && (
         <div className="space-y-8">
+          {/* Executive Maintenance Lockout Controller */}
+          <div
+            className={`border rounded-xs p-6 shadow-sm transition-all space-y-4 ${
+              isMaintenanceActive
+                ? "bg-gradient-to-r from-red-950 via-[#2D2D2D] to-[#1C1C1A] text-white border-red-500/80"
+                : "bg-white text-deep-charcoal border-[#D9D7CF]"
+            }`}
+          >
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4 border-current/20">
+              <div className="flex items-start sm:items-center gap-3">
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                    isMaintenanceActive ? "bg-red-600 text-white animate-pulse" : "bg-[#2D2D2D] text-[#FF9857]"
+                  }`}
+                >
+                  {isMaintenanceActive ? <Lock className="w-5 h-5" /> : <Unlock className="w-5 h-5" />}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-space font-bold text-sm sm:text-base uppercase tracking-wider">
+                      Kontrol Kunci Website &amp; Mode Maintenance
+                    </h3>
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider ${
+                        isMaintenanceActive
+                          ? "bg-red-600 text-white animate-pulse"
+                          : "bg-emerald-100 text-emerald-800"
+                      }`}
+                    >
+                      {isMaintenanceActive ? "WEBSITE TERKUNCI" : "WEBSITE AKTIF (NORMAL)"}
+                    </span>
+                  </div>
+                  <p
+                    className={`text-xs mt-0.5 leading-relaxed ${
+                      isMaintenanceActive ? "text-white/80" : "text-deep-charcoal/70"
+                    }`}
+                  >
+                    {isMaintenanceActive
+                      ? "Website saat ini terkunci penuh untuk seluruh pengunjung & klien publik. Hanya Admin yang dapat login dan melihat konten."
+                      : "Website terbuka normal untuk umum. Aktifkan sakelar ini saat ingin menutup akses pemesanan untuk perawatan sistem."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+                <button
+                  type="button"
+                  onClick={() => setShowMaintDetails(!showMaintDetails)}
+                  className={`px-3 py-2 text-xs font-mono rounded-xs border transition-colors flex items-center gap-1 cursor-pointer ${
+                    isMaintenanceActive
+                      ? "border-white/30 hover:border-white text-white"
+                      : "border-[#D9D7CF] hover:border-deep-charcoal text-deep-charcoal"
+                  }`}
+                >
+                  <span>{showMaintDetails ? "Tutup Pengaturan" : "Ubah Pesan & ETA"}</span>
+                  {showMaintDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleToggleMaintenanceMode(!isMaintenanceActive)}
+                  disabled={maintSaving}
+                  className={`px-5 py-2.5 rounded-xs font-space font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-xs cursor-pointer active:scale-95 ${
+                    isMaintenanceActive
+                      ? "bg-white text-red-700 hover:bg-neutral-100"
+                      : "bg-red-600 text-white hover:bg-red-700"
+                  }`}
+                >
+                  {maintSaving ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Menyimpan...</span>
+                    </>
+                  ) : isMaintenanceActive ? (
+                    <>
+                      <Unlock className="w-4 h-4" />
+                      <span>Buka Kunci Website</span>
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4" />
+                      <span>Kunci Website Sekarang</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Expandable Maintenance Detail Config */}
+            {showMaintDetails && (
+              <div
+                className={`pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-sans ${
+                  isMaintenanceActive ? "text-white" : "text-deep-charcoal"
+                }`}
+              >
+                <div>
+                  <label className="block font-semibold mb-1">Judul Layar Pemeliharaan</label>
+                  <input
+                    type="text"
+                    value={maintTitle}
+                    onChange={(e) => setMaintTitle(e.target.value)}
+                    placeholder="Contoh: Pemeliharaan Sistem Terjadwal"
+                    className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-deep-charcoal focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold mb-1">Estimasi Waktu Selesai (ETA)</label>
+                  <input
+                    type="text"
+                    value={maintEta}
+                    onChange={(e) => setMaintEta(e.target.value)}
+                    placeholder="Contoh: 16 Nov 2026 Pukul 23:00 WIB"
+                    className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-deep-charcoal focus:outline-hidden"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block font-semibold mb-1">Pesan Lengkap untuk Pengunjung</label>
+                  <textarea
+                    rows={2}
+                    value={maintMessage}
+                    onChange={(e) => setMaintMessage(e.target.value)}
+                    placeholder="Tuliskan alasan pemeliharaan untuk dibaca pengunjung yang terkunci..."
+                    className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-deep-charcoal focus:outline-hidden resize-none"
+                  />
+                </div>
+                <div className="sm:col-span-2 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => handleToggleMaintenanceMode(isMaintenanceActive)}
+                    disabled={maintSaving}
+                    className="px-4 py-2 bg-deep-charcoal text-warm-ivory hover:bg-black text-xs font-mono uppercase tracking-wider rounded-xs cursor-pointer"
+                  >
+                    Simpan Perubahan Teks
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Form Tambah / Edit Pengumuman */}
           <div className="bg-white border border-[#D9D7CF] rounded-xs p-6 shadow-xs space-y-6">
             <div className="flex items-center justify-between pb-4 border-b border-[#D9D7CF]/60">
@@ -1438,7 +1662,13 @@ export default function AdminBannersPage() {
                 <label className="block font-semibold mb-1">Kategori Pengumuman *</label>
                 <select
                   value={announceCategory}
-                  onChange={(e) => setAnnounceCategory(e.target.value)}
+                  onChange={(e) => {
+                    const cat = e.target.value;
+                    setAnnounceCategory(cat);
+                    if (cat === "MAINTENANCE") {
+                      setAutoLockWebsite(true);
+                    }
+                  }}
                   className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs font-semibold"
                 >
                   {ANNOUNCEMENT_CATEGORIES.map((c) => (
@@ -1449,6 +1679,26 @@ export default function AdminBannersPage() {
                 </select>
               </div>
 
+              {announceCategory === "MAINTENANCE" && (
+                <div className="sm:col-span-2 lg:col-span-3 p-3.5 bg-red-50 border border-red-200 rounded-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2 text-red-950 font-medium">
+                    <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                    <span>
+                      <strong>Mode Pemeliharaan:</strong> Kategori Maintenance dipilih. Centang tombol di kanan jika ingin seluruh akses website otomatis dikunci untuk pengunjung publik saat pengumuman diterbitkan.
+                    </span>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer shrink-0 font-bold text-red-900 font-mono bg-white px-3 py-1.5 border border-red-300 rounded-xs shadow-2xs">
+                    <input
+                      type="checkbox"
+                      checked={autoLockWebsite}
+                      onChange={(e) => setAutoLockWebsite(e.target.checked)}
+                      className="w-4 h-4 accent-red-600 rounded-xs cursor-pointer"
+                    />
+                    <span>Kunci Website Otomatis</span>
+                  </label>
+                </div>
+              )}
+
               <div>
                 <label className="block font-semibold mb-1">Tingkat Prioritas</label>
                 <select
@@ -1456,10 +1706,9 @@ export default function AdminBannersPage() {
                   onChange={(e) => setAnnouncePriority(e.target.value as any)}
                   className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs font-semibold"
                 >
-                  <option value="NORMAL">Normal (Tampil di Beranda &amp; Pusat Pengumuman)</option>
-                  <option value="PENTING">Penting (Muncul Pop-Up Melayang &amp; Announcement Bar)</option>
-                  <option value="URGENT">Urgent (Bilah Merah Berkedip &amp; Notifikasi HP Prioritas)</option>
-                  <option value="MAINTENANCE">Maintenance (Tutup Layar Website Penuh / Mode Pemeliharaan)</option>
+                  <option value="NORMAL">Normal (Tampil di Pusat Pengumuman)</option>
+                  <option value="PENTING">Penting (Tampil di Announcement Bar &amp; Section)</option>
+                  <option value="URGENT">Urgent (Announcement Bar Merah Berkedip)</option>
                 </select>
               </div>
 
@@ -1505,22 +1754,6 @@ export default function AdminBannersPage() {
                   className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs"
                 />
               </div>
-
-              {/* Callout Info Maintenance Mode Penutup Website */}
-              {(announceCategory === "MAINTENANCE" || announcePriority === "MAINTENANCE") && (
-                <div className="sm:col-span-2 lg:col-span-3 p-4 bg-amber-500/10 border-2 border-amber-500/40 rounded-xs space-y-1.5">
-                  <div className="flex items-center gap-2 text-amber-950 font-space font-bold text-xs uppercase tracking-wider">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-600 animate-ping" />
-                    <span>🔒 Mode Penutup Website (Full Maintenance Screen) Akan Aktif</span>
-                  </div>
-                  <p className="text-xs text-amber-900/90 leading-relaxed font-sans">
-                    Pengumuman dengan kategori atau prioritas <strong>Maintenance</strong> ini akan <strong>menutup sementara seluruh website publik &amp; portal klien</strong> dengan layar pemeliharaan resmi berlatar gelap yang memuat judul, isi pesan Anda, estimasi waktu selesai, dan kontak WhatsApp darurat.
-                  </p>
-                  <p className="text-[11px] text-amber-800 font-mono">
-                    * Catatan: Anda sebagai Admin tetap bisa login dan membuka admin panel secara normal. Untuk membuka kembali akses publik ke website, Anda cukup mengubah status pengumuman ini menjadi Draft atau menghapusnya.
-                  </p>
-                </div>
-              )}
 
               {/* Gambar Pendukung Upload */}
               <div className="sm:col-span-2 lg:col-span-3">
@@ -1755,7 +1988,6 @@ export default function AdminBannersPage() {
                   const isPublished = a.status === "PUBLISHED" && a.isActive;
                   const isUrgent = a.priority === "URGENT";
                   const isPenting = a.priority === "PENTING";
-                  const isMaintenance = a.category === "MAINTENANCE" || a.priority === "MAINTENANCE";
 
                   const pubDateStr = new Date(a.publishDate).toLocaleDateString("id-ID", {
                     day: "numeric",
@@ -1780,19 +2012,11 @@ export default function AdminBannersPage() {
                                 ? "bg-red-600 text-white animate-pulse"
                                 : isPenting
                                 ? "bg-amber-500 text-white"
-                                : isMaintenance
-                                ? "bg-[#D9381E] text-white"
                                 : "bg-gray-200 text-gray-800"
                             }`}
                           >
                             {a.priority}
                           </span>
-
-                          {isMaintenance && isPublished && (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#D9381E] text-white animate-pulse flex items-center gap-1">
-                              🔒 Website Ditutup (Maintenance)
-                            </span>
-                          )}
 
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${

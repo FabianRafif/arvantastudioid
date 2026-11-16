@@ -39,6 +39,11 @@ export default function MaintenanceGuard({
       if (!res.ok) return;
       const data = await res.json();
       if (typeof data.isMaintenance === "boolean") {
+        // If maintenance was turned OFF by admin, reload instantly to restore full website
+        if (isMaintenance && !data.isMaintenance) {
+          window.location.reload();
+          return;
+        }
         setIsMaintenance(data.isMaintenance);
         if (data.title) setTitle(data.title);
         if (data.message) setMessage(data.message);
@@ -58,13 +63,25 @@ export default function MaintenanceGuard({
       }
     } catch {}
 
-    const interval = setInterval(fetchStatus, 6000);
+    const interval = setInterval(fetchStatus, 3500);
+
+    // When user returns to tab on mobile/desktop, check status immediately
+    const handleActivity = () => {
+      if (document.visibilityState === "visible") {
+        fetchStatus();
+      }
+    };
+
+    window.addEventListener("focus", handleActivity);
+    document.addEventListener("visibilitychange", handleActivity);
 
     return () => {
       if (channel) channel.close();
       clearInterval(interval);
+      window.removeEventListener("focus", handleActivity);
+      document.removeEventListener("visibilitychange", handleActivity);
     };
-  }, []);
+  }, [isMaintenance]);
 
   // Whitelisted paths for admin management and authentication
   const isWhitelisted =

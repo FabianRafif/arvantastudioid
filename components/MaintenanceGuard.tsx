@@ -83,10 +83,11 @@ export default function MaintenanceGuard({
     };
   }, [isMaintenance]);
 
-  // Whitelisted paths for admin management and authentication
+  // Whitelisted paths for admin management, documents, and authentication
   const isWhitelisted =
     pathname.startsWith("/admin") ||
     pathname.startsWith("/api") ||
+    pathname.startsWith("/document") ||
     pathname === "/login" ||
     pathname === "/reset-password";
 

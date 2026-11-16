@@ -57,7 +57,7 @@ interface Announcement {
   content: string;
   summary: string | null;
   imageUrl: string | null;
-  priority: "NORMAL" | "PENTING" | "URGENT";
+  priority: "NORMAL" | "PENTING" | "URGENT" | "MAINTENANCE";
   status: "DRAFT" | "PUBLISHED";
   isActive: boolean;
   publishDate: string;
@@ -134,7 +134,7 @@ export default function AdminBannersPage() {
   // Announcement Form state
   const [announceTitle, setAnnounceTitle] = useState("");
   const [announceCategory, setAnnounceCategory] = useState("PROMO");
-  const [announcePriority, setAnnouncePriority] = useState<"NORMAL" | "PENTING" | "URGENT">("NORMAL");
+  const [announcePriority, setAnnouncePriority] = useState<"NORMAL" | "PENTING" | "URGENT" | "MAINTENANCE">("NORMAL");
   const [announceStatus, setAnnounceStatus] = useState<"DRAFT" | "PUBLISHED">("PUBLISHED");
   const [announcePublishDate, setAnnouncePublishDate] = useState(new Date().toISOString().slice(0, 16));
   const [announceEndDate, setAnnounceEndDate] = useState("");
@@ -1456,9 +1456,10 @@ export default function AdminBannersPage() {
                   onChange={(e) => setAnnouncePriority(e.target.value as any)}
                   className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs font-semibold"
                 >
-                  <option value="NORMAL">Normal (Tampil di Pusat Pengumuman)</option>
-                  <option value="PENTING">Penting (Tampil di Announcement Bar &amp; Section)</option>
-                  <option value="URGENT">Urgent (Announcement Bar Merah Berkedip)</option>
+                  <option value="NORMAL">Normal (Tampil di Beranda &amp; Pusat Pengumuman)</option>
+                  <option value="PENTING">Penting (Muncul Pop-Up Melayang &amp; Announcement Bar)</option>
+                  <option value="URGENT">Urgent (Bilah Merah Berkedip &amp; Notifikasi HP Prioritas)</option>
+                  <option value="MAINTENANCE">Maintenance (Tutup Layar Website Penuh / Mode Pemeliharaan)</option>
                 </select>
               </div>
 
@@ -1504,6 +1505,22 @@ export default function AdminBannersPage() {
                   className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs"
                 />
               </div>
+
+              {/* Callout Info Maintenance Mode Penutup Website */}
+              {(announceCategory === "MAINTENANCE" || announcePriority === "MAINTENANCE") && (
+                <div className="sm:col-span-2 lg:col-span-3 p-4 bg-amber-500/10 border-2 border-amber-500/40 rounded-xs space-y-1.5">
+                  <div className="flex items-center gap-2 text-amber-950 font-space font-bold text-xs uppercase tracking-wider">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-600 animate-ping" />
+                    <span>🔒 Mode Penutup Website (Full Maintenance Screen) Akan Aktif</span>
+                  </div>
+                  <p className="text-xs text-amber-900/90 leading-relaxed font-sans">
+                    Pengumuman dengan kategori atau prioritas <strong>Maintenance</strong> ini akan <strong>menutup sementara seluruh website publik &amp; portal klien</strong> dengan layar pemeliharaan resmi berlatar gelap yang memuat judul, isi pesan Anda, estimasi waktu selesai, dan kontak WhatsApp darurat.
+                  </p>
+                  <p className="text-[11px] text-amber-800 font-mono">
+                    * Catatan: Anda sebagai Admin tetap bisa login dan membuka admin panel secara normal. Untuk membuka kembali akses publik ke website, Anda cukup mengubah status pengumuman ini menjadi Draft atau menghapusnya.
+                  </p>
+                </div>
+              )}
 
               {/* Gambar Pendukung Upload */}
               <div className="sm:col-span-2 lg:col-span-3">
@@ -1738,6 +1755,7 @@ export default function AdminBannersPage() {
                   const isPublished = a.status === "PUBLISHED" && a.isActive;
                   const isUrgent = a.priority === "URGENT";
                   const isPenting = a.priority === "PENTING";
+                  const isMaintenance = a.category === "MAINTENANCE" || a.priority === "MAINTENANCE";
 
                   const pubDateStr = new Date(a.publishDate).toLocaleDateString("id-ID", {
                     day: "numeric",
@@ -1762,11 +1780,19 @@ export default function AdminBannersPage() {
                                 ? "bg-red-600 text-white animate-pulse"
                                 : isPenting
                                 ? "bg-amber-500 text-white"
+                                : isMaintenance
+                                ? "bg-[#D9381E] text-white"
                                 : "bg-gray-200 text-gray-800"
                             }`}
                           >
                             {a.priority}
                           </span>
+
+                          {isMaintenance && isPublished && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#D9381E] text-white animate-pulse flex items-center gap-1">
+                              🔒 Website Ditutup (Maintenance)
+                            </span>
+                          )}
 
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${

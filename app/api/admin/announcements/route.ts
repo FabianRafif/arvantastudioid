@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
 
     const effectiveStatus = status === "DRAFT" ? "DRAFT" : "PUBLISHED";
     const effectiveIsActive = effectiveStatus === "PUBLISHED";
-    const effectivePriority = ["NORMAL", "PENTING", "URGENT"].includes(priority)
+    const effectivePriority = ["NORMAL", "PENTING", "URGENT", "MAINTENANCE"].includes(priority)
       ? priority
       : "NORMAL";
 

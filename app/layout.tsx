@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
 import AnnouncementBar from "@/components/AnnouncementBar";
+import GlobalAnnouncementModal from "@/components/GlobalAnnouncementModal";
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
@@ -115,6 +116,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col bg-[#EDECE8] text-[#2D2D2D] font-sans antialiased selection:bg-[#FF9857] selection:text-[#2D2D2D]">
         <AnnouncementBar />
+        <GlobalAnnouncementModal />
         {children}
       </body>
     </html>

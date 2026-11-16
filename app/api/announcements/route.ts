@@ -64,11 +64,19 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    // Cek apakah ada pengumuman Maintenance aktif yang menutup website
+    const activeMaintenance = announcements.find(
+      (a) => a.category === "MAINTENANCE" || a.priority === "MAINTENANCE"
+    );
+
     return NextResponse.json(
       {
         success: true,
         announcements,
         total: announcements.length,
+        maintenanceMode: Boolean(activeMaintenance),
+        activeMaintenance: activeMaintenance || null,
+        activePopup: announcements[0] || null,
       },
       {
         headers: {

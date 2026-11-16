@@ -10,7 +10,7 @@ interface Announcement {
   title: string;
   slug: string;
   category: string;
-  priority: "NORMAL" | "PENTING" | "URGENT";
+  priority: "NORMAL" | "PENTING" | "URGENT" | "MAINTENANCE";
   summary?: string | null;
 }
 

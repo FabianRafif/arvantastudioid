@@ -77,16 +77,10 @@ export default function MaintenanceGuard({
   if (isMaintenance && !isAdmin && !isWhitelisted) {
     return (
       <div className="fixed inset-0 z-[999999] bg-[#FFFAF4] text-[#1A1A1A] flex flex-col justify-between items-center min-h-screen w-full px-5 py-8 sm:py-12 select-none overflow-y-auto">
-        {/* Subtle top indicator */}
-        <header className="w-full max-w-xl mx-auto flex justify-between items-center pb-4 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-serif font-black text-lg tracking-wider text-[#B18141]">
-              ARVANTA STUDIO
-            </span>
-          </div>
-          <span className="text-[11px] font-mono tracking-wider text-[#B18141] bg-[#B18141]/10 border border-[#B18141]/20 px-3 py-1 rounded-full font-bold flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#B18141] animate-pulse" />
-            Maintenance
+        {/* Top Header */}
+        <header className="w-full max-w-xl mx-auto flex justify-center items-center pb-4 text-xs">
+          <span className="font-serif font-black text-lg sm:text-xl tracking-wider text-[#B18141]">
+            ARVANTA STUDIO
           </span>
         </header>
 

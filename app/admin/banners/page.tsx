@@ -1503,43 +1503,35 @@ export default function AdminBannersPage() {
       {/* ========================================================= */}
       {activeTab === "announcements" && (
         <div className="space-y-8">
-          {/* Executive Maintenance Lockout Controller */}
-          <div
-            className={`border rounded-xs p-6 shadow-sm transition-all space-y-4 ${
-              isMaintenanceActive
-                ? "bg-gradient-to-r from-red-950 via-[#2D2D2D] to-[#1C1C1A] text-white border-red-500/80"
-                : "bg-white text-deep-charcoal border-[#D9D7CF]"
-            }`}
-          >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4 border-current/20">
+          {/* Executive Maintenance Lockout Controller - Clean Card Matching Admin Design System (No Gradients) */}
+          <div className="bg-white border border-[#D9D7CF] rounded-xs p-6 shadow-xs transition-all space-y-4 text-deep-charcoal">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#D9D7CF]/60 pb-4">
               <div className="flex items-start sm:items-center gap-3">
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                    isMaintenanceActive ? "bg-red-600 text-white animate-pulse" : "bg-[#2D2D2D] text-[#FF9857]"
+                    isMaintenanceActive
+                      ? "bg-red-100 text-red-600"
+                      : "bg-[#2D2D2D] text-[#FF9857]"
                   }`}
                 >
                   {isMaintenanceActive ? <Lock className="w-5 h-5" /> : <Unlock className="w-5 h-5" />}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-space font-bold text-sm sm:text-base uppercase tracking-wider">
+                    <h3 className="font-space font-bold text-sm sm:text-base uppercase tracking-wider text-deep-charcoal">
                       Kontrol Kunci Website &amp; Mode Maintenance
                     </h3>
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider ${
                         isMaintenanceActive
-                          ? "bg-red-600 text-white animate-pulse"
-                          : "bg-emerald-100 text-emerald-800"
+                          ? "bg-red-100 text-red-700 border border-red-200"
+                          : "bg-emerald-100 text-emerald-800 border border-emerald-200"
                       }`}
                     >
                       {isMaintenanceActive ? "WEBSITE TERKUNCI" : "WEBSITE AKTIF (NORMAL)"}
                     </span>
                   </div>
-                  <p
-                    className={`text-xs mt-0.5 leading-relaxed ${
-                      isMaintenanceActive ? "text-white/80" : "text-deep-charcoal/70"
-                    }`}
-                  >
+                  <p className="text-xs mt-0.5 leading-relaxed text-deep-charcoal/70">
                     {isMaintenanceActive
                       ? "Website saat ini terkunci penuh untuk seluruh pengunjung & klien publik. Hanya Admin yang dapat login dan melihat konten."
                       : "Website terbuka normal untuk umum. Aktifkan sakelar ini saat ingin menutup akses pemesanan untuk perawatan sistem."}
@@ -1551,11 +1543,7 @@ export default function AdminBannersPage() {
                 <button
                   type="button"
                   onClick={() => setShowMaintDetails(!showMaintDetails)}
-                  className={`px-3 py-2 text-xs font-mono rounded-xs border transition-colors flex items-center gap-1 cursor-pointer ${
-                    isMaintenanceActive
-                      ? "border-white/30 hover:border-white text-white"
-                      : "border-[#D9D7CF] hover:border-deep-charcoal text-deep-charcoal"
-                  }`}
+                  className="px-3.5 py-2 text-xs font-mono rounded-xs border border-[#D9D7CF] hover:border-deep-charcoal bg-warm-ivory text-deep-charcoal transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>{showMaintDetails ? "Tutup Pengaturan" : "Ubah Pesan & ETA"}</span>
                   {showMaintDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -1567,8 +1555,8 @@ export default function AdminBannersPage() {
                   disabled={maintSaving}
                   className={`px-5 py-2.5 rounded-xs font-space font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-xs cursor-pointer active:scale-95 ${
                     isMaintenanceActive
-                      ? "bg-white text-red-700 hover:bg-neutral-100"
-                      : "bg-red-600 text-white hover:bg-red-700"
+                      ? "bg-red-600 text-white hover:bg-red-700"
+                      : "bg-[#2D2D2D] text-[#FF9857] hover:bg-black"
                   }`}
                 >
                   {maintSaving ? (
@@ -1591,41 +1579,37 @@ export default function AdminBannersPage() {
               </div>
             </div>
 
-            {/* Expandable Maintenance Detail Config */}
+            {/* Expandable Maintenance Detail Config - Matching White & Warm Ivory Palette */}
             {showMaintDetails && (
-              <div
-                className={`pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-sans ${
-                  isMaintenanceActive ? "text-white" : "text-deep-charcoal"
-                }`}
-              >
+              <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-sans text-deep-charcoal">
                 <div>
-                  <label className="block font-semibold mb-1">Judul Layar Pemeliharaan</label>
+                  <label className="block font-semibold mb-1 text-deep-charcoal">Judul Layar Pemeliharaan</label>
                   <input
                     type="text"
                     value={maintTitle}
                     onChange={(e) => setMaintTitle(e.target.value)}
                     placeholder="Contoh: Pemeliharaan Sistem Terjadwal"
-                    className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-deep-charcoal focus:outline-hidden"
+                    className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-deep-charcoal focus:outline-hidden focus:border-deep-charcoal"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">Estimasi Waktu Selesai (ETA)</label>
+                  <label className="block font-semibold mb-1 text-deep-charcoal">Estimasi Waktu Selesai (ETA)</label>
                   <input
                     type="text"
                     value={maintEta}
                     onChange={(e) => setMaintEta(e.target.value)}
                     placeholder="Contoh: 16 Nov 2026 Pukul 23:00 WIB"
-                    className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-deep-charcoal focus:outline-hidden"
+                    className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-deep-charcoal focus:outline-hidden focus:border-deep-charcoal"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block font-semibold mb-1">Pesan Lengkap untuk Pengunjung</label>
+                  <label className="block font-semibold mb-1 text-deep-charcoal">Pesan Lengkap untuk Pengunjung</label>
                   <textarea
                     rows={2}
                     value={maintMessage}
                     onChange={(e) => setMaintMessage(e.target.value)}
                     placeholder="Tuliskan alasan pemeliharaan untuk dibaca pengunjung yang terkunci..."
-                    className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-deep-charcoal focus:outline-hidden resize-none"
+                    className="w-full px-3 py-2 bg-warm-ivory border border-[#D9D7CF] rounded-xs text-deep-charcoal focus:outline-hidden focus:border-deep-charcoal resize-none"
                   />
                 </div>
                 <div className="sm:col-span-2 flex justify-end">
@@ -1633,7 +1617,7 @@ export default function AdminBannersPage() {
                     type="button"
                     onClick={() => handleToggleMaintenanceMode(isMaintenanceActive)}
                     disabled={maintSaving}
-                    className="px-4 py-2 bg-deep-charcoal text-warm-ivory hover:bg-black text-xs font-mono uppercase tracking-wider rounded-xs cursor-pointer"
+                    className="px-4 py-2 bg-[#2D2D2D] hover:bg-black text-warm-ivory text-xs font-mono uppercase tracking-wider rounded-xs cursor-pointer transition-colors shadow-xs"
                   >
                     Simpan Perubahan Teks
                   </button>

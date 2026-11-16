@@ -28,6 +28,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://arvantastudioid.vercel.app"),
   title: {
     template: "%s | Arvanta Studio",
     default: "Arvanta Studio — Branding & Digital System Agency",
@@ -43,11 +44,19 @@ export const metadata: Metadata = {
     "arvanta studio",
   ],
   authors: [{ name: "Arvanta Studio" }],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
   openGraph: {
     title: "Arvanta Studio — Branding & Digital System Agency",
     description:
       "Digital agency penyedia jasa pembuatan website profesional, sistem digital terintegrasi, dan graphic design berkarakter.",
-    url: "https://arvanta.studio",
+    url: "https://arvantastudioid.vercel.app",
     siteName: "Arvanta Studio",
     locale: "id_ID",
     type: "website",
@@ -70,6 +79,25 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Arvanta Studio",
+    alternateName: ["Arvanta", "Arvanta Studio ID"],
+    url: "https://arvantastudioid.vercel.app",
+    description:
+      "Digital agency penyedia jasa pembuatan website profesional, sistem digital, dan identitas branding untuk UMKM dan korporat.",
+    publisher: {
+      "@type": "Organization",
+      name: "Arvanta Studio",
+      url: "https://arvantastudioid.vercel.app",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://arvantastudioid.vercel.app/images/arvanta-symbol-dark.png",
+      },
+    },
+  };
+
   return (
     <html
       lang="id"
@@ -78,6 +106,13 @@ export default function RootLayout({
       <head>
         <meta
           name="google-site-verification"
+          content="80T_mzwf3B65Qdwh5-rloJo3tx0c6aXulHw7CFA3fdE"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+      </head>
           content="80T_mzwf3B65Qdwh5-rloJo3tx0c6aXulHw7CFA3fdE"
         />
       </head>

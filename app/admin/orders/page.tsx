@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { ShoppingBag, ArrowRight, ExternalLink, Search, Filter } from "lucide-react";
+import { ShoppingBag, ArrowRight, ExternalLink, Search, Filter, Printer, FileText } from "lucide-react";
 import AdminOrdersLiveWatcher from "@/components/admin/AdminOrdersLiveWatcher";
 
 export const dynamic = "force-dynamic";
@@ -146,13 +146,24 @@ export default async function AdminOrdersListPage({
                       })}
                     </td>
                     <td className="py-4 px-6 text-right">
-                      <Link
-                        href={`/admin/orders/${o.id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-deep-charcoal text-warm-ivory text-[11px] font-mono uppercase rounded-xs hover:bg-muted-olive transition-colors"
-                      >
-                        <span>Kelola</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </Link>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <Link
+                          href={`/admin/orders/${o.id}/document?type=all`}
+                          target="_blank"
+                          title="Cetak Faktur Invoice & Kuitansi"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-warm-ivory border border-[#D9D7CF] text-deep-charcoal text-[11px] font-mono rounded-xs hover:border-deep-charcoal hover:bg-white transition-colors"
+                        >
+                          <Printer className="w-3 h-3 text-[#FF9857]" />
+                          <span className="hidden sm:inline">Dokumen</span>
+                        </Link>
+                        <Link
+                          href={`/admin/orders/${o.id}`}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-deep-charcoal text-warm-ivory text-[11px] font-mono uppercase rounded-xs hover:bg-muted-olive transition-colors"
+                        >
+                          <span>Kelola</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))

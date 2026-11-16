@@ -17,6 +17,8 @@ import {
   Copy,
   Check,
   Tag,
+  Printer,
+  Receipt,
 } from "lucide-react";
 
 const PIPELINE_STATUSES = [
@@ -295,14 +297,22 @@ export default function CustomerOrderDetailPage({
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href={`/dashboard/orders/${order.orderNumber}/document?type=all`}
+            target="_blank"
+            className="px-3 py-2 bg-warm-ivory border border-[#D9D7CF] text-deep-charcoal text-xs font-semibold uppercase tracking-wider hover:bg-white hover:border-deep-charcoal transition-colors rounded-xs flex items-center gap-1.5 shadow-2xs font-mono"
+          >
+            <Printer className="w-3.5 h-3.5 text-[#FF9857]" />
+            <span>Invoice & Kuitansi</span>
+          </Link>
           <button
             onClick={fetchOrderDetail}
             className="p-2 border border-[#D9D7CF] text-deep-charcoal hover:bg-white rounded-xs text-xs font-mono flex items-center gap-1"
             title="Refresh status terkini"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            <span>Refresh</span>
+            <span className="hidden sm:inline">Refresh</span>
           </button>
           <a
             href={`https://wa.me/62895322465836?text=Halo%20Admin%20Arvanta,%20saya%20ingin%20menanyakan%20progres%20order%20nomor%20${order.orderNumber}`}

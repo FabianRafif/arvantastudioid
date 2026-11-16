@@ -296,6 +296,8 @@ export async function POST(req: NextRequest) {
         serviceType,
         packageNameOrProduct,
         priceFormatted: formatRupiah(totalAmount),
+        dpFormatted: formatRupiah(dpAmount),
+        businessName: businessName || undefined,
         notes: clientNotes !== "-" ? clientNotes : undefined,
         details:
           serviceType === "WEBSITE"

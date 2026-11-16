@@ -8,6 +8,8 @@ export interface WhatsAppNotificationPayload {
   serviceType: string;
   packageNameOrProduct: string;
   priceFormatted: string;
+  dpFormatted?: string;
+  businessName?: string;
   notes?: string;
   details?: string;
   mediaUrls?: string[];
@@ -39,23 +41,40 @@ export function buildOrderMessageText(data: WhatsAppNotificationPayload): string
     : (process.env.NEXT_PUBLIC_APP_URL || "https://arvantastudioid.vercel.app");
   const dashboardLink = `${appUrl}/admin/orders/${data.orderId || data.orderNumber}`;
 
-  return `*PESANAN BARU — ARVANTA STUDIO*
-━━━━━━━━━━━━━━━━━━━━
-*Nomor Order:* ${data.orderNumber}
-*Nama Pemesan:* ${data.customerName}
-*WhatsApp Pemesan:* ${data.customerPhone}
+  return `*ARVANTA STUDIO — NOTIFIKASI PESANAN & STRUK RESMI*
+*Digital System Architecture & Creative Branding Platform*
+Purwokerto, Jawa Tengah, Indonesia | WA: 0895-3224-65836
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-*Layanan:* ${data.serviceType === "WEBSITE" ? "Pengembangan Website & Sistem" : "Graphic Design & Branding"}
-*Paket / Produk:* ${data.packageNameOrProduct}
-*Total Estimasi:* ${data.priceFormatted}
+*RINGKASAN BUKTI TRANSAKSI:*
+• *No. Order :* ${data.orderNumber}
+• *Status Berkas :* Terdaftar Resmi (Menunggu Verifikasi)
 
-*Catatan Klien:* ${data.notes || "-"}
-*Spesifikasi / Detail:* ${data.details || "-"}
-━━━━━━━━━━━━━━━━━━━━
-*Buka Detail di Dashboard Admin:*
+*DATA KLIEN / PEMESAN:*
+• *Nama Klien :* ${data.customerName}
+• *WhatsApp :* ${data.customerPhone}
+${data.businessName ? `• *Instansi / Bisnis :* ${data.businessName}\n` : ""}
+*SPESIFIKASI LAYANAN:*
+• *Divisi :* ${data.serviceType === "WEBSITE" ? "Pengembangan Website & Sistem Digital" : "Graphic Design & Branding Identity"}
+• *Paket / Produk :* ${data.packageNameOrProduct}
+• *Catatan Kebutuhan :* ${data.notes && data.notes !== "-" ? `"${data.notes}"` : "-"}
+${data.details && data.details !== "-" ? `• *Rincian Teknis :* ${data.details}\n` : ""}
+*FINANSIAL & KETENTUAN:*
+• *Total Investasi :* *${data.priceFormatted}*
+• *Ketentuan DP (50%) :* ${data.dpFormatted || "Sesuai Kesepakatan"}
+• *Metode Pembayaran :* Transfer GoPay / Virtual Account Bank / Tunai
+
+*REKENING & VIRTUAL ACCOUNT RESMI:*
+• *GoPay :* 0821-2398-9398 (a.n. Fabian Rafif Azmi)
+• *BCA (VA) :* 70001 + 082123989398
+• *Mandiri (VA) :* 60737 + 082123989398
+• *BRI (VA) :* 301341 + 082123989398
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*UNDUH FAKTUR INVOICE & KUITANSI RESMI:*
 ${dashboardLink}
 
-_Pesan ini dikirim otomatis melalui formulir pemesanan resmi Arvanta Studio._`;
+_Dokumen Kuitansi & Faktur Tagihan resmi dapat langsung diunduh dan dicetak melalui dashboard Arvanta Studio._`;
 }
 
 export function generateManualWhatsAppLink(

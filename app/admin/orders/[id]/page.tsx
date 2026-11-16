@@ -17,7 +17,11 @@ import {
   User,
   Shield,
   Trash2,
+  Printer,
+  Receipt,
+  Layers,
 } from "lucide-react";
+import { generateInvoiceNumber, generateKuitansiNumber } from "@/lib/documents";
 
 export default function AdminOrderDetailPage({
   params,
@@ -221,7 +225,15 @@ export default function AdminOrderDetailPage({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Link
+            href={`/admin/orders/${order.id}/document?type=all`}
+            target="_blank"
+            className="px-4 py-2 bg-[#FF9857] text-[#20211F] text-xs font-bold font-mono uppercase tracking-wider hover:bg-[#e07f40] transition-colors rounded-xs flex items-center gap-1.5 shadow-xs"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span>Cetak Dokumen Resmi</span>
+          </Link>
           <a
             href={waCustomerLink}
             target="_blank"
@@ -446,6 +458,64 @@ export default function AdminOrderDetailPage({
 
         {/* Right Col (5 cols): Order Management Form & Financials */}
         <div className="lg:col-span-5 space-y-6">
+          {/* Official Invoice & Kuitansi Documents Card */}
+          <div className="p-6 bg-white border border-[#D9D7CF] rounded-xs space-y-4 shadow-xs">
+            <div className="flex items-center justify-between border-b border-[#D9D7CF] pb-2">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#FF9857]" />
+                <h3 className="text-sm font-display font-bold text-deep-charcoal uppercase">
+                  Dokumen & Faktur Resmi
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono bg-warm-ivory px-2 py-0.5 rounded-xs border border-[#D9D7CF] font-bold text-deep-charcoal/70">
+                Format Standar A4
+              </span>
+            </div>
+
+            <p className="text-xs text-deep-charcoal/70 font-sans leading-relaxed">
+              Dokumen faktur tagihan (Invoice) dan kuitansi pembayaran resmi siap cetak / unduh PDF, terisi otomatis sesuai template Arvanta Studio.
+            </p>
+
+            <div className="text-xs space-y-2 font-mono text-deep-charcoal/80 bg-warm-ivory p-3 rounded-xs border border-[#D9D7CF]">
+              <div className="flex justify-between items-center">
+                <span className="text-deep-charcoal/60">No. Invoice:</span>
+                <span className="font-bold">{generateInvoiceNumber(order.orderNumber, order.createdAt)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-deep-charcoal/60">No. Kuitansi:</span>
+                <span className="font-bold">{generateKuitansiNumber(order.orderNumber, order.createdAt)}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono text-xs">
+              <Link
+                href={`/admin/orders/${order.id}/document?type=invoice`}
+                target="_blank"
+                className="px-3 py-2.5 bg-white border border-deep-charcoal/30 hover:border-deep-charcoal hover:bg-warm-ivory/50 text-deep-charcoal font-bold rounded-xs flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+              >
+                <FileText className="w-3.5 h-3.5 text-blue-700" />
+                <span>Unduh Invoice</span>
+              </Link>
+              <Link
+                href={`/admin/orders/${order.id}/document?type=kuitansi`}
+                target="_blank"
+                className="px-3 py-2.5 bg-white border border-deep-charcoal/30 hover:border-deep-charcoal hover:bg-warm-ivory/50 text-deep-charcoal font-bold rounded-xs flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+              >
+                <Receipt className="w-3.5 h-3.5 text-emerald-700" />
+                <span>Unduh Kuitansi</span>
+              </Link>
+            </div>
+
+            <Link
+              href={`/admin/orders/${order.id}/document?type=all`}
+              target="_blank"
+              className="w-full px-3 py-2.5 bg-deep-charcoal hover:bg-muted-olive text-warm-ivory font-bold font-mono text-xs uppercase tracking-wider rounded-xs flex items-center justify-center gap-2 transition-colors shadow-xs"
+            >
+              <Printer className="w-4 h-4 text-[#FF9857]" />
+              <span>Unduh Keduanya (Lengkap)</span>
+            </Link>
+          </div>
+
           <form onSubmit={handleSaveChanges} className="p-6 bg-white border border-[#D9D7CF] rounded-xs space-y-5 shadow-xs">
             <h3 className="text-sm font-display font-bold text-deep-charcoal uppercase border-b border-[#D9D7CF] pb-2 flex items-center justify-between">
               <span>Pengaturan & Status Order</span>

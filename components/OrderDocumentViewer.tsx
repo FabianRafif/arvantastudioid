@@ -242,9 +242,16 @@ export default function OrderDocumentViewer({
             {/* Header Kop Surat Arvanta Studio */}
             <div className="border-b-2 border-[#1A1A1A] pb-4 mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[#20211F] rounded-xs flex items-center justify-center text-[#FF9857] font-mono font-black text-xl shrink-0">
-                    //
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 shrink-0 flex items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/images/arvanta-official-symbol.png"
+                      alt="Arvanta Studio Symbol"
+                      width={48}
+                      height={48}
+                      className="w-12 h-12 object-contain"
+                    />
                   </div>
                   <div>
                     <h1 className="text-xl sm:text-2xl font-black font-mono tracking-wider text-[#1A1A1A] uppercase leading-tight">
@@ -475,9 +482,16 @@ export default function OrderDocumentViewer({
             {/* Header Kop Surat Arvanta Studio */}
             <div className="border-b-2 border-[#1A1A1A] pb-4 mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[#20211F] rounded-xs flex items-center justify-center text-[#FF9857] font-mono font-black text-xl shrink-0">
-                    //
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 shrink-0 flex items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/images/arvanta-official-symbol.png"
+                      alt="Arvanta Studio Symbol"
+                      width={48}
+                      height={48}
+                      className="w-12 h-12 object-contain"
+                    />
                   </div>
                   <div>
                     <h1 className="text-xl sm:text-2xl font-black font-mono tracking-wider text-[#1A1A1A] uppercase leading-tight">
